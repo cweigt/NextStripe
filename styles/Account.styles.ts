@@ -24,5 +24,36 @@ export const AccountStyles = StyleSheet.create({
     title: {
       fontSize: typography.xxl,
       fontWeight: typography.semibold,
-    }
+    },
+    header: {
+      backgroundColor: colors.white,
+      paddingBottom: 10,
+      paddingHorizontal: 20,
+    },
+    headerText: {
+      color: colors.black,
+      fontSize: 24,
+      fontWeight: typography.semibold,
+      textAlign: 'center',
+      marginTop: 10,
+    },
+    signOut: {
+      fontWeight: '500',
+      //fontSize: typography.body.fontSize,
+      fontFamily: 'System',
+      borderWidth: 0,
+      backgroundColor: '#F2F2F7',
+      //borderColor: colors.text,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      borderRadius: 5,
+      color: colors.error,
+      marginTop: 15
+    },
+    signOutText: {
+      color: colors.error,
+      fontWeight: '600',
+      fontSize: 16,
+    },
+  
 });

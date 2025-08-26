@@ -22,6 +22,7 @@ export const colors = {
   // Neutral colors
   white: '#ffffff',
   black: '#000000',
+  gray: '#888888',
   gray50: '#f7fafc',
   gray100: '#edf2f7',
   gray200: '#e2e8f0',
@@ -36,8 +37,9 @@ export const colors = {
   // Status colors
   success: '#48bb78',
   warning: '#ed8936',
-  error: '#e53e3e',
+  error: '#FF3B30',
   info: '#4299e1',
+  border: '#e2e8f0',
   
   // Background colors
   background: '#ffffff',

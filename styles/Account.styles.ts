@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from './theme';
+import { colors, spacing, typography } from './theme';
 
 export const AccountStyles = StyleSheet.create({
     headerImage: {
@@ -15,10 +15,14 @@ export const AccountStyles = StyleSheet.create({
     container: {
         marginTop: spacing.sm,
         marginBottom: spacing.sm,
-        padding: spacing.md,
+        padding: spacing.xs,
     },
     background: {
         backgroundColor: colors.background,
         flex: 1,
+    },
+    title: {
+      fontSize: typography.xxl,
+      fontWeight: typography.semibold,
     }
 });

@@ -10,7 +10,7 @@ const Dashboard = () => {
   return (
     <SafeAreaView style={styles.background}>
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ fontSize: 24, fontWeight: '600' }}>Dashboard</Text>
+        <Text style={styles.title}>Dashboard</Text>
       </View>
     </SafeAreaView>
   );

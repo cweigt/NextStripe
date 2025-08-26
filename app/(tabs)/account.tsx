@@ -9,7 +9,7 @@ const AccountScreen = () => {
   return (
     <SafeAreaView style={styles.background}>
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text>This is Account Screen</Text>
+        <Text style={styles.title}>Account</Text>
       </View>
     </SafeAreaView>
     

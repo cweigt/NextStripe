@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from './theme';
+import { colors, spacing, typography } from './theme';
 
 export const DashboardStyles = StyleSheet.create({
     titleContainer: {
@@ -11,20 +11,17 @@ export const DashboardStyles = StyleSheet.create({
       gap: spacing.sm,
       marginBottom: spacing.sm,
     },
-    reactLogo: {
-      height: 178,
-      width: 290,
-      bottom: 0,
-      left: 0,
-      position: 'absolute',
-    },
     container: {
         marginTop: spacing.sm,
         marginBottom: spacing.sm,
-        padding: spacing.md,
+        padding: spacing.xs,
     },
     background: {
         backgroundColor: colors.background,
         flex: 1,
+    },
+    title: {
+      fontSize: typography.xxl,
+      fontWeight: typography.semibold,
     }
   });

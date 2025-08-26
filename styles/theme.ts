@@ -5,7 +5,7 @@ const { width, height } = Dimensions.get('window');
 // Color palette
 export const colors = {
   // Primary colors
-  primary: '#1a365d',
+  primary: '#007AFF',
   primaryLight: '#2d5a87',
   primaryDark: '#0f1f2e',
   
@@ -40,7 +40,7 @@ export const colors = {
   info: '#4299e1',
   
   // Background colors
-  background: '#f7fafc',
+  background: '#ffffff',
   surface: '#ffffff',
   card: '#ffffff',
   
@@ -49,6 +49,25 @@ export const colors = {
   textSecondary: '#4a5568',
   textTertiary: '#718096',
   textInverse: '#ffffff',
+  
+  // Tab bar colors
+  tint: '#1a365d',
+};
+
+//Theme colors for light and dark modes
+export const Colors = {
+  light: {
+    tint: colors.primary,
+    background: colors.background,
+    text: colors.textPrimary,
+    card: colors.card,
+  },
+  dark: {
+    tint: colors.primaryLight,
+    background: colors.gray900,
+    text: colors.textInverse,
+    card: colors.gray800,
+  },
 };
 
 // Spacing system

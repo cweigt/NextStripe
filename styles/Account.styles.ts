@@ -2,12 +2,6 @@ import { StyleSheet } from 'react-native';
 import { colors, spacing, typography } from './theme';
 
 export const AccountStyles = StyleSheet.create({
-    headerImage: {
-      color: '#808080',
-      bottom: -90,
-      left: -35,
-      position: 'absolute',
-    },
     titleContainer: {
       flexDirection: 'row',
       gap: spacing.sm,
@@ -26,7 +20,7 @@ export const AccountStyles = StyleSheet.create({
       fontWeight: typography.semibold,
     },
     header: {
-      backgroundColor: colors.white,
+      backgroundColor: '#F5F5F5',
       paddingBottom: 10,
       paddingHorizontal: 20,
     },
@@ -35,25 +29,67 @@ export const AccountStyles = StyleSheet.create({
       fontSize: 24,
       fontWeight: typography.semibold,
       textAlign: 'center',
-      marginTop: 10,
+      marginTop: -5,
+      marginBottom: 10,
     },
     signOut: {
       fontWeight: '500',
-      //fontSize: typography.body.fontSize,
       fontFamily: 'System',
       borderWidth: 0,
-      backgroundColor: '#F2F2F7',
-      //borderColor: colors.text,
-      paddingVertical: spacing.sm,
+      backgroundColor: '#e8e8e8',
+      paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
-      borderRadius: 5,
+      borderRadius: 8,
       color: colors.error,
-      marginTop: 15
+      marginTop: 15,
+      marginHorizontal: 130,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     signOutText: {
       color: colors.error,
       fontWeight: '600',
       fontSize: 16,
     },
+    profileButton: {
+      backgroundColor: '#e8e8e8',
+      borderRadius: 8,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      alignItems: 'center',
+      marginTop: spacing.md,
+      marginHorizontal: 115,
+    },
+    whiteContainer: {
+      backgroundColor: colors.white,
+      marginHorizontal: spacing.lg,
+      marginVertical: spacing.md,
+      padding: spacing.md,
+      borderRadius: 8,
+
+    },
+    containerTextCaptions: {
+      color: '#555555',
+      fontSize: typography.md,
+      fontWeight: typography.medium,
+    },
+    headerBorder: {
+      backgroundColor: colors.border,
+      height: 1,
+      marginTop: 10,
+      marginBottom: 10,
+    },
+    welcomeText: {
+      fontSize: typography.xl,
+      fontWeight: '600',
+      textAlign: 'center',
+      marginBottom: spacing.md,
+      marginTop: spacing.sm,
+      marginLeft: spacing.sm,
+      marginRight: spacing.sm,
+      color: colors.black,
+    },
+    
+
   
 });

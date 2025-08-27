@@ -15,7 +15,7 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarStyle: Platform.select({
           ios: {
-            backgroundColor: '#ffffff',
+            backgroundColor: '#F5F5F5',
             borderTopWidth: 0,
             shadowColor: '#000000',
             shadowOffset: { width: 0, height: -2 },
@@ -27,7 +27,7 @@ export default function TabLayout() {
             height: 90,
           },
           default: {
-            backgroundColor: '#ffffff',
+            backgroundColor: '#F5F5F5',
             borderTopWidth: 0,
             shadowColor: '#000000',
             shadowOffset: { width: 0, height: -2 },

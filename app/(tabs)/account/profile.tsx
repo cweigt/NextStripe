@@ -3,11 +3,11 @@ import UploadImage from '@/components/UploadImage';
 import { ProfileStyles as styles } from '@/styles/Profile.styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Text,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 //import NameChange from '@/components/NameChange';
 //import ResetPassword from '@/components/ResetPassword';
@@ -122,7 +122,6 @@ const Profile = () => {
             Edit Profile
           </Text>
         </View>
-        <View style={styles.headerBorder} />
 
         <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}>
           <View style={{ backgroundColor: colors.background }}>
@@ -130,8 +129,7 @@ const Profile = () => {
               Profile Information
             </Text>
             <UploadImage />
-            <View style={{marginTop: 15}}/>
-            <View style={styles.headerBorder} />
+            <View style={{marginTop: 30}}/>
 
             <Text style={[styles.title, { color: colors.textPrimary }]}>
                     Belt Rank

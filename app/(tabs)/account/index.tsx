@@ -4,7 +4,6 @@ import SignUp from '@/components/SignUp';
 import { useAuth } from '@/contexts/AuthContext';
 import { auth, db } from '@/firebase';
 import { AccountStyles as styles } from '@/styles/Account.styles';
-import { colors } from '@/styles/theme';
 import { router, useFocusEffect } from 'expo-router';
 import { get, ref } from 'firebase/database';
 import React, { useState } from 'react';
@@ -61,80 +60,78 @@ const AccountScreen = () => {
   
   return (
     <SafeAreaView style={styles.background} edges={['top']}>
-      <ScrollView>
-      {user ? (
-        <>
-          <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-            <Text style={styles.headerText}>My Account</Text>
-          </View>
-          <View style={styles.headerBorder} />
-
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <DisplayImage />
-          </View>
-          <View>
-          <Text style={styles.welcomeText}>
-            {user.displayName}
-          </Text>
-          
-          {beltRank && stripeCount !== null && (
-            <View style={{justifyContent: 'center', alignItems: 'center', marginVertical: 10}}>
-                <Text>
-                {stripeCount} {beltRank} 
-                </Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {user ? (
+          <>
+            {/* Header Section */}
+            <View style={styles.headerSection}>
+              <Text style={styles.headerText}>My Account</Text>
             </View>
-          )}
 
-          <View style={styles.whiteContainer}>
-            <Text style={styles.containerTextCaptions}>Academy</Text>
-            <View style={styles.headerBorder} />
-            <Text style={styles.containerTextCaptions}>Training Since</Text>
-          </View>
+            {/* Profile Section */}
+            <View style={styles.profileSection}>
+              <DisplayImage />
+              <Text style={styles.welcomeText}>
+                {user.displayName}
+              </Text>
+              
+              {beltRank && stripeCount !== null && (
+                <View style={styles.beltRankContainer}>
+                  <Text style={styles.beltRankText}>
+                    {stripeCount} {beltRank}
+                  </Text>
+                </View>
+              )}
+            </View>
 
-          <TouchableOpacity
-            onPress={handleNavigateToProfile}
-            style={styles.profileButton}
-          >
-            <Text style={{
-              color: colors.primary,
-              fontWeight: '600',
-              fontSize: 16,
-            }}>
-              Edit Profile →
-            </Text>
-          </TouchableOpacity>
-          </View>
+            {/* Info Cards Section */}
+            <View style={styles.infoSection}>
+              <View style={styles.infoCard}>
+                <Text style={styles.infoCardTitle}>Academy</Text>
+                <Text style={styles.infoCardValue}>NA</Text> {/*need textbox on profile page for it*/}
+              </View>
+              
+              <View style={styles.infoCard}>
+                <Text style={styles.infoCardTitle}>Training Since</Text>
+                <Text style={styles.infoCardValue}>NA</Text> {/*need another dropdown for date*/}
+              </View>
+            </View>
 
-          <View>
-            <View style={{marginBottom: 40}}/>
-            <TouchableOpacity
+            {/* Action Buttons */}
+            <View style={styles.actionSection}>
+              <TouchableOpacity
+                onPress={handleNavigateToProfile}
+                style={styles.profileButton}
+              >
+                <Text style={styles.profileButtonText}>
+                  Edit Profile →
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
                 onPress={() => {
-                    auth.signOut();
-                    //router.replace(ROUTES.ACCOUNT);
+                  auth.signOut();
                 }}
-                style={[styles.signOut]}
-            >
+                style={styles.signOutButton}
+              >
                 <Text style={styles.signOutText}>
                   Sign Out
                 </Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : (
-        <>
-          {showSignUp ? (
-            <SignUp setUser={setShowSignUp} />
-          ) : (
-            <SignIn setUser={setShowSignUp} />
-          )}
-        </>
-      )}
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <>
+            {showSignUp ? (
+              <SignUp setUser={setShowSignUp} />
+            ) : (
+              <SignIn setUser={setShowSignUp} />
+            )}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
-    
-    
   );
 }
-
 
 export default AccountScreen;

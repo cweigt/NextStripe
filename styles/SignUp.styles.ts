@@ -51,7 +51,7 @@ export const SignUpStyles = StyleSheet.create({
         marginTop: spacing.sm,
     },
     signUpButton: {
-        backgroundColor: '#e8e8e8',
+        backgroundColor: colors.gray,
         borderRadius: 8,
         paddingVertical: spacing.md,
         paddingHorizontal: spacing.lg,

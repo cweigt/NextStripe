@@ -22,7 +22,7 @@ export const colors = {
   // Neutral colors
   white: '#ffffff',
   black: '#000000',
-  gray: '#888888',
+  gray: '#e8e8e8',
   gray50: '#f7fafc',
   gray100: '#edf2f7',
   gray200: '#e2e8f0',
@@ -42,7 +42,7 @@ export const colors = {
   border: '#e2e8f0',
   
   // Background colors
-  background: '#ffffff',
+  background: '#F5F5F5',
   surface: '#ffffff',
   card: '#ffffff',
   

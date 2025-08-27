@@ -11,7 +11,7 @@ export const SignInStyles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     header: {
-        backgroundColor: colors.white,
+        backgroundColor: '#F5F5F5',
         paddingBottom: 10,
         paddingHorizontal: 20,
     },
@@ -70,7 +70,7 @@ export const SignInStyles = StyleSheet.create({
         marginTop: spacing.md,
     },
     signInButton: {
-        backgroundColor: '#F2F2F7',
+        backgroundColor: '#e8e8e8',
         borderRadius: 8,
         paddingVertical: spacing.md,
         paddingHorizontal: spacing.lg,

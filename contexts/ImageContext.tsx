@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getDatabase, ref, onValue, get } from 'firebase/database';
+import { get, getDatabase, onValue, ref } from 'firebase/database';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type ImageContextType = {
   image: string | null;

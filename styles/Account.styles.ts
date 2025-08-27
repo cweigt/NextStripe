@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, typography } from './theme';
+import { colors, shadows, spacing, typography } from './theme';
 
 export const AccountStyles = StyleSheet.create({
     titleContainer: {
@@ -36,7 +36,7 @@ export const AccountStyles = StyleSheet.create({
       fontWeight: '500',
       fontFamily: 'System',
       borderWidth: 0,
-      backgroundColor: '#e8e8e8',
+      backgroundColor: colors.gray,
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
       borderRadius: 8,
@@ -52,13 +52,13 @@ export const AccountStyles = StyleSheet.create({
       fontSize: 16,
     },
     profileButton: {
-      backgroundColor: '#e8e8e8',
+      backgroundColor: colors.gray,
       borderRadius: 8,
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
       alignItems: 'center',
       marginTop: spacing.md,
-      marginHorizontal: 115,
+      marginHorizontal: 80,
     },
     whiteContainer: {
       backgroundColor: colors.white,
@@ -90,6 +90,69 @@ export const AccountStyles = StyleSheet.create({
       color: colors.black,
     },
     
-
-  
+    // New improved styles
+    headerSection: {
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      alignItems: 'center',
+    },
+    profileSection: {
+      alignItems: 'center',
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.lg,
+    },
+    beltRankContainer: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 20,
+      marginTop: spacing.sm,
+    },
+    beltRankText: {
+      color: colors.white,
+      fontSize: typography.md,
+      fontWeight: typography.semibold,
+      textAlign: 'center',
+    },
+    infoSection: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+    },
+    infoCard: {
+      backgroundColor: colors.white,
+      borderRadius: 12,
+      padding: spacing.lg,
+      marginBottom: spacing.md,
+      ...shadows.sm,
+    },
+    infoCardTitle: {
+      color: colors.textSecondary,
+      fontSize: typography.sm,
+      fontWeight: typography.medium,
+      marginBottom: spacing.xs,
+    },
+    infoCardValue: {
+      color: colors.textPrimary,
+      fontSize: typography.md,
+      fontWeight: typography.semibold,
+    },
+    actionSection: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.lg,
+      gap: spacing.md,
+    },
+    profileButtonText: {
+      color: colors.primary,
+      fontWeight: '600',
+      fontSize: 16,
+    },
+    signOutButton: {
+      backgroundColor: colors.gray,
+      borderRadius: 8,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      alignItems: 'center',
+      marginTop: spacing.sm,
+      marginHorizontal: 100,
+    },
 });

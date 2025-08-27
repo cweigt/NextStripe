@@ -70,7 +70,7 @@ export const SignInStyles = StyleSheet.create({
         marginTop: spacing.md,
     },
     signInButton: {
-        backgroundColor: '#e8e8e8',
+        backgroundColor: colors.gray,
         borderRadius: 8,
         paddingVertical: spacing.md,
         paddingHorizontal: spacing.lg,

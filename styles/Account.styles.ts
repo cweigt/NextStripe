@@ -155,4 +155,10 @@ export const AccountStyles = StyleSheet.create({
       marginTop: spacing.sm,
       marginHorizontal: 100,
     },
+    beltImage: {
+      width: 60,
+      height: 60,
+      marginTop: spacing.sm,
+      resizeMode: 'contain',
+    },
 });

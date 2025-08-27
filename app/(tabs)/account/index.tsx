@@ -54,7 +54,7 @@ const AccountScreen = () => {
         }
 
     } catch (error) {
-        console.log("Error loading belt rank!");
+        // console.log("Error loading belt rank!");
     };
   };
   
@@ -72,13 +72,13 @@ const AccountScreen = () => {
             <View style={styles.profileSection}>
               <DisplayImage />
               <Text style={styles.welcomeText}>
-                {user.displayName}
+                {user.displayName || 'User'}
               </Text>
               
               {beltRank && stripeCount !== null && (
                 <View style={styles.beltRankContainer}>
                   <Text style={styles.beltRankText}>
-                    {stripeCount} {beltRank}
+                    {String(stripeCount || '')} {String(beltRank || '')}
                   </Text>
                 </View>
               )}

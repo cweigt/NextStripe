@@ -40,7 +40,7 @@ const Sign_In = ({ setUser }) => {
         try {
             //sending password reset email
             await sendPasswordResetEmail(auth, email);
-            window.alert('Password reset email sent! Please check your inbox.');
+            alert('Password reset email sent! Please check your inbox.');
             setErrorMessage('');
         } catch (error) {
             setErrorMessage('Error sending reset email. Please try again.');

@@ -1,16 +1,17 @@
 import { TrainingStyles as styles } from '@/styles/Training.styles';
 import React, { useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //this interface carries session data 
 interface AddSessionModalProps {
@@ -29,6 +30,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [date, setDate] = useState('');
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
+  const insets = useSafeAreaInsets();
 
   const formatDate = (text: string) => {
     //remove all non-digits
@@ -80,13 +82,16 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
       visible={isVisible}
       onRequestClose={handleCancel}
     >
-      <SafeAreaView style={styles.modalBackground} edges={['top']}>
+
+      <View style={styles.modalBackground}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+        <View style={{ height: insets.top }} />
         {/* pop up header */}
         <View style={styles.modalHeader}>
           <TouchableOpacity onPress={handleCancel} style={styles.modalBackButton}>
             <Text style={styles.modalBackText}>Cancel</Text>
           </TouchableOpacity>
-          <Text style={styles.modalTitle}>Add Training Session</Text>
+          <Text style={[styles.modalTitle, {marginBottom: 9.5, marginLeft: 15}]}>Add Training Session</Text>
           <TouchableOpacity onPress={handleSave} style={styles.modalSaveButton}>
             <Text style={styles.modalSaveText}>Save</Text>
           </TouchableOpacity>
@@ -154,7 +159,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
             <View style={{marginBottom: 200}}/>
           </ScrollView>
         </KeyboardAvoidingView>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 };

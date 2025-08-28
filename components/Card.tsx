@@ -106,29 +106,23 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
         <View style={styles.section}>
             <View style={styles.logsContainer}>
                 
-              <View style={styles.logCard}>
+              <TouchableOpacity 
+                style={styles.logCard}
+                onPress={openModalEdit}
+              >
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                   <Text style={styles.logDate}>{session.date}</Text>
                   <TouchableOpacity onPress={confirmDelete}>
-                    <Ionicons name="trash-outline" size={20} color="#FF6B6B" />
+                    <Ionicons name="trash-outline" size={24} color="#FF6B6B" />
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.logTitle}>{session.title}</Text>
 
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                   <Text style={styles.logDetails}>Duration: {session.duration} hours</Text>
-                  <TouchableOpacity 
-                    //this onPress will be for opening the card so you can RU
-                    onPress={openModalEdit}
-                  >
-                    <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                      <Text style={styles.view}>View</Text>
-                      <Ionicons name="open-outline" size={20} color="#007AFF" />
-                    </View>
-                  </TouchableOpacity>
                 </View>
 
-              </View>
+              </TouchableOpacity>
 
             </View>
           </View>

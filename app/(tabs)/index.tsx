@@ -62,7 +62,7 @@ const Dashboard = () => {
             </View>
           </View>
 
-          {/* Training Streak Section
+          {/* Training Streak Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Training Streak</Text>
             <View style={styles.streakContainer}>
@@ -77,7 +77,6 @@ const Dashboard = () => {
               </View>
             </View>
           </View>
-           */}
 
           {/* Techniques Section 
           <View style={styles.section}>
@@ -104,7 +103,7 @@ const Dashboard = () => {
 
 
           {/* Recent Training Logs Section */}
-          {/*training log sessions need to render dynamically based on recent ones from training log itself*/}
+          {/*training log sessions need to render dynamically based on recent ones from training log itself
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recent Training Logs</Text>
             <View style={styles.logsContainer}>
@@ -113,19 +112,9 @@ const Dashboard = () => {
                 <Text style={styles.logTitle}>Morning Training Session</Text>
                 <Text style={styles.logDetails}>Focus: Guard passing • Duration: 1.5 hours</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.logCard}>
-                <Text style={styles.logDate}>Yesterday</Text>
-                <Text style={styles.logTitle}>Evening Rolling</Text>
-                <Text style={styles.logDetails}>Focus: Submissions • Duration: 2 hours</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.logCard}>
-                <Text style={styles.logDate}>2 days ago</Text>
-                <Text style={styles.logTitle}>Technique Class</Text>
-                <Text style={styles.logDetails}>Focus: Sweeps • Duration: 1 hour</Text>
-              </TouchableOpacity>
             </View>
           </View>
-
+            */}
 
         </ScrollView>
       ) : (

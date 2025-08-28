@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, typography } from './theme';
+import { colors, shadows, spacing, typography } from './theme';
 
 export const TrainingStyles = StyleSheet.create({
   background: {
@@ -32,8 +32,94 @@ export const TrainingStyles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  quickActionsSection: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
+  },
+  quickActionButton: {
+    flex: 1,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     alignItems: 'center',
-    padding: spacing.lg,
+    ...shadows.sm,
+  },
+  quickActionText: {
+    fontSize: typography.sm,
+    fontWeight: typography.medium,
+    color: colors.white,
+  },
+  
+  // Modal styles
+  modalBackground: {
+    backgroundColor: colors.background,
+    flex: 1,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    paddingTop: spacing.lg,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalBackButton: {
+    position: 'absolute',
+    left: spacing.lg,
+  },
+  modalBackText: {
+    fontSize: typography.md,
+    color: colors.primary,
+    fontWeight: typography.medium,
+  },
+  modalTitle: {
+    fontSize: typography.lg,
+    fontWeight: typography.semibold,
+    color: colors.textPrimary,
+  },
+  modalSaveButton: {
+    position: 'absolute',
+    right: spacing.lg,
+  },
+  modalSaveText: {
+    fontSize: typography.md,
+    color: colors.primary,
+    fontWeight: typography.medium,
+  },
+  modalContent: {
+    flex: 1,
+  },
+  input: {
+      borderWidth: 1,
+      borderColor: colors.gray300,
+      borderRadius: 8,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.sm,
+      fontSize: typography.md,
+      backgroundColor: colors.white,
+      color: colors.textPrimary,
+      marginBottom: spacing.md,
+      width: '100%',
+      height: 40,
+  },
+  requirements: {
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+  },
+  headerAddButton: {
+    position: 'absolute',
+    right: spacing.lg,
+    width: 50,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginTop: 2,
   },
 });

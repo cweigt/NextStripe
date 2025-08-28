@@ -60,7 +60,7 @@ export const CardStyles = StyleSheet.create({
     // Section styles
     section: {
         paddingHorizontal: spacing.md,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.xs,
     },
     sectionTitle: {
         fontSize: typography.lg,
@@ -70,7 +70,7 @@ export const CardStyles = StyleSheet.create({
     },
     // Logs section
   logsContainer: {
-    gap: spacing.md,
+    gap: spacing.xs,
   },
   logCard: {
     backgroundColor: colors.white,
@@ -112,5 +112,19 @@ export const CardStyles = StyleSheet.create({
     fontSize: typography.md,
     fontWeight: typography.semibold,
     color: colors.white,
+  },
+  cardActionButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  view: {
+    color: '#007AFF', 
+    fontSize: 14, 
+    fontWeight: '500',
   },
 });

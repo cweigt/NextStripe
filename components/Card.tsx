@@ -122,8 +122,8 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
                     onPress={openModalEdit}
                   >
                     <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                      <Text style={styles.view}>View</Text>
-                      <Ionicons name="open-outline" size={20} color="#007AFF" />
+                      <Text style={styles.view}>Open</Text>
+                      <Ionicons name="arrow-up-outline" size={20} color="#007AFF" />
                     </View>
                   </TouchableOpacity>
                 </View>

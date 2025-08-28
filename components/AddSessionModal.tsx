@@ -1,5 +1,5 @@
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //this interface carries session data 
@@ -31,6 +32,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
   const insets = useSafeAreaInsets();
+  const richText = useRef(null);
 
   const formatDate = (text: string) => {
     //remove all non-digits
@@ -146,16 +148,19 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
             <Text style={[styles.requirements, {marginTop: 30}]}>
               Session Notes
             </Text>
-            <TextInput 
-              style={[styles.input, {minHeight: 350}]}
-              value={notes}
-              onChangeText={setNotes}
-              multiline={true}
-              scrollEnabled={true}
-              textAlignVertical="top"
-              placeholder="Enter your training notes here..."
-              placeholderTextColor='#d9d9d9'
-            />
+            <View style={[styles.input, {minHeight: 350}]}>
+              <RichEditor
+                ref={richText}
+                placeholder="Enter your training notes here..."
+                style={{ flex: 1 }}
+                onChange={setNotes}
+              />
+              <RichToolbar
+                editor={richText}
+                actions={[actions.indent, actions.outdent, actions.insertBulletsList, actions.setBold, actions.setItalic, actions.setUnderline]}
+                style={{ backgroundColor: '#f8f9fa' }}
+              />
+            </View>
             <View style={{marginBottom: 200}}/>
           </ScrollView>
         </KeyboardAvoidingView>

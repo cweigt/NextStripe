@@ -78,7 +78,7 @@ const AccountScreen = () => {
               {beltRank && stripeCount !== null && (
                 <View style={styles.beltRankContainer}>
                   <Text style={styles.beltRankText}>
-                    {String(stripeCount || '')} {String(beltRank || '')}
+                    {stripeCount || ''} {beltRank || ''}
                   </Text>
                 </View>
               )}

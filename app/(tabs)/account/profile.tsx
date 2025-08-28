@@ -3,11 +3,11 @@ import UploadImage from '@/components/UploadImage';
 import { ProfileStyles as styles } from '@/styles/Profile.styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 //import NameChange from '@/components/NameChange';
 //import ResetPassword from '@/components/ResetPassword';

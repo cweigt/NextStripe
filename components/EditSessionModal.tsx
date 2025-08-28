@@ -1,36 +1,52 @@
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  StatusBar,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //this interface carries session data 
-interface AddSessionModalProps {
+interface EditSessionModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSave: (sessionData: {
+  onUpdate: (sessionData: {
     title: string;
     date: string;
     duration: string;
     notes: string;
   }) => void;
+  session?: { //importing the session from card so that the card I click on carries the information
+    title: string;
+    date: string;
+    duration: string;
+    notes: string;
+  };
 }
 
-const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) => {
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-  const [duration, setDuration] = useState('');
-  const [notes, setNotes] = useState('');
+const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSessionModalProps) => {
+  const [title, setTitle] = useState(session?.title || '');
+  const [date, setDate] = useState(session?.date || '');
+  const [duration, setDuration] = useState(session?.duration || '');
+  const [notes, setNotes] = useState(session?.notes || '');
   const insets = useSafeAreaInsets();
+
+  // Update form fields when session prop changes
+  useEffect(() => {
+    if (session) {
+      setTitle(session.title || '');
+      setDate(session.date || '');
+      setDuration(session.duration || '');
+      setNotes(session.notes || '');
+    }
+  }, [session]);
 
   const formatDate = (text: string) => {
     //remove all non-digits
@@ -51,12 +67,12 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setDate(formatted);
   };
 
-  const handleSave = () => {
-    onSave({
+  const handleUpdate = () => {
+    onUpdate({
       title,
       date,
       duration,
-      notes
+      notes,
     });
     //reset form
     setTitle('');
@@ -91,9 +107,9 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
           <TouchableOpacity onPress={handleCancel} style={styles.modalBackButton}>
             <Text style={styles.modalBackText}>Cancel</Text>
           </TouchableOpacity>
-          <Text style={[styles.modalTitle, {marginBottom: 9.5, marginLeft: 15}]}>Add Training Session</Text>
-          <TouchableOpacity onPress={handleSave} style={styles.modalSaveButton}>
-            <Text style={styles.modalSaveText}>Save</Text>
+          <Text style={[styles.modalTitle, {marginBottom: 9.5}]}>Edit Training Session</Text>
+          <TouchableOpacity onPress={handleUpdate} style={styles.modalSaveButton}>
+            <Text style={styles.modalSaveText}>Update</Text>
           </TouchableOpacity>
         </View>
 
@@ -164,4 +180,4 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   );
 };
 
-export default AddSessionModal;
+export default EditSessionModal;

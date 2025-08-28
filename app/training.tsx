@@ -3,6 +3,7 @@ import AddSessionModal from '@/components/AddSessionModal';
 import Card from '@/components/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
+import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { get, getDatabase, ref, set } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
@@ -11,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Training = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [sessions, setSessions] = useState([]);
   const db = getDatabase();
   const { user } = useAuth();
@@ -26,7 +28,11 @@ const Training = () => {
         
         if (snapshot.exists()) {
           const sessionsData = snapshot.val();
-          const sessionsArray = Object.values(sessionsData);
+          // Convert to array with IDs
+          const sessionsArray = Object.entries(sessionsData).map(([id, session]: [string, any]) => ({
+            id,
+            ...session
+          }));
           setSessions(sessionsArray);
         }
       } catch (error) {
@@ -37,13 +43,28 @@ const Training = () => {
     loadSessions();
   }, [user?.uid]);
 
-  const openModal = () => {
+  const openModalAdd = () => {
     setIsModalVisible(true);
   };
 
-  const closeModal = () => {
+  const closeModalAdd = () => {
     //console.log('Closing modal, setting isModalVisible to false');
     setIsModalVisible(false);
+  };
+
+
+  const handleDeleteSession = (sessionId: string) => {
+    setSessions(prev => prev.filter(session => session.id !== sessionId));
+  };
+
+  //this function is passed to EditSessionModal so that it updates the log right when it edits
+  //this updates the local state so the UI updates
+  const handleUpdateSession = (sessionId: string, sessionData: any) => {
+    setSessions(prev => prev.map(session => 
+      session.id === sessionId 
+        ? { ...session, ...sessionData } //spread operator
+        : session
+    ));
   };
 
   //this function is passed to addSessionModal so it can add the inforamtion in as necessary
@@ -59,8 +80,12 @@ const Training = () => {
        notes: sessionData.notes,
      });
      
-     //add to local state
-     setSessions(prev => [...prev, sessionData]);
+     //add to local state with ID
+     const newSession = {
+       id: Date.now().toString(),
+       ...sessionData
+     };
+     setSessions(prev => [...prev, newSession]);
   };
 
   return (
@@ -75,10 +100,10 @@ const Training = () => {
           <Text style={styles.headerTitle}>Training Log</Text>
           <TouchableOpacity
             style={[styles.quickActionButton, styles.headerAddButton]}
-            onPress={openModal}
+            onPress={openModalAdd}
           >
             {/*this will eventually call the add function for session and bring up data entry*/}
-            <Text style={[styles.quickActionText, { fontSize: 24 }]}>+</Text>
+            <Ionicons name="add" size={25} color="white" />
           </TouchableOpacity>
         </View>
 
@@ -88,16 +113,22 @@ const Training = () => {
           </View>
           <View style={styles.container}>
             {sessions.map((session, index) => (
-              <Card key={index} session={session} />
+              <Card 
+                key={session.id} 
+                session={session} 
+                sessionId={session.id}
+                onDelete={handleDeleteSession}
+                onUpdate={handleUpdateSession}
+              />
             ))}
           </View>
         </ScrollView>
       </SafeAreaView>
 
-      {/* Add Session Modal */}
+      {/* Add session modal */}
       <AddSessionModal
         isVisible={isModalVisible}
-        onClose={closeModal}
+        onClose={closeModalAdd}
         onSave={handleSaveSession}
       />
     </>

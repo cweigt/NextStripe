@@ -42,7 +42,7 @@ export const TrainingStyles = StyleSheet.create({
   quickActionButton: {
     flex: 1,
     backgroundColor: colors.primary,
-    borderRadius: 8,
+    borderRadius: 15,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     alignItems: 'center',

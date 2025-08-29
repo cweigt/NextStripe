@@ -156,8 +156,8 @@ export const AccountStyles = StyleSheet.create({
       marginHorizontal: 100,
     },
     beltImage: {
-      width: 60,
-      height: 60,
+      width: 200,
+      height: 40,
       marginTop: spacing.sm,
       resizeMode: 'contain',
     },

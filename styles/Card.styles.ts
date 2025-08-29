@@ -127,4 +127,16 @@ export const CardStyles = StyleSheet.create({
     fontSize: 14, 
     fontWeight: '500',
   },
+  tagDisplay: {
+    backgroundColor: colors.primary,
+    borderRadius: 15,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    alignItems: 'center',
+  },
+  tagDisplayText: {
+    fontSize: typography.xs,
+    fontWeight: typography.medium,
+    color: colors.white,
+  },
 });

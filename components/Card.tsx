@@ -88,6 +88,7 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
           date: sessionData.date,
           duration: sessionData.duration,
           notes: sessionData.notes,
+          tags: sessionData.tags || [], //fetching all of the session data from firebase for the card
         });
         
         //console.log('Session updated successfully');
@@ -121,7 +122,18 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                   <Text style={styles.logDetails}>Duration: {session.duration} hours</Text>
                 </View>
-
+                {session.tags && session.tags.length > 0 && (
+                  //this uses the session.tags "import" to loop through what is in Firebase and displays it
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+                    {session.tags.map((tag) => (
+                      <View key={tag} style={styles.tagDisplay}>
+                        <Text style={styles.tagDisplayText}>
+                          {tag}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </TouchableOpacity>
 
             </View>
@@ -131,7 +143,7 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
             isVisible={isEditModalVisible}
             onClose={closeModalEdit}
             onUpdate={handleUpdateSession}
-            session={session}
+            session={session} //this carries in all the session data from the set/ref above
           />
       </>
     );

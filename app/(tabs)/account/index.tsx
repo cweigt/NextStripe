@@ -8,6 +8,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { get, ref } from 'firebase/database';
 import React, { useState } from 'react';
 import {
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -60,31 +61,31 @@ const AccountScreen = () => {
 
   // Belt image mapping
   const beltImageMap = {
-    'White Belt_0 Stripe': require('@/assets/belts/white_0.png'),
-    /*'White Belt_1st Stripe': require('@/assets/belts/white_1.png'),
-    'White Belt_2nd Stripe': require('@/assets/belts/white_2.png'),
-    'White Belt_3rd Stripe': require('@/assets/belts/white_3.png'),
-    'White Belt_4th Stripe': require('@/assets/belts/white_4.png'),
-    'Blue Belt_0 Stripe': require('@/assets/belts/blue_0.png'),
-    'Blue Belt_1st Stripe': require('@/assets/belts/blue_1.png'),
-    'Blue Belt_2nd Stripe': require('@/assets/belts/blue_2.png'),
-    'Blue Belt_3rd Stripe': require('@/assets/belts/blue_3.png'),
-    'Blue Belt_4th Stripe': require('@/assets/belts/blue_4.png'),
-    'Purple Belt_0 Stripe': require('@/assets/belts/purple_0.png'),
-    'Purple Belt_1st Stripe': require('@/assets/belts/purple_1.png'),
-    'Purple Belt_2nd Stripe': require('@/assets/belts/purple_2.png'),
-    'Purple Belt_3rd Stripe': require('@/assets/belts/purple_3.png'),
-    'Purple Belt_4th Stripe': require('@/assets/belts/purple_4.png'),
-    'Brown Belt_0 Stripe': require('@/assets/belts/brown_0.png'),
-    'Brown Belt_1st Stripe': require('@/assets/belts/brown_1.png'),
-    'Brown Belt_2nd Stripe': require('@/assets/belts/brown_2.png'),
-    'Brown Belt_3rd Stripe': require('@/assets/belts/brown_3.png'),
-    'Brown Belt_4th Stripe': require('@/assets/belts/brown_4.png'),
-    'Black Belt_0 Stripe': require('@/assets/belts/black_0.png'),
-    'Black Belt_1st Stripe': require('@/assets/belts/black_1.png'),
-    'Black Belt_2nd Stripe': require('@/assets/belts/black_2.png'),
-    'Black Belt_3rd Stripe': require('@/assets/belts/black_3.png'),
-    'Black Belt_4th Stripe': require('@/assets/belts/black_4.png'),*/
+    'White Belt_0 Stripe': require('@/assets/belts/white-0.png'),
+    'White Belt_1st Stripe': require('@/assets/belts/white-1.png'),
+    'White Belt_2nd Stripe': require('@/assets/belts/white-2.png'),
+    'White Belt_3rd Stripe': require('@/assets/belts/white-3.png'),
+    'White Belt_4th Stripe': require('@/assets/belts/white-4.png'),
+    'Blue Belt_0 Stripe': require('@/assets/belts/blue-0.png'),
+    'Blue Belt_1st Stripe': require('@/assets/belts/blue-1.png'),
+    'Blue Belt_2nd Stripe': require('@/assets/belts/blue-2.png'),
+    'Blue Belt_3rd Stripe': require('@/assets/belts/blue-3.png'),
+    'Blue Belt_4th Stripe': require('@/assets/belts/blue-4.png'),
+    'Purple Belt_0 Stripe': require('@/assets/belts/purple-0.png'),
+    'Purple Belt_1st Stripe': require('@/assets/belts/purple-1.png'),
+    'Purple Belt_2nd Stripe': require('@/assets/belts/purple-2.png'),
+    'Purple Belt_3rd Stripe': require('@/assets/belts/purple-3.png'),
+    'Purple Belt_4th Stripe': require('@/assets/belts/purple-4.png'),
+    'Brown Belt_0 Stripe': require('@/assets/belts/brown-0.png'),
+    'Brown Belt_1st Stripe': require('@/assets/belts/brown-1.png'),
+    'Brown Belt_2nd Stripe': require('@/assets/belts/brown-2.png'),
+    'Brown Belt_3rd Stripe': require('@/assets/belts/brown-3.png'),
+    'Brown Belt_4th Stripe': require('@/assets/belts/brown-4.png'),
+    'Black Belt_0 Stripe': require('@/assets/belts/black-0.png'),
+    'Black Belt_1st Stripe': require('@/assets/belts/black-1.png'),
+    'Black Belt_2nd Stripe': require('@/assets/belts/black-2.png'),
+    'Black Belt_3rd Stripe': require('@/assets/belts/black-3.png'),
+    'Black Belt_4th Stripe': require('@/assets/belts/black-4.png'),
   };
 
   // Belt mapping function
@@ -113,17 +114,14 @@ const AccountScreen = () => {
               </Text>
               
               {beltRank && stripeCount !== null && (
-                <View style={styles.beltRankContainer}>
-                  <Text style={styles.beltRankText}>
-                    {stripeCount || ''} {beltRank || ''}
+                <View>
 
-                  </Text>
-                  {/*{getBeltImage() && (
+                  {getBeltImage() && (
                     <Image 
                       source={getBeltImage()}
                       style={styles.beltImage}
                     />
-                  )}*/}
+                  )}
                 </View>
               )}
             </View>

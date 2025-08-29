@@ -78,6 +78,7 @@ const Training = () => {
        date: sessionData.date,
        duration: sessionData.duration,
        notes: sessionData.notes,
+       tags: sessionData.tags || [],
      });
      
      //add to local state with ID

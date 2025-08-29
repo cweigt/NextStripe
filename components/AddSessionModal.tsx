@@ -23,6 +23,7 @@ interface AddSessionModalProps {
     date: string;
     duration: string;
     notes: string;
+    tags: string[];
   }) => void;
 }
 
@@ -33,6 +34,37 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [notes, setNotes] = useState('');
   const insets = useSafeAreaInsets();
   const richText = useRef(null);
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  
+
+  //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
+  const TAGS = [
+    "Takedowns", 
+    "Guard Attacks", 
+    "Side-Control Attacks",
+    "Mount Attacks", 
+    "Guard Sweeps", 
+    "Guard Passes", 
+    "Side-Control Escapes",
+    "Back Escapes",
+    "Mount Escapes",
+    "Back Control",
+    "Chokes",
+    "Locks",
+  ]; 
+
+  //swapping logic for the tags
+  //if something has the tag and it is clicked, remove it
+  //if something doesn't have tag and is clicked, add it
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
+      return next;
+    });
+  };
+
 
   const formatDate = (text: string) => {
     //remove all non-digits
@@ -58,7 +90,8 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
       title,
       date,
       duration,
-      notes
+      notes,
+      tags: Array.from(selectedTags),
     });
     //reset form
     setTitle('');
@@ -145,9 +178,38 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
               keyboardType="numeric"
             />
 
-            <Text style={[styles.requirements, {marginTop: 30}]}>
-              Session Notes
+            <Text style={[styles.requirements, {marginBottom: 8}]}>
+              Tags
             </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+              {TAGS.map((tag) => {
+                const isSelected = selectedTags.has(tag);
+                return (
+                  <TouchableOpacity
+                    key={tag}
+                    onPress={() => toggleTag(tag)}
+                    style={isSelected ? styles.tagsSelected : styles.tagsUnselected}
+                  >
+                    <Text style={isSelected ? styles.tagTextSelected : styles.tagTextUnselected}>
+                      {tag}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <View style={styles.sessionNotesHeader}>
+              <Text style={styles.requirements}>
+                Session Notes
+              </Text>
+              <TouchableOpacity 
+                style={styles.doneButton}
+                //because apparently keyboard.dismiss doesn't work when it works for my other project?
+                onPress={() => richText.current?.blurContentEditor()}
+              >
+                <Text style={styles.doneButtonText}>Done</Text>
+              </TouchableOpacity>
+            </View>
             <View style={[styles.input, {minHeight: 350}]}>
               <RichEditor
                 ref={richText}
@@ -161,7 +223,8 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
                 style={{ backgroundColor: '#f8f9fa' }}
               />
             </View>
-            <View style={{marginBottom: 200}}/>
+
+            <View style={{marginBottom: 250}}/>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>

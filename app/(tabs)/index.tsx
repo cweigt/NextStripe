@@ -1,7 +1,10 @@
 
 import { useAuth } from '@/contexts/AuthContext';
+import { auth, db } from '@/firebase';
 import { DashboardStyles as styles } from '@/styles/Dashboard.styles';
 import { router } from 'expo-router';
+import { onValue, ref } from 'firebase/database';
+import { useEffect, useState } from 'react';
 import {
   ScrollView,
   Text,
@@ -12,6 +15,41 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [sessions, setSessions] = useState([]);
+
+  //make sure to parse to an int for math and then back to string for display
+  const [sessionHours, setSessionHours] = useState(''); //for each session
+  const [totalSessionHours, setTotalSessionHours] = useState(''); //for the total hours
+
+  //load hours when component mounts
+  useEffect(() => {
+    if (user) {
+      loadHours();
+    }
+  }, [user]);
+
+  const loadHours = async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    const sessionsRef = ref(db, `users/${uid}/sessions`);
+    //listening to the change on the sessions with onValue
+    const listener = onValue(sessionsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const sessionsData = snapshot.val();
+        
+        //calculate total hours from all sessions
+        const totalHours = (Object.values(sessionsData) as any[])
+        .reduce((sum, session: any) => sum + (parseFloat(session.duration) || 0), 0);
+        
+        setTotalSessionHours(totalHours.toString());
+      } else {
+        setTotalSessionHours('0');
+      }
+    });
+
+    return () => listener();
+  };
 
   const navigateToTraining = () => {
     router.push('/training');
@@ -46,7 +84,7 @@ const Dashboard = () => {
             <Text style={styles.sectionTitle}>Training Analytics</Text>
             <View style={styles.analyticsContainer}>
               <View style={styles.analyticsCard}>
-                <Text style={styles.analyticsNumber}>12</Text>
+                <Text style={styles.analyticsNumber}>{totalSessionHours}</Text>
                 <Text style={styles.analyticsLabel}>Hours</Text>
               </View>
               <View style={styles.analyticsCard}>

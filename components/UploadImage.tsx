@@ -1,10 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
 import {
-  Alert,
-  Text,
-  TouchableOpacity,
-  View
+    Alert,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 //@ts-ignore
 import DisplayImage from '@/components/DisplayImage';

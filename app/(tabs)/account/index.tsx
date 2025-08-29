@@ -54,7 +54,7 @@ const AccountScreen = () => {
         }
 
     } catch (error) {
-        console.log("Error loading belt rank!");
+        // console.log("Error loading belt rank!");
     };
   };
 
@@ -109,13 +109,14 @@ const AccountScreen = () => {
             <View style={styles.profileSection}>
               <DisplayImage />
               <Text style={styles.welcomeText}>
-                {user.displayName}
+                {user.displayName || 'User'}
               </Text>
               
               {beltRank && stripeCount !== null && (
                 <View style={styles.beltRankContainer}>
                   <Text style={styles.beltRankText}>
-                    {String(stripeCount || '')} {String(beltRank || '')}
+                    {stripeCount || ''} {beltRank || ''}
+
                   </Text>
                   {/*{getBeltImage() && (
                     <Image 
@@ -131,12 +132,14 @@ const AccountScreen = () => {
             <View style={styles.infoSection}>
               <View style={styles.infoCard}>
                 <Text style={styles.infoCardTitle}>Academy</Text>
-                <Text style={styles.infoCardValue}>NA</Text> {/*need textbox on profile page for it*/}
+                {/*need textbox on profile page for it*/}
+                <Text style={styles.infoCardValue}>NA</Text>
               </View>
               
               <View style={styles.infoCard}>
                 <Text style={styles.infoCardTitle}>Training Since</Text>
-                <Text style={styles.infoCardValue}>NA</Text> {/*need another dropdown for date*/}
+                {/*need another dropdown for date*/}
+                <Text style={styles.infoCardValue}>NA</Text>
               </View>
             </View>
 

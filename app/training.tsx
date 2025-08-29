@@ -70,10 +70,11 @@ const Training = () => {
   //this function is passed to addSessionModal so it can add the inforamtion in as necessary
   const handleSaveSession = async (sessionData) => {
     //handle saving the session data here
-    console.log('Session data:', sessionData);
+   //console.log('Session data:', sessionData);
     
      const newSessionRef = ref(db, `users/${user.uid}/sessions/${Date.now()}`);
      await set(newSessionRef, {
+       createdAt: new Date().toISOString(),
        title: sessionData.title,
        date: sessionData.date,
        duration: sessionData.duration,

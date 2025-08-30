@@ -3,11 +3,13 @@ import UploadImage from '@/components/UploadImage';
 import { ProfileStyles as styles } from '@/styles/Profile.styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 //import NameChange from '@/components/NameChange';
 //import ResetPassword from '@/components/ResetPassword';
@@ -18,12 +20,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { get, ref, set } from 'firebase/database';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-//import DeleteAccountButton from '@/components/DeleteAccountButton';
 
 const Profile = () => {
   const params = useLocalSearchParams();
   const [beltRank, setBeltRank] = useState(params.beltRank as string || null);
   const [stripeCount, setStripeCount] = useState(params.stripeCount as string || null);
+  const [academy, setAcademy] = useState('');
+  const [date, setDate] = useState('');
+  //const [trainingStart, setTrainingStart] = useState('');
 
   //saving the belt color to database
   const saveBeltRankToDatabase = async (value: string) => {
@@ -39,6 +43,42 @@ const Profile = () => {
     if (!uid) return;
     const userRef = ref(db, 'users/' + uid + '/rank/stripeCount');
     await set(userRef, value);
+  };
+
+
+  //saving the academy to database
+  const saveAcademyToDatabase = async (value: string) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const userRef = ref(db, `users/${uid}/academy`);
+    await set(userRef, value);
+  };
+
+  //saving the training start date to database
+  const saveTrainingDateToDatabase = async (value: string) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const userRef = ref(db, `users/${uid}/timeTraining`);
+    await set(userRef, value);
+  };
+
+  const formatDate = (text: string) => {
+    const cleaned = text.replace(/\D/g, '');
+    if (cleaned.length === 0) return '';
+  
+    let month = cleaned.slice(0, 2);
+    let year = cleaned.slice(2, 6);
+  
+    // clamp invalid months
+    if (parseInt(month) > 12) month = '12';
+  
+    if (cleaned.length <= 2) return month;
+    return `${month}/${year}`;
+  };
+
+  const handleDateChange = (text: string) => {
+    const formatted = formatDate(text);
+    setDate(formatted);
   };
 
   const beltData = [
@@ -59,27 +99,37 @@ const Profile = () => {
 
   //add useEffect to load saved values
   useEffect(() => {
-    loadSavedBeltData();
+    loadData();
   }, []);
   
-  const loadSavedBeltData = async () => {
+  const loadData = async () => {
     //load belt rank and stripe count from your database
     //set them to state: setBeltRank(savedBeltRank), setStripeCount(savedStripeCount)
     const uid = auth.currentUser?.uid; 
     if (!uid) return; //if no user then leave
 
     try {
-        const beltRef = ref(db, 'users/' + uid + '/rank/beltRank');
-        const stripeRef = ref(db, 'users/' + uid + '/rank/stripeCount');
+        const beltRef = ref(db, `users/${uid}/rank/beltRank`);
+        const stripeRef = ref(db, `users/${uid}/rank/stripeCount`);
+        const academyRef = ref(db, `users/${uid}/academy`);
+        const trainingRef = ref(db, `users/${uid}/timeTraining`);
 
         const beltSnapshot = await get(beltRef);
         const stripeSnapshot = await get(stripeRef);
+        const academySnapshot = await get(academyRef);
+        const trainingSnapshot = await get(trainingRef);
         
         if(beltSnapshot.exists()){
             setBeltRank(beltSnapshot.val());
         }
         if(stripeSnapshot.exists()){
             setStripeCount(stripeSnapshot.val());
+        }
+        if(academySnapshot.exists()){
+          setAcademy(academySnapshot.val());
+        }
+        if(trainingSnapshot.exists()){
+          setDate(trainingSnapshot.val());
         }
 
     } catch (error) {
@@ -88,18 +138,34 @@ const Profile = () => {
   };
   
   
-  //modify your handlers to save to database
-  const handleBeltChange = useCallback(async (value: string) => {
+  //modify your handlers to only update state (not database)
+  const handleBeltChange = useCallback((value: string) => {
     setBeltRank(value);
-    //Save to database here
-    await saveBeltRankToDatabase(value);
   }, []);
   
-  const handleStripeChange = useCallback(async (value: string) => {
+  const handleStripeChange = useCallback((value: string) => {
     setStripeCount(value);
-    // Save to database here
-    await saveStripeCountToDatabase(value);
   }, []);
+
+  const saveAllChanges = async () => {
+    if (beltRank) await saveBeltRankToDatabase(beltRank);
+    if (stripeCount) await saveStripeCountToDatabase(stripeCount);
+    if (academy) await saveAcademyToDatabase(academy);
+    if (date) await saveTrainingDateToDatabase(date);
+
+    SuccessAlert();
+  };
+
+  //success alert to know when card is removed off of firebase to avoid any issues
+  const SuccessAlert = () => {
+    Alert.alert(
+        'Success',
+        'Changes have been saved.',
+        [
+            { text: 'OK', style: 'default' },
+        ]
+    );
+};
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={[]}>
@@ -134,7 +200,7 @@ const Profile = () => {
             <Text style={[styles.title, { color: colors.textPrimary }]}>
                     Belt Rank
                 </Text>
-            <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 20}}>
                 <DropdownComp 
                     data={stripeData} 
                     placeholder="Select Stripe Count" 
@@ -148,7 +214,40 @@ const Profile = () => {
                     onChange={handleBeltChange} 
                 />
             </View>
+            <View>
+              <Text style={styles.title}>
+                Academy
+              </Text>
+              <TextInput 
+                style={[styles.input, {marginTop: 15}]}
+                value={academy}
+                onChangeText={setAcademy}
+                //keyboardType="email-address"
+                placeholder= "Training school here..."
+                placeholderTextColor='#d9d9d9'
+              >
+              </TextInput>
 
+              <Text style={styles.title}>
+                Training Start Date
+              </Text>
+              <TextInput 
+                style={[styles.input, {marginTop: 15}]}
+                onChangeText={handleDateChange}
+                value={date}
+                placeholder="MM/YYYY"
+                placeholderTextColor='#d9d9d9'
+                keyboardType="numeric"
+                maxLength={7}
+              >
+              </TextInput>
+              <TouchableOpacity 
+                style={[styles.quickActionButton, {marginTop: 20}]}
+                onPress={saveAllChanges}
+              >
+                <Text style={styles.quickActionText}>Save Changes</Text>
+            </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

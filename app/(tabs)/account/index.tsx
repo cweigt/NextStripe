@@ -21,11 +21,14 @@ const AccountScreen = () => {
   const { user } = useAuth();
   const [beltRank, setBeltRank] = useState(null);
   const [stripeCount, setStripeCount] = useState(null);
+  const [academy, setAcademy] = useState('');
+  const [date, setDate] = useState('');
+  const [trainingStart, setTrainingStart] = useState('');
 
   //load belt data when component mounts and when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      loadSavedBeltData();
+      loadData();
     }, [])
   );
 
@@ -34,25 +37,35 @@ const AccountScreen = () => {
     router.push(`/account/profile?beltRank=${beltRank}&stripeCount=${stripeCount}`);
   };
 
-  const loadSavedBeltData = async () => {
+  const loadData = async () => {
     //load belt rank and stripe count from your database
     //set them to state: setBeltRank(savedBeltRank), setStripeCount(savedStripeCount)
     const uid = auth.currentUser?.uid; 
     if (!uid) return; //if no user then leave
 
     try {
-        const beltRef = ref(db, 'users/' + uid + '/rank/beltRank');
-        const stripeRef = ref(db, 'users/' + uid + '/rank/stripeCount');
+      const beltRef = ref(db, `users/${uid}/rank/beltRank`);
+      const stripeRef = ref(db, `users/${uid}/rank/stripeCount`);
+      const academyRef = ref(db, `users/${uid}/academy`);
+      const trainingRef = ref(db, `users/${uid}/timeTraining`);
 
-        const beltSnapshot = await get(beltRef);
-        const stripeSnapshot = await get(stripeRef);
-        
-        if(beltSnapshot.exists()){
-            setBeltRank(beltSnapshot.val());
-        }
-        if(stripeSnapshot.exists()){
-            setStripeCount(stripeSnapshot.val());
-        }
+      const beltSnapshot = await get(beltRef);
+      const stripeSnapshot = await get(stripeRef);
+      const academySnapshot = await get(academyRef);
+      const trainingSnapshot = await get(trainingRef);
+      
+      if(beltSnapshot.exists()){
+          setBeltRank(beltSnapshot.val());
+      }
+      if(stripeSnapshot.exists()){
+          setStripeCount(stripeSnapshot.val());
+      }
+      if(academySnapshot.exists()){
+        setAcademy(academySnapshot.val());
+      }
+      if(trainingSnapshot.exists()){
+        setDate(trainingSnapshot.val());
+      }
 
     } catch (error) {
         // console.log("Error loading belt rank!");
@@ -131,13 +144,13 @@ const AccountScreen = () => {
               <View style={styles.infoCard}>
                 <Text style={styles.infoCardTitle}>Academy</Text>
                 {/*need textbox on profile page for it*/}
-                <Text style={styles.infoCardValue}>NA</Text>
+                <Text style={styles.infoCardValue}>{academy}</Text>
               </View>
               
               <View style={styles.infoCard}>
                 <Text style={styles.infoCardTitle}>Training Since</Text>
                 {/*need another dropdown for date*/}
-                <Text style={styles.infoCardValue}>NA</Text>
+                <Text style={styles.infoCardValue}>{date}</Text>
               </View>
             </View>
 

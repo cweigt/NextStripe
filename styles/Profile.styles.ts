@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from './theme';
+import { colors, shadows, spacing, typography } from './theme';
 //this is shared between both privacy-policy and eula
 
 export const ProfileStyles = StyleSheet.create({
@@ -42,5 +42,47 @@ export const ProfileStyles = StyleSheet.create({
         fontWeight: '600', 
         textAlign: 'center', 
         marginTop: 10,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: colors.gray300,
+        borderRadius: 8,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.sm,
+        fontSize: typography.md,
+        backgroundColor: colors.white,
+        color: colors.textPrimary,
+        marginBottom: spacing.md,
+        width: '83%',
+        height: 40,
+        alignSelf: 'center',
+    },
+    requirements: {
+        fontSize: typography.sm,
+        color: colors.textSecondary,
+        marginBottom: spacing.xs,
+    },
+    // Quick actions section
+    quickActionsSection: {
+        flexDirection: 'row',
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        gap: spacing.md,
+    },
+    quickActionButton: {
+        //flex: 1,
+        width: 200,
+        alignSelf: 'center',
+        backgroundColor: colors.primary,
+        borderRadius: 8,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        alignItems: 'center',
+        ...shadows.sm,
+    },
+    quickActionText: {
+        fontSize: typography.sm,
+        fontWeight: typography.medium,
+        color: colors.white,
     },
 }); 

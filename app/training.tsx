@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Training = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [sessions, setSessions] = useState([]);
   const [sessionCount, setSessionCount] = useState(0);
   const db = getDatabase();
@@ -135,9 +134,7 @@ const Training = () => {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.quickActionsSection}>
-            
-          </View>
+          <View style={{marginBottom: 10}}/>
           <View style={styles.container}>
             {sessions.map((session, index) => (
               <Card 

@@ -112,7 +112,7 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
                 onPress={openModalEdit}
               >
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                  <Text style={styles.logDate}>{session.date}</Text>
+                  <Text style={styles.logDetails}>{session.date}</Text>
                   <TouchableOpacity onPress={confirmDelete}>
                     <Ionicons name="trash-outline" size={24} color="#FF6B6B" />
                   </TouchableOpacity>

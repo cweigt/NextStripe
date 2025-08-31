@@ -124,7 +124,7 @@ const Training = () => {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Training Log ({sessionCount})</Text>
+          <Text style={styles.headerTitle}>Training Log</Text>
           <TouchableOpacity
             style={[styles.quickActionButton, styles.headerAddButton]}
             onPress={openModalAdd}

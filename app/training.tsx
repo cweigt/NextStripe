@@ -14,6 +14,7 @@ const Training = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [sessions, setSessions] = useState([]);
+  const [sessionCount, setSessionCount] = useState(0);
   const db = getDatabase();
   const { user } = useAuth();
 
@@ -24,16 +25,28 @@ const Training = () => {
       
       try {
         const sessionsRef = ref(db, `users/${user.uid}/sessions`);
-        const snapshot = await get(sessionsRef);
+        const sessionCountRef = ref(db, `users/${user.uid}/sessionCount`);
         
-        if (snapshot.exists()) {
-          const sessionsData = snapshot.val();
+        const [sessionsSnapshot, countSnapshot] = await Promise.all([
+          get(sessionsRef),
+          get(sessionCountRef)
+        ]);
+        
+        if (sessionsSnapshot.exists()) {
+          const sessionsData = sessionsSnapshot.val();
           // Convert to array with IDs
           const sessionsArray = Object.entries(sessionsData).map(([id, session]: [string, any]) => ({
             id,
             ...session
           }));
           setSessions(sessionsArray);
+        }
+        
+        //load session count from Firebase, fallback to calculated value
+        if (countSnapshot.exists()) {
+          setSessionCount(countSnapshot.val());
+        } else {
+          setSessionCount(sessionsSnapshot.exists() ? Object.keys(sessionsSnapshot.val()).length : 0);
         }
       } catch (error) {
         console.error('Error loading sessions:', error);
@@ -53,8 +66,17 @@ const Training = () => {
   };
 
 
-  const handleDeleteSession = (sessionId: string) => {
+  const updateSessionCountInFirebase = async (newCount: number) => {
+    if (!user?.uid) return;
+    const sessionCountRef = ref(db, `users/${user.uid}/sessionCount`);
+    await set(sessionCountRef, newCount);
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
     setSessions(prev => prev.filter(session => session.id !== sessionId));
+    const newCount = sessionCount - 1;
+    setSessionCount(newCount);
+    await updateSessionCountInFirebase(newCount);
   };
 
   //this function is passed to EditSessionModal so that it updates the log right when it edits
@@ -88,6 +110,9 @@ const Training = () => {
        ...sessionData
      };
      setSessions(prev => [...prev, newSession]);
+     const newCount = sessionCount + 1;
+     setSessionCount(newCount);
+     await updateSessionCountInFirebase(newCount);
   };
 
   return (
@@ -99,7 +124,7 @@ const Training = () => {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Training Log</Text>
+          <Text style={styles.headerTitle}>Training Log ({sessionCount})</Text>
           <TouchableOpacity
             style={[styles.quickActionButton, styles.headerAddButton]}
             onPress={openModalAdd}

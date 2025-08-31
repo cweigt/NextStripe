@@ -1,75 +1,197 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useAuth } from '@/contexts/AuthContext';
+import { auth, db } from '@/firebase';
+import { DashboardStyles as styles } from '@/styles/Dashboard.styles';
+import { router } from 'expo-router';
+import { onValue, ref } from 'firebase/database';
+import { useEffect, useState } from 'react';
+import {
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function HomeScreen() {
+const Dashboard = () => {
+  const { user } = useAuth();
+  const [sessionCount, setSessionCount] = useState(0);
+
+  //make sure to parse to an int for math and then back to string for display
+  const [totalSessionHours, setTotalSessionHours] = useState(''); //for the total hours
+
+  //load hours when component mounts
+  useEffect(() => {
+    if (user) {
+      loadHours();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadCount();
+    }
+  }, [user, sessionCount]);
+
+  //loading hours
+  const loadCount = async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    try {
+      const sessionsCountRef = ref(db, `users/${uid}/sessionCount`);
+
+
+      const listener = onValue(sessionsCountRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const sessionsCountSnap = snapshot.val();
+        
+          setSessionCount(sessionsCountSnap);
+        }
+      });
+      
+      return () => listener();
+      
+    } catch (error) {
+      console.log(error);
+    }
+
+  };
+
+  const loadHours = async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    const sessionsRef = ref(db, `users/${uid}/sessions`);
+    //listening to the change on the sessions with onValue
+    const listener = onValue(sessionsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const sessionsData = snapshot.val();
+        
+        //calculate total hours from all sessions
+        const totalHours = (Object.values(sessionsData) as any[])
+        .reduce((sum, session: any) => sum + (parseFloat(session.duration) || 0), 0);
+        
+        setTotalSessionHours(totalHours.toString());
+      } else {
+        setTotalSessionHours('0');
+      }
+    });
+
+    return () => listener();
+  };
+
+  const navigateToTraining = () => {
+    router.push('/training');
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.background} edges={['top']}>
+      {user ? (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Header Section */}
+          <View style={styles.headerSection}>
+            <Text style={styles.headerText}>Dashboard</Text>
+            <Text style={styles.subtitleText}>Welcome back, {user.displayName}!</Text>
+          </View>
+
+          {/* Quick Actions */}
+          <View style={styles.quickActionsSection}>
+            <TouchableOpacity 
+              style={styles.quickActionButton}
+              onPress={navigateToTraining}
+            >
+              <Text style={styles.quickActionText}>Training Log</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quickActionButton}>
+              {/*progress page will be milestones*/}
+              <Text style={styles.quickActionText}>View Progress</Text> 
+            </TouchableOpacity>
+          </View>
+
+          {/* Training Analytics Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Training Analytics</Text>
+            <View style={styles.analyticsContainer}>
+              <View style={styles.analyticsCard}>
+                <Text style={styles.analyticsNumber}>{totalSessionHours}</Text>
+                <Text style={styles.analyticsLabel}>Hours</Text>
+              </View>
+              <View style={styles.analyticsCard}>
+                <Text style={styles.analyticsNumber}>{sessionCount}</Text>
+                <Text style={styles.analyticsLabel}>Sessions</Text>
+              </View>
+              {/*
+              <View style={styles.analyticsCard}>
+                <Text style={styles.analyticsNumber}>85%</Text>
+                <Text style={styles.analyticsLabel}>Consistency</Text>
+              </View>
+              */}
+            </View>
+          </View>
+
+          {/* Training Streak Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Training Streak</Text>
+            <View style={styles.streakContainer}>
+              <View style={styles.streakCard}>
+                <Text style={styles.streakNumber}>7</Text>
+                <Text style={styles.streakLabel}>Days</Text>
+                <Text style={styles.streakSubtext}>Current Streak</Text>
+              </View>
+              <View style={styles.streakInfo}>
+                <Text style={styles.streakText}>🔥 Keep it up! You're on fire!</Text>
+                <Text style={styles.streakText}>Longest streak: 14 days</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Techniques Section 
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Techniques</Text>
+            <View style={styles.techniquesContainer}>
+              <TouchableOpacity style={styles.techniqueCard}>
+                <Text style={styles.techniqueTitle}>Arm Bar</Text>
+                <Text style={styles.techniqueSubtext}>Last practiced: 2 days ago</Text>
+                <Text style={styles.techniqueProgress}>Progress: 75%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.techniqueCard}>
+                <Text style={styles.techniqueTitle}>Triangle Choke</Text>
+                <Text style={styles.techniqueSubtext}>Last practiced: 1 week ago</Text>
+                <Text style={styles.techniqueProgress}>Progress: 60%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.techniqueCard}>
+                <Text style={styles.techniqueTitle}>Kimura</Text>
+                <Text style={styles.techniqueSubtext}>Last practiced: 3 days ago</Text>
+                <Text style={styles.techniqueProgress}>Progress: 85%</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          */}
+
+
+          {/* Recent Training Logs Section */}
+          {/*training log sessions need to render dynamically based on recent ones from training log itself
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recent Training Logs</Text>
+            <View style={styles.logsContainer}>
+              <TouchableOpacity style={styles.logCard}>
+                <Text style={styles.logDate}>Today</Text>
+                <Text style={styles.logTitle}>Morning Training Session</Text>
+                <Text style={styles.logDetails}>Focus: Guard passing • Duration: 1.5 hours</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+            */}
+
+        </ScrollView>
+      ) : (
+        <View style={[styles.container, {justifyContent: 'center', alignItems: 'center', marginTop: 340}]}>
+          <Text>Please sign in to view this page.</Text>
+        </View>
+      )}
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+export default Dashboard;

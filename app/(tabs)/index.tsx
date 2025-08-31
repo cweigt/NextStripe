@@ -15,10 +15,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState([]);
+  const [sessionCount, setSessionCount] = useState(0);
 
   //make sure to parse to an int for math and then back to string for display
-  const [sessionHours, setSessionHours] = useState(''); //for each session
   const [totalSessionHours, setTotalSessionHours] = useState(''); //for the total hours
 
   //load hours when component mounts
@@ -27,6 +26,37 @@ const Dashboard = () => {
       loadHours();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadCount();
+    }
+  }, [user, sessionCount]);
+
+  //loading hours
+  const loadCount = async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    try {
+      const sessionsCountRef = ref(db, `users/${uid}/sessionCount`);
+
+
+      const listener = onValue(sessionsCountRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const sessionsCountSnap = snapshot.val();
+        
+          setSessionCount(sessionsCountSnap);
+        }
+      });
+      
+      return () => listener();
+      
+    } catch (error) {
+      console.log(error);
+    }
+
+  };
 
   const loadHours = async () => {
     const uid = auth.currentUser?.uid;
@@ -88,7 +118,7 @@ const Dashboard = () => {
                 <Text style={styles.analyticsLabel}>Hours</Text>
               </View>
               <View style={styles.analyticsCard}>
-                <Text style={styles.analyticsNumber}>3</Text>
+                <Text style={styles.analyticsNumber}>{sessionCount}</Text>
                 <Text style={styles.analyticsLabel}>Sessions</Text>
               </View>
               {/*

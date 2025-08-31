@@ -65,7 +65,6 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     });
   };
 
-
   const formatDate = (text: string) => {
     //remove all non-digits
     const cleaned = text.replace(/\D/g, '');

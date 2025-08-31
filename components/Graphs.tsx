@@ -47,29 +47,34 @@ const BarChartTAGS = () => {
 
     return (
         <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Tag Statistics</Text>
-            {DATA.map((item, index) => {
-                const maxCount = Math.max(...DATA.map(d => d.count));
-                const barWidth = (item.count / maxCount) * 200; // 200 is max bar width
-                
-                return (
-                    <View key={index} style={styles.barItem}>
-                        <View style={styles.barHeader}>
-                        <Text style={styles.barLabel}>
-                        <Text style={styles.tagBold}>{item.tag}</Text>
-                            {`: ${item.count}`}
-                        </Text>
-                        </View>
-                        <View style={styles.barBackground}>
-                            <View 
-                                style={[styles.barFill, { width: barWidth }]} 
-                            />
-                        </View>
-                    </View>
-                );
-            })}
+          <Text style={styles.chartTitle}>Technique Stats</Text>
+      
+          {/* Conditional subtitle */}
+          {DATA.length === 0 && (
+            <Text style={styles.subtitle}>Nothing to see here!</Text>
+          )}
+      
+          {DATA.map((item, index) => {
+            const maxCount = Math.max(...DATA.map(d => d.count));
+            const barWidth = (item.count / maxCount) * 200; // 200 is max bar width
+      
+            return (
+              <View key={index} style={styles.barItem}>
+                <View style={styles.barHeader}>
+                  <Text style={styles.barLabel}>
+                    <Text style={styles.tagBold}>{item.tag}</Text>
+                    {`: ${item.count}`}
+                  </Text>
+                </View>
+                <View style={styles.barBackground}>
+                  <View style={[styles.barFill, { width: barWidth }]} />
+                </View>
+              </View>
+            );
+          })}
         </View>
-    );
+      );
+      
 };
 
 export default BarChartTAGS;

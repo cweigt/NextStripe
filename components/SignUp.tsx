@@ -186,7 +186,7 @@ const Sign_Up = ({ setUser }) => {
                             <Ionicons
                                 name={showPassword2 ? 'eye-off' : 'eye'}
                                 size={22}
-                                color={colors.gray600}
+                                color={colors.gray500}
                             />
                         </TouchableOpacity>
                     </View>

@@ -138,7 +138,6 @@ export const AccountStyles = StyleSheet.create({
     },
     actionSection: {
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.lg,
       gap: spacing.md,
     },
     profileButtonText: {

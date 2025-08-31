@@ -1,3 +1,4 @@
+import DeleteAccountButton from '@/components/DeleteAccountButton';
 import DisplayImage from '@/components/DisplayImage';
 import SignIn from '@/components/SignIn';
 import SignUp from '@/components/SignUp';
@@ -164,7 +165,6 @@ const AccountScreen = () => {
                   Edit Profile →
                 </Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 onPress={() => {
                   auth.signOut();
@@ -175,6 +175,9 @@ const AccountScreen = () => {
                   Sign Out
                 </Text>
               </TouchableOpacity>
+              <View style={{marginBottom: 10}}/>
+              <DeleteAccountButton />
+              <View style={{marginBottom: 10}}/>
             </View>
           </>
         ) : (

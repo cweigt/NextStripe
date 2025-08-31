@@ -174,4 +174,10 @@ export const TrainingStyles = StyleSheet.create({
     color: '#666',
     fontSize: 14,
   },
+  subtitle: {
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    alignSelf: 'center',
+  },
 });

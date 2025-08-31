@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from './theme';
+import { colors, spacing, typography } from './theme';
 
 export const GraphsStyles = StyleSheet.create({
     container: {
@@ -56,4 +56,10 @@ export const GraphsStyles = StyleSheet.create({
     tagBold: {
         fontWeight: '600',
     }, 
+    subtitle: {
+        fontSize: typography.sm,
+        color: colors.textSecondary,
+        marginBottom: spacing.xs,
+        alignSelf: 'center',
+    },
 }); 

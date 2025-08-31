@@ -134,19 +134,25 @@ const Training = () => {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{marginBottom: 10}}/>
+          <View style={{ marginBottom: 10 }} />
+
           <View style={styles.container}>
-            {sessions.map((session, index) => (
-              <Card 
-                key={session.id} 
-                session={session} 
-                sessionId={session.id}
-                onDelete={handleDeleteSession}
-                onUpdate={handleUpdateSession}
-              />
-            ))}
+            {sessions.length === 0 ? (
+              <Text style={styles.subtitle}>Nothing to see here!</Text>
+            ) : (
+              sessions.map((session, index) => (
+                <Card 
+                  key={session.id} 
+                  session={session} 
+                  sessionId={session.id}
+                  onDelete={handleDeleteSession}
+                  onUpdate={handleUpdateSession}
+                />
+              ))
+            )}
           </View>
         </ScrollView>
+
       </SafeAreaView>
 
       {/* Add session modal */}

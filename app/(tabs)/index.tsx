@@ -24,14 +24,20 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       loadHours();
+    } else {
+      //reset state when no user
+      setTotalSessionHours('');
     }
   }, [user]);
 
   useEffect(() => {
     if (user) {
       loadCount();
+    } else {
+      //reset state when no user
+      setSessionCount(0);
     }
-  }, [user, sessionCount]);
+  }, [user]);
 
   //loading hours
   const loadCount = async () => {
@@ -41,12 +47,12 @@ const Dashboard = () => {
     try {
       const sessionsCountRef = ref(db, `users/${uid}/sessionCount`);
 
-
       const listener = onValue(sessionsCountRef, (snapshot) => {
         if (snapshot.exists()) {
           const sessionsCountSnap = snapshot.val();
-        
           setSessionCount(sessionsCountSnap);
+        } else {
+          setSessionCount(0);
         }
       });
       
@@ -55,7 +61,6 @@ const Dashboard = () => {
     } catch (error) {
       console.log(error);
     }
-
   };
 
   const loadHours = async () => {

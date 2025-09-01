@@ -45,6 +45,11 @@ const BarChartTAGS = () => {
         return result;
     }, [sessions]);
 
+    // Calculate total count for percentage calculation
+    const totalCount = useMemo(() => {
+        return DATA.reduce((sum, item) => sum + item.count, 0);
+    }, [DATA]);
+
     return (
         <View style={styles.chartContainer}>
           <Text style={styles.chartTitle}>Technique Stats</Text>
@@ -55,11 +60,11 @@ const BarChartTAGS = () => {
           )}
       
           {DATA.map((item, index) => {
-            const maxCount = Math.max(...DATA.map(d => d.count));
-            const barWidth = (item.count / maxCount) * 200; // 200 is max bar width
+            // Each technique should show as its proportion of the total
+            const barWidthPercentage = totalCount > 0 ? (item.count / totalCount) * 100 : 0;
       
             return (
-              <View key={index} style={styles.barItem}>
+              <View key={`${item.tag}-${index}`} style={styles.barItem}>
                 <View style={styles.barHeader}>
                   <Text style={styles.barLabel}>
                     <Text style={styles.tagBold}>{item.tag}</Text>
@@ -67,7 +72,7 @@ const BarChartTAGS = () => {
                   </Text>
                 </View>
                 <View style={styles.barBackground}>
-                  <View style={[styles.barFill, { width: barWidth }]} />
+                  <View style={[styles.barFill, { width: `${barWidthPercentage}%` }]} />
                 </View>
               </View>
             );

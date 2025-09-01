@@ -1,0 +1,86 @@
+import { StyleSheet } from 'react-native';
+import { colors, spacing, typography } from './theme';
+
+export const ResetPasswordStyles = StyleSheet.create({
+    container: {
+        width: '90%',
+        alignSelf: 'center',
+        backgroundColor: colors.background,
+
+    },
+    reset: {
+        fontWeight: '500',
+        fontSize: typography.md,
+        fontFamily: 'System',
+        borderWidth: 0,
+        backgroundColor: '#F2F2F7',
+        borderColor: colors.textPrimary,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.lg,
+        borderRadius: 5,
+        color: colors.textPrimary,
+        alignSelf: 'center',
+    },
+    formContainer: {
+        paddingTop: spacing.sm,
+        paddingBottom: spacing.sm,
+        paddingHorizontal: spacing.md,
+    },
+    title: {
+        fontSize: typography.xxl,
+        fontWeight: 'bold' as const,
+        marginBottom: spacing.lg,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: colors.gray300,
+        borderRadius: 8,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.sm,
+        fontSize: typography.md,
+        backgroundColor: colors.white,
+        color: colors.textPrimary,
+        marginBottom: spacing.md,
+        width: '101%',
+        height: 40,
+        alignSelf: 'center',
+    },
+    errorText: {
+        color: colors.error,
+        fontSize: typography.sm,
+        marginBottom: spacing.sm,
+        marginTop: spacing.xs,
+    },
+    message: {
+        fontSize: typography.sm,
+        textAlign: 'left',
+        color: colors.textPrimary,
+        opacity: 0.7,
+    },
+    requirements: {
+        fontSize: typography.sm,
+        color: colors.textPrimary,
+        opacity: 0.7,
+        marginBottom: 8,
+        marginTop: spacing.sm,
+        textAlign: 'left',
+    },
+    toggleText: {
+        marginTop: 0,
+        marginBottom: 0,
+        color: colors.primary,
+        textAlign: 'center',
+        fontWeight: '600',
+        fontSize: typography.md,
+        fontFamily: 'System',
+    },
+    eye: {
+        position: 'absolute',
+        right: 10,
+        top: 8,
+        height: 24,
+        width: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+}); 

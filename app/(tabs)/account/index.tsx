@@ -30,7 +30,7 @@ const AccountScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       loadData();
-    }, [])
+    }, [user]) // Add user as dependency to reload data when user changes
   );
 
   //uses URL parameter approach
@@ -39,8 +39,12 @@ const AccountScreen = () => {
   };
 
   const loadData = async () => {
-    //load belt rank and stripe count from your database
-    //set them to state: setBeltRank(savedBeltRank), setStripeCount(savedStripeCount)
+    //clear all state first when loading data for a new user
+    setBeltRank(null);
+    setStripeCount(null);
+    setAcademy('--');
+    setDate('--');
+    
     const uid = auth.currentUser?.uid; 
     if (!uid) return; //if no user then leave
 
@@ -69,7 +73,7 @@ const AccountScreen = () => {
       }
 
     } catch (error) {
-        // console.log("Error loading belt rank!");
+        console.log("Error loading user data:", error);
     };
   };
 

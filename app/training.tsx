@@ -3,7 +3,7 @@ import AddSessionModal from '@/components/AddSessionModal';
 import Card from '@/components/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { get, getDatabase, ref, set } from 'firebase/database';
 import React, { useEffect, useRef, useState } from 'react';
@@ -181,7 +181,7 @@ const Training = () => {
               { bottom: insets.bottom + 16 + 56, right: 16 }, // 60 = FAB size, 12 = gap
             ]}
           >
-            <MaterialCommunityIcons name="chevron-double-up" size={28} color="#fff" />
+            <Ionicons name="chevron-up-outline" size={25} color="white" />
           </TouchableOpacity>
         )}
         <TouchableOpacity

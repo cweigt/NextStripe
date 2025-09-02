@@ -212,16 +212,16 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
               </TouchableOpacity>
             </View>
             <View style={[styles.input, {minHeight: 350}]}>
+              <RichToolbar
+                editor={richText}
+                actions={[actions.indent, actions.outdent, actions.insertBulletsList, actions.setBold, actions.setItalic, actions.setUnderline]}
+                style={{ backgroundColor: '#f8f9fa' }}
+              />
               <RichEditor
                 ref={richText}
                 placeholder="Enter your training notes here..."
                 style={{ flex: 1 }}
                 onChange={setNotes}
-              />
-              <RichToolbar
-                editor={richText}
-                actions={[actions.indent, actions.outdent, actions.insertBulletsList, actions.setBold, actions.setItalic, actions.setUnderline]}
-                style={{ backgroundColor: '#f8f9fa' }}
               />
             </View>
 

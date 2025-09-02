@@ -1,5 +1,6 @@
+import { OPENAI_API_KEY } from '@/config/api';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -11,8 +12,9 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import VoiceComponent from './Voice';
 
 //this interface carries session data 
 interface AddSessionModalProps {
@@ -33,7 +35,6 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
   const insets = useSafeAreaInsets();
-  const richText = useRef(null);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   
 
@@ -65,6 +66,19 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     });
   };
 
+  const insertIntoNotes = (text: string) => {
+    if (!text) return;
+    
+    console.log('Voice input received:', text);
+    console.log('Current notes state before:', notes);
+    
+    // Simply append new voice text to existing notes
+    const newNotes = notes + text + ' ';
+    setNotes(newNotes);
+    
+    console.log('New notes state after:', newNotes);
+  };
+
   const formatDate = (text: string) => {
     //remove all non-digits
     const cleaned = text.replace(/\D/g, '');
@@ -85,6 +99,13 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   };
 
   const handleSave = () => {
+    console.log('SAVING SESSION:');
+    console.log('Title:', title);
+    console.log('Date:', date);
+    console.log('Duration:', duration);
+    console.log('NOTES:', notes);
+    console.log('Tags:', Array.from(selectedTags));
+    
     onSave({
       title,
       date,
@@ -205,23 +226,32 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
               </Text>
               <TouchableOpacity 
                 style={styles.doneButton}
-                //because apparently keyboard.dismiss doesn't work when it works for my other project?
-                onPress={() => richText.current?.blurContentEditor()}
+                // No need for this button with TextInput
+                onPress={() => {}}
               >
                 <Text style={styles.doneButtonText}>Done</Text>
               </TouchableOpacity>
             </View>
-            <View style={[styles.input, {minHeight: 350}]}>
-              <RichToolbar
-                editor={richText}
-                actions={[actions.indent, actions.outdent, actions.insertBulletsList, actions.setBold, actions.setItalic, actions.setUnderline]}
-                style={{ backgroundColor: '#f8f9fa' }}
-              />
-              <RichEditor
-                ref={richText}
+            <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
+              {/* Voice input using Whisper API - positioned in top right */}
+              <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
+                <VoiceComponent onFinal={insertIntoNotes} apiKey={OPENAI_API_KEY} />
+              </View>
+              
+              <TextInput
+                value={notes}
+                onChangeText={setNotes}
                 placeholder="Enter your training notes here..."
-                style={{ flex: 1 }}
-                onChange={setNotes}
+                multiline
+                textAlignVertical="top"
+                style={{
+                  flex: 1,
+                  padding: 15,
+                  paddingTop: 50, // Make room for the mic button
+                  fontSize: 16,
+                  color: '#333',
+                  lineHeight: 24
+                }}
               />
             </View>
 

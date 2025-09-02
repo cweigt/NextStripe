@@ -50,7 +50,7 @@ const Training = () => {
             id,
             ...session
           }));
-          console.log('Loaded sessions:', sessionsArray.length, 'Sessions data:', sessionsData);
+          //console.log('Loaded sessions:', sessionsArray.length, 'Sessions data:', sessionsData);
           setSessions(sessionsArray);
           
           // Always use the actual count from sessions, not the stored count
@@ -59,7 +59,7 @@ const Training = () => {
           
           // If the stored count is wrong, fix it in Firebase
           if (countSnapshot.exists() && countSnapshot.val() !== actualCount) {
-            console.log('Fixing session count mismatch:', countSnapshot.val(), '->', actualCount);
+            //console.log('Fixing session count mismatch:', countSnapshot.val(), '->', actualCount);
             const sessionCountRef = ref(db, `users/${user.uid}/sessionCount`);
             await set(sessionCountRef, actualCount);
           }

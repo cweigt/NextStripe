@@ -3,12 +3,12 @@ import AddSessionModal from '@/components/AddSessionModal';
 import Card from '@/components/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { get, getDatabase, ref, set } from 'firebase/database';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Training = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -16,7 +16,19 @@ const Training = () => {
   const [sessionCount, setSessionCount] = useState(0);
   const db = getDatabase();
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
+  //controls the scroll if-then for the back to top
+  const onScroll = (e: any) => {
+    const y = e.nativeEvent.contentOffset.y;
+    setShowBackToTop(y > 200); // show after 200px; tweak as you like
+  };
+
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
   //load sessions from Firebase when component mounts
   useEffect(() => {
     const loadSessions = async () => {
@@ -124,16 +136,15 @@ const Training = () => {
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Training Log</Text>
-          <TouchableOpacity
-            style={[styles.quickActionButton, styles.headerAddButton]}
-            onPress={openModalAdd}
-          >
-            {/*this will eventually call the add function for session and bring up data entry*/}
-            <Ionicons name="add" size={25} color="white" />
-          </TouchableOpacity>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          ref={scrollRef}
+          showsVerticalScrollIndicator={false}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        >
           <View style={{ marginBottom: 10 }} />
 
           <View style={styles.container}>
@@ -153,6 +164,25 @@ const Training = () => {
           </View>
         </ScrollView>
 
+        {showBackToTop && (
+          <TouchableOpacity
+            onPress={scrollToTop}
+            activeOpacity={0.85}
+            style={[
+              styles.backToTop,
+              { bottom: insets.bottom + 16 + 56, right: 16 }, // 60 = FAB size, 12 = gap
+            ]}
+          >
+            <MaterialCommunityIcons name="chevron-double-up" size={28} color="#fff" />
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={[styles.plus, { bottom: insets.bottom + 16 }]}
+          onPress={openModalAdd}
+        >
+          {/*this will eventually call the add function for session and bring up data entry*/}
+          <Ionicons name="add" size={25} color="white" />
+        </TouchableOpacity>
       </SafeAreaView>
 
       {/* Add session modal */}

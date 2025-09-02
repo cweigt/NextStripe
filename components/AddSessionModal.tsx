@@ -97,6 +97,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setDate('');
     setDuration('');
     setNotes('');
+    setSelectedTags(new Set()); // Reset tags
     onClose();
   };
 
@@ -106,6 +107,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setDate('');
     setDuration('');
     setNotes('');
+    setSelectedTags(new Set()); // Reset tags
     onClose();
   };
 

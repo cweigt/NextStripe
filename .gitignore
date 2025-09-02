@@ -84,6 +84,9 @@ yarn.lock
 .env.test.local
 .env.production.local
 
+# API Keys and sensitive config
+config/api.ts
+
 # Logs
 logs
 *.log

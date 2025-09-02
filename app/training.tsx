@@ -50,14 +50,21 @@ const Training = () => {
             id,
             ...session
           }));
+          console.log('Loaded sessions:', sessionsArray.length, 'Sessions data:', sessionsData);
           setSessions(sessionsArray);
-        }
-        
-        //load session count from Firebase, fallback to calculated value
-        if (countSnapshot.exists()) {
-          setSessionCount(countSnapshot.val());
+          
+          // Always use the actual count from sessions, not the stored count
+          const actualCount = sessionsArray.length;
+          setSessionCount(actualCount);
+          
+          // If the stored count is wrong, fix it in Firebase
+          if (countSnapshot.exists() && countSnapshot.val() !== actualCount) {
+            console.log('Fixing session count mismatch:', countSnapshot.val(), '->', actualCount);
+            const sessionCountRef = ref(db, `users/${user.uid}/sessionCount`);
+            await set(sessionCountRef, actualCount);
+          }
         } else {
-          setSessionCount(sessionsSnapshot.exists() ? Object.keys(sessionsSnapshot.val()).length : 0);
+          setSessionCount(0);
         }
       } catch (error) {
         console.error('Error loading sessions:', error);
@@ -105,7 +112,8 @@ const Training = () => {
     //handle saving the session data here
    //console.log('Session data:', sessionData);
     
-     const newSessionRef = ref(db, `users/${user.uid}/sessions/${Date.now()}`);
+     const sessionId = Date.now().toString();
+     const newSessionRef = ref(db, `users/${user.uid}/sessions/${sessionId}`);
      await set(newSessionRef, {
        createdAt: new Date().toISOString(),
        title: sessionData.title,
@@ -117,7 +125,7 @@ const Training = () => {
      
      //add to local state with ID
      const newSession = {
-       id: Date.now().toString(),
+       id: sessionId,
        ...sessionData
      };
      setSessions(prev => [...prev, newSession]);

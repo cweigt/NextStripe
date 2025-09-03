@@ -86,6 +86,7 @@ yarn.lock
 
 # API Keys and sensitive config
 config/api.ts
+config/firebase.ts
 
 # Logs
 logs

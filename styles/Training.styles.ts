@@ -147,6 +147,7 @@ export const TrainingStyles = StyleSheet.create({
     fontSize: typography.sm,
     color: colors.textSecondary,
     marginBottom: spacing.xs,
+    fontWeight: 'bold',
   },
   headerAddButton: {
     position: 'absolute',

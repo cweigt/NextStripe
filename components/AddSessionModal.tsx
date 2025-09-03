@@ -13,6 +13,8 @@ import {
   View
 } from 'react-native';
 
+import { colors } from '@/styles/theme';
+import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import VoiceComponent from './Voice';
 
@@ -36,6 +38,8 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [notes, setNotes] = useState('');
   const insets = useSafeAreaInsets();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const [selected, setSelected] = useState<string>(today);
   
 
   //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
@@ -66,17 +70,18 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     });
   };
 
+  
   const insertIntoNotes = (text: string) => {
     if (!text) return;
     
-    console.log('Voice input received:', text);
-    console.log('Current notes state before:', notes);
+    //console.log('Voice input received:', text);
+    //console.log('Current notes state before:', notes);
     
     // Simply append new voice text to existing notes
     const newNotes = notes + text + ' ';
     setNotes(newNotes);
     
-    console.log('New notes state after:', newNotes);
+    //console.log('New notes state after:', newNotes);
   };
 
   const formatDate = (text: string) => {
@@ -99,23 +104,28 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   };
 
   const handleSave = () => {
-    console.log('SAVING SESSION:');
+    /*console.log('SAVING SESSION:');
     console.log('Title:', title);
     console.log('Date:', date);
     console.log('Duration:', duration);
     console.log('NOTES:', notes);
-    console.log('Tags:', Array.from(selectedTags));
+    console.log('Tags:', Array.from(selectedTags));*/
     
+    const finalDate = date || (() => {
+      // convert selected (YYYY-MM-DD) -> MM/DD/YYYY
+      const [y, m, d] = selected.split('-');
+      return `${m}/${d}/${y}`;
+    })();
+
     onSave({
       title,
-      date,
       duration,
       notes,
       tags: Array.from(selectedTags),
+      date: finalDate,
     });
     //reset form
     setTitle('');
-    setDate('');
     setDuration('');
     setNotes('');
     setSelectedTags(new Set()); // Reset tags
@@ -125,7 +135,6 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const handleCancel = () => {
     //reset form
     setTitle('');
-    setDate('');
     setDuration('');
     setNotes('');
     setSelectedTags(new Set()); // Reset tags
@@ -178,17 +187,37 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
             <Text style={styles.requirements}>
               Session Date
             </Text>
-            <TextInput 
-              style={styles.input}
-              value={date}
-              onChangeText={handleDateChange}
-              placeholder="MM/DD/YYYY"
-              placeholderTextColor='#d9d9d9'
-              keyboardType="numeric"
-              maxLength={10}
-            />
+            <Calendar
+              current={today}
+              minDate="2022-01-01"
+              maxDate="2035-12-31"
+              markedDates={{
+                [selected]: { selected: true, selectedColor: '#00adf5' },
+              }}
+              onDayPress={(day) => {
+                setSelected(day.dateString);
 
-            <Text style={styles.requirements}>
+                // convert YYYY-MM-DD -> MM/DD/YYYY and store in your `date` state
+                const [y, m, d] = day.dateString.split('-');
+                setDate(formatDate(`${m}${d}${y}`));
+
+                console.log('Selected day:', day);
+              }}
+              enableSwipeMonths
+            />
+            {/*
+              <TextInput 
+                style={styles.input}
+                value={date}
+                onChangeText={handleDateChange}
+                placeholder="MM/DD/YYYY"
+                placeholderTextColor='#d9d9d9'
+                keyboardType="numeric"
+                maxLength={10}
+              />
+            */}
+
+            <Text style={[styles.requirements, {marginTop: 20}]}>
               Session Duration in Hours
             </Text>
             <TextInput 
@@ -242,6 +271,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
                 value={notes}
                 onChangeText={setNotes}
                 placeholder="Enter your training notes here..."
+                placeholderTextColor={colors.gray500}
                 multiline
                 textAlignVertical="top"
                 style={{

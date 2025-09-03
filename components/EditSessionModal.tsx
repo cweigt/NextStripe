@@ -13,6 +13,8 @@ import {
   View
 } from 'react-native';
 
+import { colors } from '@/styles/theme';
+import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import VoiceComponent from './Voice';
 
@@ -43,6 +45,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [notes, setNotes] = useState(session?.notes || '');
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set(session?.tags || []));
   const insets = useSafeAreaInsets();
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const [selected, setSelected] = useState<string>(today);
 
   //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
   //need this in edit as well so that I can change it
@@ -86,6 +90,19 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       setNotes(session.notes || '');
       
       // No need to update rich editor - using simple TextInput now
+      // Ensure calendar receives a valid YYYY-MM-DD string
+      if (session.date) {
+        const mmddyyyy = session.date.trim(); // expected MM/DD/YYYY
+        const parts = mmddyyyy.split('/');
+        if (parts.length === 3) {
+          const [mm, dd, yyyy] = parts;
+          const mmP = mm.padStart(2, '0');
+          const ddP = dd.padStart(2, '0');
+          if (yyyy && mmP && ddP) {
+            setSelected(`${yyyy}-${mmP}-${ddP}`);
+          }
+        }
+      }
     }
   }, [session]);
 
@@ -180,14 +197,30 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
             <Text style={styles.requirements}>
               Session Date
             </Text>
-            <TextInput 
-              style={styles.input}
-              value={date}
-              onChangeText={handleDateChange}
-              placeholder="MM/DD/YYYY"
-              placeholderTextColor='#d9d9d9'
-              keyboardType="numeric"
-              maxLength={10}
+            <Calendar
+              current={selected}
+              minDate="2022-01-01"
+              maxDate="2035-12-31"
+              markedDates={{
+                [selected]: { selected: true, selectedColor: colors.primary, selectedTextColor: colors.white },
+              }}
+              onDayPress={(day) => {
+                setSelected(day.dateString);
+
+                // convert YYYY-MM-DD -> MM/DD/YYYY and store in your `date` state
+                const [y, m, d] = day.dateString.split('-');
+                setDate(formatDate(`${m}${d}${y}`));
+
+                console.log('Selected day:', day);
+              }}
+              enableSwipeMonths
+              theme={{
+                selectedDayBackgroundColor: colors.primary,
+                selectedDayTextColor: colors.white,
+                todayTextColor: colors.textPrimary,
+                dayTextColor: colors.textPrimary,
+                arrowColor: colors.primary,
+              }}
             />
 
             <Text style={styles.requirements}>
@@ -233,7 +266,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
                 <Text style={styles.doneButtonText}>Done</Text>
               </TouchableOpacity>
             </View>
-                        <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
+              <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
               {/* Voice input using Whisper API - positioned in top right */}
               <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
                 <VoiceComponent onFinal={insertIntoNotes} apiKey={OPENAI_API_KEY} />
@@ -243,6 +276,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
                 value={notes ? notes.replace(/<[^>]*>/g, '') : ''} // Strip HTML tags for display
                 onChangeText={setNotes}
                 placeholder="Enter your training notes here..."
+                placeholderTextColor={colors.gray500}
                 multiline
                 textAlignVertical="top"
                 style={{

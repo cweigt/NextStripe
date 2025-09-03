@@ -138,8 +138,8 @@ export const AccountStyles = StyleSheet.create({
     },
     actionSection: {
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.lg,
-      gap: spacing.md,
+      gap: spacing.sm,
+      marginTop: -15,
     },
     profileButtonText: {
       color: colors.primary,

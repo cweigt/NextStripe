@@ -65,6 +65,9 @@ const Sign_In = ({ setUser }) => {
 
             <View style={styles.container}>
                 <View style={styles.formContainer}>
+                    <Text style={[styles.forgot, {marginTop: -10, color: colors.gray500,}]}>
+                        To reset your password, enter email, then click "Forgot Password?"
+                    </Text>
                     <Text style={styles.requirements}>
                         Email
                     </Text>
@@ -106,10 +109,11 @@ const Sign_In = ({ setUser }) => {
 
                     <TouchableOpacity
                         onPress={sendPasswordEmail}
+                        style={{marginTop: -10}}
                     >
-                        {/*<Text style={[styles.forgot, { color: colors.text }]}>
+                        <Text style={[styles.forgot, { color: colors.gray500 }]}>
                             Forgot Password?
-                        </Text>*/}
+                        </Text>
                     </TouchableOpacity>
                     <View style={{marginTop: 60}}/>
 

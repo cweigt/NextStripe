@@ -2,6 +2,7 @@ export const ROUTES = {
     DASHBOARD: '/',
     ACCOUNT: '/account',
     TRAINING: '/training',
+    ANALYTICS: '/analytics',
   } as const;
   
   // Type for the route values

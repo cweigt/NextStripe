@@ -174,4 +174,51 @@ export const TrainingStyles = StyleSheet.create({
     color: '#666',
     fontSize: 14,
   },
+  subtitle: {
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    alignSelf: 'center',
+  },
+  plus: {
+    position: 'absolute',
+    right: 16,
+    // bottom set inline with insets
+    width: 60,              // fixed width
+    height: 60,             // fixed height (same as width)
+    borderRadius: 30,       // half of width/height → perfect circle
+    backgroundColor: colors.primary,
+    alignItems: 'center',   // center icon horizontally
+    justifyContent: 'center', // center icon vertically
+    zIndex: 10,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    marginRight: 10,
+    marginBottom: -20,
+  },
+  backToTop: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,          // circle
+    backgroundColor: '#6C757D', // subtle gray (Bootstrap "secondary"); tweak to your palette
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  
+    // shadows (iOS + Android)
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  },
+  backToTopText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
 });

@@ -24,14 +24,20 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       loadHours();
+    } else {
+      //reset state when no user
+      setTotalSessionHours('');
     }
   }, [user]);
 
   useEffect(() => {
     if (user) {
       loadCount();
+    } else {
+      //reset state when no user
+      setSessionCount(0);
     }
-  }, [user, sessionCount]);
+  }, [user]);
 
   //loading hours
   const loadCount = async () => {
@@ -41,12 +47,12 @@ const Dashboard = () => {
     try {
       const sessionsCountRef = ref(db, `users/${uid}/sessionCount`);
 
-
       const listener = onValue(sessionsCountRef, (snapshot) => {
         if (snapshot.exists()) {
           const sessionsCountSnap = snapshot.val();
-        
           setSessionCount(sessionsCountSnap);
+        } else {
+          setSessionCount(0);
         }
       });
       
@@ -55,7 +61,6 @@ const Dashboard = () => {
     } catch (error) {
       console.log(error);
     }
-
   };
 
   const loadHours = async () => {
@@ -81,8 +86,13 @@ const Dashboard = () => {
     return () => listener();
   };
 
+  //navigation 
   const navigateToTraining = () => {
     router.push('/training');
+  };
+
+  const navigateToAnalytics = () => {
+    router.push('/analytics');
   };
 
   return (
@@ -103,15 +113,17 @@ const Dashboard = () => {
             >
               <Text style={styles.quickActionText}>Training Log</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.quickActionButton}>
-              {/*progress page will be milestones*/}
-              <Text style={styles.quickActionText}>View Progress</Text> 
+            <TouchableOpacity 
+              style={styles.quickActionButton}
+              onPress={navigateToAnalytics}
+            >
+              <Text style={styles.quickActionText}>View Analytics</Text> 
             </TouchableOpacity>
           </View>
 
           {/* Training Analytics Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Training Analytics</Text>
+            <Text style={styles.sectionTitle}>Quick Stats</Text>
             <View style={styles.analyticsContainer}>
               <View style={styles.analyticsCard}>
                 <Text style={styles.analyticsNumber}>{totalSessionHours}</Text>
@@ -130,7 +142,7 @@ const Dashboard = () => {
             </View>
           </View>
 
-          {/* Training Streak Section */}
+          {/* Training Streak Section 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Training Streak</Text>
             <View style={styles.streakContainer}>
@@ -145,7 +157,7 @@ const Dashboard = () => {
               </View>
             </View>
           </View>
-
+            */}
           {/* Techniques Section 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Techniques</Text>

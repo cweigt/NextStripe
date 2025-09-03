@@ -1,3 +1,4 @@
+import DeleteAccountButton from '@/components/DeleteAccountButton';
 import DisplayImage from '@/components/DisplayImage';
 import SignIn from '@/components/SignIn';
 import SignUp from '@/components/SignUp';
@@ -29,7 +30,7 @@ const AccountScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       loadData();
-    }, [])
+    }, [user]) // Add user as dependency to reload data when user changes
   );
 
   //uses URL parameter approach
@@ -38,8 +39,12 @@ const AccountScreen = () => {
   };
 
   const loadData = async () => {
-    //load belt rank and stripe count from your database
-    //set them to state: setBeltRank(savedBeltRank), setStripeCount(savedStripeCount)
+    //clear all state first when loading data for a new user
+    setBeltRank(null);
+    setStripeCount(null);
+    setAcademy('--');
+    setDate('--');
+    
     const uid = auth.currentUser?.uid; 
     if (!uid) return; //if no user then leave
 
@@ -68,7 +73,7 @@ const AccountScreen = () => {
       }
 
     } catch (error) {
-        // console.log("Error loading belt rank!");
+        console.log("Error loading user data:", error);
     };
   };
 
@@ -164,7 +169,6 @@ const AccountScreen = () => {
                   Edit Profile →
                 </Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 onPress={() => {
                   auth.signOut();
@@ -175,6 +179,9 @@ const AccountScreen = () => {
                   Sign Out
                 </Text>
               </TouchableOpacity>
+              <View style={{marginBottom: 10}}/>
+              <DeleteAccountButton />
+              <View style={{marginBottom: 10}}/>
             </View>
           </>
         ) : (

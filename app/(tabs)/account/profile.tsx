@@ -14,9 +14,11 @@ import {
 //import NameChange from '@/components/NameChange';
 //import ResetPassword from '@/components/ResetPassword';
 import DropdownComp from '@/components/Dropdown';
+import Reset_Password from '@/components/ResetPassword';
 import { auth, db } from '@/firebase';
 import { colors } from '@/styles/theme';
 import { router, useLocalSearchParams } from 'expo-router';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { get, ref, set } from 'firebase/database';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,7 +29,35 @@ const Profile = () => {
   const [stripeCount, setStripeCount] = useState(params.stripeCount as string || null);
   const [academy, setAcademy] = useState('');
   const [date, setDate] = useState('');
-  //const [trainingStart, setTrainingStart] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showPasswordOld, setShowPasswordOld] = useState(false);
+  const [showPasswordNew, setShowPasswordNew] = useState(false);
+  const [showPasswordNewConfirm, setShowPasswordNewConfirm] = useState(false);
+
+  //this is the same function as shown in deleting an account
+  //needs to reauthenticate for resetting the password as well
+  const reauthenticate = async() => {
+      setError('');
+      if (newPassword !== confirmPassword) {
+          setError('Passwords do not match');
+          return;
+      }
+      const credential = EmailAuthProvider.credential(
+          auth.currentUser.email,
+          oldPassword
+      );
+      await reauthenticateWithCredential(auth.currentUser, credential);
+
+      //calling updatePassword once the user is authenticated
+      await updatePassword(auth.currentUser, newPassword);
+
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+  }
 
   //saving the belt color to database
   const saveBeltRankToDatabase = async (value: string) => {
@@ -137,7 +167,6 @@ const Profile = () => {
     };
   };
   
-  
   //modify your handlers to only update state (not database)
   const handleBeltChange = useCallback((value: string) => {
     setBeltRank(value);
@@ -148,12 +177,17 @@ const Profile = () => {
   }, []);
 
   const saveAllChanges = async () => {
-    if (beltRank) await saveBeltRankToDatabase(beltRank);
-    if (stripeCount) await saveStripeCountToDatabase(stripeCount);
-    if (academy) await saveAcademyToDatabase(academy);
-    if (date) await saveTrainingDateToDatabase(date);
+    try {
+      if (beltRank) await saveBeltRankToDatabase(beltRank);
+      if (stripeCount) await saveStripeCountToDatabase(stripeCount);
+      if (academy) await saveAcademyToDatabase(academy);
+      if (date) await saveTrainingDateToDatabase(date);
+      reauthenticate(); //make sure to retest at some point to make sure the modal works for reauthentication
 
-    SuccessAlert();
+      SuccessAlert();
+    } catch (error){
+      console.log(error);
+    }
   };
 
   //success alert to know when card is removed off of firebase to avoid any issues
@@ -174,7 +208,6 @@ const Profile = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        {/* Blue Header */}
         <View style={styles.headerBKG}>
           <TouchableOpacity 
             onPress={() => router.back()}
@@ -187,6 +220,12 @@ const Profile = () => {
           <Text style={styles.heading}>
             Edit Profile
           </Text>
+          <TouchableOpacity 
+                style={{ position: 'absolute', top: 60, right: 25, zIndex: 1 }}
+                onPress={saveAllChanges}
+              >
+                <Text style={styles.back}>Save</Text>
+            </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}>
@@ -219,7 +258,7 @@ const Profile = () => {
                 Academy
               </Text>
               <TextInput 
-                style={[styles.input, {marginTop: 15}]}
+                style={[styles.input, {marginTop: 15, marginBottom: 30}]}
                 value={academy}
                 onChangeText={setAcademy}
                 //keyboardType="email-address"
@@ -232,7 +271,7 @@ const Profile = () => {
                 Training Start Date
               </Text>
               <TextInput 
-                style={[styles.input, {marginTop: 15}]}
+                style={[styles.input, {marginTop: 15, marginBottom: 30}]}
                 onChangeText={handleDateChange}
                 value={date}
                 placeholder="MM/YYYY"
@@ -241,12 +280,24 @@ const Profile = () => {
                 maxLength={7}
               >
               </TextInput>
-              <TouchableOpacity 
-                style={[styles.quickActionButton, {marginTop: 20}]}
-                onPress={saveAllChanges}
-              >
-                <Text style={styles.quickActionText}>Save Changes</Text>
-            </TouchableOpacity>
+              <Text style={styles.title}>
+                Reset Password
+              </Text>
+              <Reset_Password 
+                oldPassword={oldPassword}
+                setOldPassword={setOldPassword}
+                newPassword={newPassword}
+                setNewPassword={setNewPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+                error={error}
+                showPasswordOld={showPasswordOld}
+                setShowPasswordOld={setShowPasswordOld}
+                showPasswordNew={showPasswordNew}
+                setShowPasswordNew={setShowPasswordNew}
+                showPasswordNewConfirm={showPasswordNewConfirm}
+                setShowPasswordNewConfirm={setShowPasswordNewConfirm}
+              />
             </View>
           </View>
         </ScrollView>

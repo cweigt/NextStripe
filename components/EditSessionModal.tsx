@@ -1,5 +1,6 @@
+import { OPENAI_API_KEY } from '@/config/api';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -11,8 +12,9 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import VoiceComponent from './Voice';
 
 //this interface carries session data 
 interface EditSessionModalProps {
@@ -41,7 +43,6 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [notes, setNotes] = useState(session?.notes || '');
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set(session?.tags || []));
   const insets = useSafeAreaInsets();
-  const richText = useRef(null);
 
   //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
   //need this in edit as well so that I can change it
@@ -70,6 +71,12 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     });
   };
 
+  const insertIntoNotes = (text: string) => {
+    if (!text) return;
+    // Adds a trailing space so consecutive dictations don't jam together
+    setNotes(prevNotes => prevNotes + text + ' ');
+  };
+
   // Update form fields when session prop changes
   useEffect(() => {
     if (session) {
@@ -78,12 +85,13 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       setDuration(session.duration || '');
       setNotes(session.notes || '');
       
-      // Update rich editor content
-      if (richText.current) {
-        richText.current.setContentHTML(session.notes || '');
-      }
+      // No need to update rich editor - using simple TextInput now
     }
   }, [session]);
+
+
+
+
 
 
   const formatDate = (text: string) => {
@@ -220,23 +228,31 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               </Text>
               <TouchableOpacity 
                 style={styles.doneButton}
-                onPress={() => richText.current?.blurContentEditor()}
+                onPress={() => {}}
               >
                 <Text style={styles.doneButtonText}>Done</Text>
               </TouchableOpacity>
             </View>
-            <View style={[styles.input, {minHeight: 350}]}>
-              <RichEditor
-                ref={richText}
+                        <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
+              {/* Voice input using Whisper API - positioned in top right */}
+              <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
+                <VoiceComponent onFinal={insertIntoNotes} apiKey={OPENAI_API_KEY} />
+              </View>
+              
+              <TextInput
+                value={notes ? notes.replace(/<[^>]*>/g, '') : ''} // Strip HTML tags for display
+                onChangeText={setNotes}
                 placeholder="Enter your training notes here..."
-                style={{ flex: 1 }}
-                onChange={setNotes}
-                initialContentHTML={notes}
-              />
-              <RichToolbar
-                editor={richText}
-                actions={[actions.indent, actions.outdent, actions.insertBulletsList, actions.setBold, actions.setItalic, actions.setUnderline ]}
-                style={{ backgroundColor: '#f8f9fa' }}
+                multiline
+                textAlignVertical="top"
+                style={{
+                  flex: 1,
+                  padding: 15,
+                  paddingTop: 50, // Make room for the mic button
+                  fontSize: 16,
+                  color: '#333',
+                  lineHeight: 24
+                }}
               />
             </View>
             <View style={{marginBottom: 200}}/>

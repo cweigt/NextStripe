@@ -26,75 +26,96 @@ const Sign_Up = ({ setUser }) => {
     const [errorMessage, setErrorMessage] = useState('');
     const database = getDatabase();
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
-    const signUp = async() => {
-        try {
-            //these are all the password checks to make sure it meets criteria
-            if (password1 !== password2) {
-                setErrorMessage('Passwords do not match.');
-                return;
-            }
+    const PASSWORD_RULES = [
+        { test: (p:string)=> p.length >= 10, msg: 'At least 10 characters' },
+        { test: (p:string)=> /[A-Z]/.test(p), msg: 'At least one uppercase letter' },
+        { test: (p:string)=> /[a-z]/.test(p), msg: 'At least one lowercase letter' },
+        { test: (p:string)=> /[0-9]/.test(p), msg: 'At least one number' },
+        { test: (p:string)=> /[!@#$%^&*(),.?":{}|<>]/.test(p), msg: 'At least one special character' },
+    ];
 
-            else if(password1.length < 10) {
-                setErrorMessage('Password must be at least 10 characters long.');
-                return;
-            }
+    const validatePassword = (p1: string, p2: string): string | null => {
+        if (p1 !== p2) return 'Passwords do not match.';
+        for (const r of PASSWORD_RULES) if (!r.test(p1)) return `Password rule not met: ${r.msg}.`;
+        return null;
+    };
 
-            else if(!/[A-Z]/.test(password1)) {
-                setErrorMessage('Password must contain at least one uppercase letter.');
-                return;
-            }
-
-            else if(!/[a-z]/.test(password1)) {
-                setErrorMessage('Password must contain at least one lowercase letter.');
-                return;
-            }
-
-            else if(!/[0-9]/.test(password1)) {
-                setErrorMessage('Password must contain at least one number.');
-                return;
-            }
-
-            else if(!/[!@#$%^&*(),.?":{}|<>]/.test(password1)) {
-                setErrorMessage('Password must contain at least one special character.');
-                return;
-            } 
-
-            //tries to create the account once the password meets all checks
-            const userCredentials = await createUserWithEmailAndPassword(auth, email, password1);
-            
-            //update user profile
-            //for whatever reason, this needed to be explicity defined and written for it to work
-            //this udpates in Auth
-            await updateProfile(userCredentials.user, {
-                displayName: `${firstName} ${lastName}`
-            });
-
-            //store user data in Realtime Database
-            //email: john.smith@gmail.com
-            //firstName: John
-            //lastName: Smith
-            //displayName: John Smith
-            await set(ref(database, `users/${userCredentials.user.uid}`), {
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                displayName: `${firstName} ${lastName}`,
-                createdAt: new Date().toISOString(),
-                photoURL: null //defaulting to null because obviously there is nothing there in the user account
-            });
-
-            setUser(userCredentials.user); //automatically signs the user in after account creation
-            setErrorMessage('');
-            setPassword1('');
-            setPassword2('');
-            setEmail('');
-            setFirstName('');
-            setLastName('');
-        } catch (error) {
-            //setErrorMessage(error.message || 'Error creating account. Please try again.');
+    const mapFirebaseError = (code?: string): string => {
+        switch (code) {
+            case 'auth/email-already-in-use':
+                return 'That email is already in use.';
+            case 'auth/invalid-email':
+                return 'Please enter a valid email address.';
+            case 'auth/weak-password':
+        // You likely won’t see this since you pre-validate, but keep it just in case
+                return 'Password is too weak.';
+            case 'auth/operation-not-allowed':
+                return 'Email/password sign-up is disabled for this project.';
+            case 'auth/network-request-failed':
+                return 'Network error. Check your connection and try again.';
+            default:
+                return 'Error creating account. Please try again.';
         }
     };
+
+
+    const signUp = async () => {
+        if (loading) return;
+        setErrorMessage('');
+        setLoading(true);
+        try {
+          // normalize inputs
+          const cleanEmail = email.trim().toLowerCase();
+          const cleanFirst = firstName.trim();
+          const cleanLast = lastName.trim();
+      
+          // basic required fields
+          if (!cleanFirst || !cleanLast || !cleanEmail) {
+            setErrorMessage('Please fill out first name, last name, and email.');
+            setLoading(false);
+            return;
+          }
+      
+          // password validation
+          const pwError = validatePassword(password1, password2);
+          if (pwError) {
+            setErrorMessage(pwError);
+            setLoading(false);
+            return;
+          }
+      
+          // create user
+          const userCredentials = await createUserWithEmailAndPassword(auth, cleanEmail, password1);
+      
+          await updateProfile(userCredentials.user, { displayName: `${cleanFirst} ${cleanLast}` });
+      
+          await set(ref(database, `users/${userCredentials.user.uid}`), {
+            email: cleanEmail,
+            firstName: cleanFirst,
+            lastName: cleanLast,
+            displayName: `${cleanFirst} ${cleanLast}`,
+            createdAt: new Date().toISOString(),
+            photoURL: null,
+          });
+      
+          setUser(userCredentials.user);
+      
+          // reset local form state
+          setErrorMessage('');
+          setPassword1('');
+          setPassword2('');
+          setEmail('');
+          setFirstName('');
+          setLastName('');
+        } catch (error: any) {
+          setErrorMessage(mapFirebaseError(error?.code));
+        } finally {
+          setLoading(false);
+        }
+      };
+      
 
     return (
         <KeyboardAvoidingView
@@ -186,7 +207,7 @@ const Sign_Up = ({ setUser }) => {
                             <Ionicons
                                 name={showPassword2 ? 'eye-off' : 'eye'}
                                 size={22}
-                                color={colors.gray600}
+                                color={colors.gray500}
                             />
                         </TouchableOpacity>
                     </View>

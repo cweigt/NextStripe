@@ -192,7 +192,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
               minDate="2022-01-01"
               maxDate="2035-12-31"
               markedDates={{
-                [selected]: { selected: true, selectedColor: '#00adf5' },
+                [selected]: { selected: true, selectedColor: colors.primary },
               }}
               onDayPress={(day) => {
                 setSelected(day.dateString);
@@ -204,6 +204,9 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
                 console.log('Selected day:', day);
               }}
               enableSwipeMonths
+              theme={{
+                arrowColor: colors.primary,
+              }}
             />
             {/*
               <TextInput 

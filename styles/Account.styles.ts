@@ -52,13 +52,10 @@ export const AccountStyles = StyleSheet.create({
       fontSize: 16,
     },
     profileButton: {
-      backgroundColor: colors.gray,
-      borderRadius: 8,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      alignItems: 'center',
-      marginTop: spacing.md,
-      marginHorizontal: 80,
+      color: colors.primary, 
+      fontSize: spacing.md, 
+      fontWeight: '600', 
+      marginBottom: 58, 
     },
     whiteContainer: {
       backgroundColor: colors.white,
@@ -161,4 +158,24 @@ export const AccountStyles = StyleSheet.create({
       marginTop: spacing.sm,
       resizeMode: 'contain',
     },
+    headerBKG: {
+      backgroundColor: '#F5F5F5', 
+      paddingTop: 60, 
+      paddingBottom: 20, 
+      paddingHorizontal: 20,
+    },
+    back: {
+      color: colors.primary, 
+      fontSize: spacing.md, 
+      fontWeight: '600', 
+      marginTop: 15, 
+    },
+    heading: {
+      color: colors.black, 
+      fontSize: spacing.lg, 
+      fontWeight: '600', 
+      textAlign: 'center', 
+      marginTop: -50,
+    },
+    
 });

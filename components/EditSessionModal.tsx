@@ -47,6 +47,9 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const insets = useSafeAreaInsets();
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   const [selected, setSelected] = useState<string>(today);
+  const [rawTranscript, setRawTranscript] = useState('');   // hidden buffer of full transcript
+  const [isSummarizing, setIsSummarizing] = useState(false); // optional: disable Update while summarizing
+
 
   //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
   //need this in edit as well so that I can change it
@@ -75,10 +78,54 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     });
   };
 
-  const insertIntoNotes = (text: string) => {
-    if (!text) return;
-    // Adds a trailing space so consecutive dictations don't jam together
-    setNotes(prevNotes => prevNotes + text + ' ');
+  //this allows for the user to re-summarize notes if they stop and start the mic
+  async function summarizeAll(transcript: string) {
+    const body = {
+      model: 'gpt-5-nano', // swap to your lightweight model if needed
+      messages: [
+        { role: 'system', content: 'You summarize transcripts clearly and faithfully.' },
+        { role: 'user', content: `Summarize the following transcript into a short paragraph plus 3-5 bullet points. Keep names and key actions accurate.\n\n---\n${transcript}` }
+      ]
+      // omit temperature/max_tokens if your nano variant doesn’t support them
+    };
+  
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => '');
+      throw new Error(`Summarize error: ${resp.status} ${errText}`);
+    }
+  
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content?.trim() ?? '';
+  }
+  
+
+  // Expect both args; transcript may be undefined if nothing came back
+  const insertIntoNotes = async (_summary: string, latestTranscript?: string) => {
+    if (!latestTranscript) return;
+
+    setIsSummarizing(true);
+    try {
+      const updated = rawTranscript ? `${rawTranscript} ${latestTranscript}` : latestTranscript;
+      setRawTranscript(updated);
+
+      // Re-summarize the FULL buffer to keep quality high
+      const freshSummary = await summarizeAll(updated);
+      setNotes(freshSummary); // replace notes with new summary
+    } catch (e) {
+      console.error(e);
+      // optionally show a toast/alert
+    } finally {
+      setIsSummarizing(false);
+    }
   };
 
   // Update form fields when session prop changes
@@ -107,10 +154,6 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   }, [session]);
 
 
-
-
-
-
   const formatDate = (text: string) => {
     //remove all non-digits
     const cleaned = text.replace(/\D/g, '');
@@ -123,11 +166,6 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     } else {
       return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
     }
-  };
-
-  const handleDateChange = (text: string) => {
-    const formatted = formatDate(text);
-    setDate(formatted);
   };
 
   const handleUpdate = () => {
@@ -168,9 +206,22 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
             <Text style={styles.modalBackText}>Cancel</Text>
           </TouchableOpacity>
           <Text style={[styles.modalTitle, {marginBottom: 9.5}]}>Edit Training Session</Text>
-          <TouchableOpacity onPress={handleUpdate} style={styles.modalSaveButton}>
-            <Text style={styles.modalSaveText}>Update</Text>
+
+          <TouchableOpacity
+            onPress={handleUpdate}
+            disabled={isSummarizing}
+            style={styles.modalSaveButton}
+          >
+            <Text
+              style={[
+                styles.modalSaveText,
+                isSummarizing && { color: colors.gray400 } // gray out text only
+              ]}
+            >
+              Update
+            </Text>
           </TouchableOpacity>
+
         </View>
 
         {/* pop up content */}
@@ -182,6 +233,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
           <ScrollView 
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
           >
             <Text style={styles.requirements}>
               Session Title
@@ -259,12 +312,6 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               <Text style={styles.requirements}>
                 Session Notes
               </Text>
-              <TouchableOpacity 
-                style={styles.doneButton}
-                onPress={() => {}}
-              >
-                <Text style={styles.doneButtonText}>Done</Text>
-              </TouchableOpacity>
             </View>
               <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
               {/* Voice input using Whisper API - positioned in top right */}
@@ -289,7 +336,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
                 }}
               />
             </View>
-            <View style={{marginBottom: 200}}/>
+            <View style={{marginBottom: 250}}/>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>

@@ -5,9 +5,50 @@ import React, { useRef, useState } from 'react';
 import { Alert, TouchableOpacity } from 'react-native';
 
 type Props = {
-  onFinal?: (text: string) => void;
+  onFinal?: (summary: string, text: string) => void;
   apiKey: string; // You'll need to pass your OpenAI API key
 };
+
+async function summarizeWithGPT({
+  apiKey,
+  transcript,
+  model = 'gpt-5-nano', // or 'gpt-4o-mini' if 5-nano isn't available yet
+  style = 'a short paragraph plus 3-5 bullet points'
+}: {
+  apiKey: string;
+  transcript: string;
+  model?: string;
+  style?: string;
+}) {
+  //the prompts that I give GPT
+  const body = {
+    model,
+    messages: [
+      { role: 'system', content: 'You are a helpful assistant that summarizes transcripts clearly and faithfully.' },
+      { role: 'user', content: `Summarize the following transcript into ${style}. Keep names and key actions accurate.\n\n---\n${transcript}` }
+    ],
+    //temperature: 1,
+    //max_tokens: 500
+  };
+
+  //the response that I'm waiting for from GPT
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    throw new Error(`GPT summarize error: ${resp.status} ${errText}`);
+  }
+
+  const data = await resp.json();
+  return data.choices?.[0]?.message?.content?.trim() ?? '';
+}
 
 const VoiceComponent = ({ onFinal, apiKey }: Props) => {
   const [isRecording, setIsRecording] = useState(false);
@@ -29,7 +70,7 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
         playsInSilentModeIOS: true,
       });
 
-      // Start recording
+      //start recording
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
@@ -69,6 +110,7 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
       formData.append('model', 'whisper-1');
       formData.append('response_format', 'text');
 
+      //waits for Whisper to get back to us
       const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
         headers: {
@@ -81,12 +123,20 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
         throw new Error(`Whisper API error: ${whisperResponse.status}`);
       }
 
-      const transcription = await whisperResponse.text();
-      
-      if (transcription && onFinal) {
-        console.log('Transcription received:', transcription);
-        onFinal(transcription);
-      }
+      //this is what it returns
+      const transcript = await whisperResponse.text();
+
+      //once the response is fetched from Whisper API, I need to send it to GPT-5 nano for summarization
+      //send to GPT-5 nano
+      const summary = await summarizeWithGPT({ //await response from GPT
+        apiKey,
+        transcript,
+        model: 'gpt-5-nano',
+        style: 'a short paragraph plus 3-5 bullet points '
+      });
+
+      console.log(summary);
+      if (onFinal) onFinal(summary, transcript);
 
     } catch (error) {
       console.error('Failed to process recording:', error);
@@ -96,6 +146,7 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
     }
   };
 
+  //mic button
   const toggleRecording = () => {
     if (isRecording) {
       stopRecording();

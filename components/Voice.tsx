@@ -69,6 +69,7 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
       formData.append('model', 'whisper-1');
       formData.append('response_format', 'text');
 
+      //waits for Whisper to get back to us
       const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
         headers: {
@@ -81,10 +82,11 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
         throw new Error(`Whisper API error: ${whisperResponse.status}`);
       }
 
+      //this is what it returns
       const transcription = await whisperResponse.text();
       
       if (transcription && onFinal) {
-        console.log('Transcription received:', transcription);
+        //console.log('Transcription received:', transcription);
         onFinal(transcription);
       }
 
@@ -96,6 +98,7 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
     }
   };
 
+  //mic button
   const toggleRecording = () => {
     if (isRecording) {
       stopRecording();

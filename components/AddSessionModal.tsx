@@ -38,7 +38,8 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [notes, setNotes] = useState('');
   const insets = useSafeAreaInsets();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const now = new Date();
+  const today = new Date().toLocaleDateString('en-CA'); // -> "YYYY-MM-DD"
   const [selected, setSelected] = useState<string>(today);
   
 

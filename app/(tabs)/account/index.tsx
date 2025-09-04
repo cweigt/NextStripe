@@ -24,7 +24,9 @@ const AccountScreen = () => {
   const [stripeCount, setStripeCount] = useState(null);
   const [academy, setAcademy] = useState('');
   const [date, setDate] = useState('');
-  const [trainingStart, setTrainingStart] = useState('');
+  const [gender, setGender] = useState('');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
 
   //load belt data when component mounts and when screen comes into focus
   useFocusEffect(
@@ -33,10 +35,6 @@ const AccountScreen = () => {
     }, [user]) // Add user as dependency to reload data when user changes
   );
 
-  //uses URL parameter approach
-  const handleNavigateToProfile = () => {
-    router.push(`/account/profile?beltRank=${beltRank}&stripeCount=${stripeCount}`);
-  };
 
   const loadData = async () => {
     //clear all state first when loading data for a new user
@@ -44,6 +42,8 @@ const AccountScreen = () => {
     setStripeCount(null);
     setAcademy('--');
     setDate('--');
+    setGender('--');
+    setWeight('--');
     
     const uid = auth.currentUser?.uid; 
     if (!uid) return; //if no user then leave
@@ -53,11 +53,17 @@ const AccountScreen = () => {
       const stripeRef = ref(db, `users/${uid}/rank/stripeCount`);
       const academyRef = ref(db, `users/${uid}/academy`);
       const trainingRef = ref(db, `users/${uid}/timeTraining`);
+      const genderRef = ref(db, `users/${uid}/gender`);
+      const weightRef = ref(db, `users/${uid}/weight`);
+      const heightRef = ref(db, `users/${uid}/height`);
 
       const beltSnapshot = await get(beltRef);
       const stripeSnapshot = await get(stripeRef);
       const academySnapshot = await get(academyRef);
       const trainingSnapshot = await get(trainingRef);
+      const genderSnapshot = await get(genderRef);
+      const weightSnapshot = await get(weightRef);
+      const heightSnapshot = await get(heightRef);
       
       if(beltSnapshot.exists()){
           setBeltRank(beltSnapshot.val());
@@ -71,6 +77,16 @@ const AccountScreen = () => {
       if(trainingSnapshot.exists()){
         setDate(trainingSnapshot.val());
       }
+      if(genderSnapshot.exists()){
+        setGender(genderSnapshot.val());
+      }
+      if(weightSnapshot.exists()){
+        setWeight(weightSnapshot.val());
+      }
+      if(heightSnapshot.exists()){
+        setHeight(heightSnapshot.val());
+      }
+
 
     } catch (error) {
         console.log("Error loading user data:", error);
@@ -116,13 +132,22 @@ const AccountScreen = () => {
   
   return (
     <SafeAreaView style={styles.background} edges={['top']}>
+      {/* Header Section */}
+
+      <View style={[styles.headerBKG, {paddingBottom: -30}]}>
+        <Text style={styles.heading}>
+          My Account
+        </Text>
+        <TouchableOpacity 
+            style={{ position: 'absolute', right: 25, zIndex: 1 }}
+            onPress={() => router.push('/(tabs)/account/profile')} 
+          >
+            <Text style={[styles.back, {marginTop: 14}]}>Edit →</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         {user ? (
           <>
-            {/* Header Section */}
-            <View style={styles.headerSection}>
-              <Text style={styles.headerText}>My Account</Text>
-            </View>
 
             {/* Profile Section */}
             <View style={styles.profileSection}>
@@ -157,18 +182,25 @@ const AccountScreen = () => {
                 {/*need another dropdown for date*/}
                 <Text style={styles.infoCardValue}>{date}</Text>
               </View>
+              <View style={styles.infoCard}>
+                <Text style={styles.infoCardTitle}>Gender</Text>
+                {/*need another dropdown for date*/}
+                <Text style={styles.infoCardValue}>{gender}</Text>
+              </View>
+              <View style={styles.infoCard}>
+                <Text style={styles.infoCardTitle}>Weight (lbs)</Text>
+                {/*need another dropdown for date*/}
+                <Text style={styles.infoCardValue}>{weight}</Text>
+              </View>
+              <View style={styles.infoCard}>
+                <Text style={styles.infoCardTitle}>Height</Text>
+                {/*need another dropdown for date*/}
+                <Text style={styles.infoCardValue}>{height}</Text>
+              </View>
             </View>
 
             {/* Action Buttons */}
             <View style={styles.actionSection}>
-              <TouchableOpacity
-                onPress={handleNavigateToProfile}
-                style={styles.profileButton}
-              >
-                <Text style={styles.profileButtonText}>
-                  Edit Profile →
-                </Text>
-              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
                   auth.signOut();

@@ -41,6 +41,7 @@ const Training = () => {
   // Compute filtered sessions (OR match: any selected tag)
   const filteredSessions = useMemo(() => {
     if (selectedTags.size === 0) return sessions;
+    
     return (sessions || []).filter((s: any) => {
       if (!Array.isArray(s?.tags)) return false;
       return s.tags.some((t: any) => selectedTags.has(t));

@@ -36,6 +36,9 @@ const Profile = () => {
   const [showPasswordOld, setShowPasswordOld] = useState(false);
   const [showPasswordNew, setShowPasswordNew] = useState(false);
   const [showPasswordNewConfirm, setShowPasswordNewConfirm] = useState(false);
+  const [gender, setGender] = useState('');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
 
   //this is the same function as shown in deleting an account
   //needs to reauthenticate for resetting the password as well
@@ -92,6 +95,30 @@ const Profile = () => {
     await set(userRef, value);
   };
 
+  //saving gender to database
+  const saveGenderToDatabase = async (value: string) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const userRef = ref(db, `users/${uid}/gender`);
+    await set(userRef, value);
+  };
+  
+  //saving weight to database
+  const saveWeightToDatabase = async (value: string) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const userRef = ref(db, `users/${uid}/weight`);
+    await set(userRef, value);
+  };
+
+  //save height to database
+  const saveHeightToDatabase = async (value: string) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const userRef = ref(db, `users/${uid}/height`);
+    await set(userRef, value);
+  };
+
   const formatDate = (text: string) => {
     const cleaned = text.replace(/\D/g, '');
     if (cleaned.length === 0) return '';
@@ -104,11 +131,6 @@ const Profile = () => {
   
     if (cleaned.length <= 2) return month;
     return `${month}/${year}`;
-  };
-
-  const handleDateChange = (text: string) => {
-    const formatted = formatDate(text);
-    setDate(formatted);
   };
 
   const beltData = [
@@ -127,6 +149,12 @@ const Profile = () => {
     { label: '4 Stripes', value: '4th Stripe' },
   ];
 
+  const genderData = [
+    { label: 'Male', value: 'Male'},
+    { label: 'Female', value: 'Female'},
+    { label: 'Other', value: 'Other'}
+  ];
+
   //add useEffect to load saved values
   useEffect(() => {
     loadData();
@@ -143,11 +171,17 @@ const Profile = () => {
         const stripeRef = ref(db, `users/${uid}/rank/stripeCount`);
         const academyRef = ref(db, `users/${uid}/academy`);
         const trainingRef = ref(db, `users/${uid}/timeTraining`);
+        const genderRef = ref(db, `users/${uid}/gender`);
+        const weightRef = ref(db, `users/${uid}/weight`);
+        const heightRef = ref(db, `users/${uid}/height`);
 
         const beltSnapshot = await get(beltRef);
         const stripeSnapshot = await get(stripeRef);
         const academySnapshot = await get(academyRef);
         const trainingSnapshot = await get(trainingRef);
+        const genderSnapshot = await get(genderRef);
+        const weightSnapshot = await get(weightRef);
+        const heightSnapshot = await get(heightRef);
         
         if(beltSnapshot.exists()){
             setBeltRank(beltSnapshot.val());
@@ -161,6 +195,15 @@ const Profile = () => {
         if(trainingSnapshot.exists()){
           setDate(trainingSnapshot.val());
         }
+        if(genderSnapshot.exists()){
+          setGender(genderSnapshot.val());
+        }
+        if(weightSnapshot.exists()){
+          setWeight(weightSnapshot.val());
+        }
+        if(heightSnapshot.exists()){
+          setHeight(heightSnapshot.val());
+        }
 
     } catch (error) {
         console.log("Error loading belt rank!");
@@ -171,9 +214,18 @@ const Profile = () => {
   const handleBeltChange = useCallback((value: string) => {
     setBeltRank(value);
   }, []);
+
+  const handleDateChange = (text: string) => {
+    const formatted = formatDate(text);
+    setDate(formatted);
+  };
   
   const handleStripeChange = useCallback((value: string) => {
     setStripeCount(value);
+  }, []);
+
+  const handleGenderChange = useCallback((value: string) => {
+    setGender(value);
   }, []);
 
   const saveAllChanges = async () => {
@@ -182,6 +234,9 @@ const Profile = () => {
       if (stripeCount) await saveStripeCountToDatabase(stripeCount);
       if (academy) await saveAcademyToDatabase(academy);
       if (date) await saveTrainingDateToDatabase(date);
+      if (gender) await saveGenderToDatabase(gender);
+      if (weight) await saveWeightToDatabase(weight);
+      if (height) await saveHeightToDatabase(height);
       reauthenticate(); //make sure to retest at some point to make sure the modal works for reauthentication
 
       SuccessAlert();
@@ -213,7 +268,7 @@ const Profile = () => {
             onPress={() => router.back()}
             style={{ position: 'absolute', top: 60, left: 20, zIndex: 1 }}
           >
-            <Text style={styles.back}>
+            <Text style={[styles.back, {marginTop: 15}]}>
               ← Back
             </Text>
           </TouchableOpacity>
@@ -224,7 +279,7 @@ const Profile = () => {
                 style={{ position: 'absolute', top: 60, right: 25, zIndex: 1 }}
                 onPress={saveAllChanges}
               >
-                <Text style={styles.back}>Save</Text>
+                <Text style={[styles.back, {marginTop: 15}]}>Save</Text>
             </TouchableOpacity>
         </View>
 
@@ -280,6 +335,44 @@ const Profile = () => {
                 maxLength={7}
               >
               </TextInput>
+              <View style={{justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
+                <Text style={styles.title}>
+                  Gender
+                </Text>
+                <DropdownComp 
+                    data={genderData} 
+                    placeholder="Select Gender" 
+                    value={gender} 
+                    onChange={handleGenderChange} 
+                />
+              </View>
+              <Text style={styles.title}>
+                Weight (lbs)
+              </Text>
+              <TextInput 
+                style={[styles.input, {marginTop: 15, marginBottom: 30}]}
+                value={weight}
+                onChangeText={setWeight}
+                //keyboardType="email-address"
+                placeholder= "Weight in pounds..."
+                placeholderTextColor='#d9d9d9'
+              >
+              </TextInput>
+              <Text style={styles.title}>
+                Height (ft, in)
+              </Text>
+              <TextInput 
+                style={[styles.input, {marginTop: 15, marginBottom: 30}]}
+                value={height}
+                onChangeText={setHeight}
+                //keyboardType="email-address"
+                placeholder={"Height... (5' 8\")"}
+                placeholderTextColor='#d9d9d9'
+              >
+              </TextInput>
+
+
+
               <Text style={styles.title}>
                 Reset Password
               </Text>

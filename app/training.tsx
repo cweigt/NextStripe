@@ -6,7 +6,7 @@ import { TrainingStyles as styles } from '@/styles/Training.styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { get, getDatabase, ref, set } from 'firebase/database';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,6 +19,33 @@ const Training = () => {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
+
+  //tag filter UI state
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+
+  //getting unique available tags from all sessions
+  //using memo so it stays "cached" and doesn't have to reload a bunch 
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    (sessions || []).forEach((s: any) => {
+      if (Array.isArray(s?.tags)) {
+        s.tags.forEach((t: any) => {
+          if (typeof t === 'string' && t.trim().length > 0) tagSet.add(t);
+        });
+      }
+    });
+    return Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+  }, [sessions]);
+
+  // Compute filtered sessions (OR match: any selected tag)
+  const filteredSessions = useMemo(() => {
+    if (selectedTags.size === 0) return sessions;
+    return (sessions || []).filter((s: any) => {
+      if (!Array.isArray(s?.tags)) return false;
+      return s.tags.some((t: any) => selectedTags.has(t));
+    });
+  }, [sessions, selectedTags]);
 
   //controls the scroll if-then for the back to top
   const onScroll = (e: any) => {
@@ -45,7 +72,7 @@ const Training = () => {
         
         if (sessionsSnapshot.exists()) {
           const sessionsData = sessionsSnapshot.val();
-          // Convert to array with IDs
+          //convert to array with IDs
           const sessionsArray = Object.entries(sessionsData).map(([id, session]: [string, any]) => ({
             id,
             ...session
@@ -134,6 +161,16 @@ const Training = () => {
      await updateSessionCountInFirebase(newCount);
   };
 
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag); else next.add(tag);
+      return next;
+    });
+  };
+
+  const clearFilters = () => setSelectedTags(new Set());
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -146,6 +183,56 @@ const Training = () => {
           <Text style={styles.headerTitle}>Training Log</Text>
         </View>
 
+        {/* Filter bar */}
+        <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+          <TouchableOpacity
+            onPress={() => setIsFilterOpen(v => !v)}
+            activeOpacity={0.8}
+            style={styles.openFilter}
+          >
+            <Text style={{ fontWeight: '600' }}>
+              {isFilterOpen ? 'Close Filters' : 'Filter by tag'}
+            </Text>
+          </TouchableOpacity>
+
+          {isFilterOpen && (
+            <View
+              style={styles.openContainer}
+            >
+              <Text style={{ fontWeight: '600', marginBottom: 8 }}>Tags</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {availableTags.length === 0 ? (
+                  <Text style={{ color: '#777' }}>No tags found</Text>
+                ) : (
+                  availableTags.map(tag => {
+                    const isSelected = selectedTags.has(tag);
+                    return (
+                      <TouchableOpacity
+                        key={tag}
+                        onPress={() => toggleTag(tag)}
+                        style={isSelected ? styles.tagsSelected : styles.tagsUnselected}
+                      >
+                        <Text style={isSelected ? styles.tagTextSelected : styles.tagTextUnselected}>
+                          {tag}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })
+                )}
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+                <TouchableOpacity onPress={clearFilters} style={{ paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: '#f0f0f0' }}>
+                  <Text>Clear</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setIsFilterOpen(false)} style={{ paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: '#111' }}>
+                  <Text style={{ color: 'white' }}>Done</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+
         <ScrollView 
           ref={scrollRef}
           showsVerticalScrollIndicator={false}
@@ -156,10 +243,10 @@ const Training = () => {
           <View style={{ marginBottom: 10 }} />
 
           <View style={styles.container}>
-            {sessions.length === 0 ? (
+            {filteredSessions.length === 0 ? (
               <Text style={styles.subtitle}>Nothing to see here!</Text>
             ) : (
-              sessions.map((session, index) => (
+              filteredSessions.map((session: any, index: number) => (
                 <Card 
                   key={session.id} 
                   session={session} 
@@ -185,7 +272,7 @@ const Training = () => {
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={[styles.plus, { bottom: insets.bottom + 16 }]}
+          style={[styles.plus, { bottom: insets.bottom + 16 }]} 
           onPress={openModalAdd}
         >
           {/*this will eventually call the add function for session and bring up data entry*/}

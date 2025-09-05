@@ -13,6 +13,7 @@ import {
   View
 } from 'react-native';
 
+import { TAGS } from '@/constants/Tags';
 import { colors } from '@/styles/theme';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,23 +51,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [rawTranscript, setRawTranscript] = useState('');   // hidden buffer of full transcript
   const [isSummarizing, setIsSummarizing] = useState(false); // optional: disable Update while summarizing
 
-
-  //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
-  //need this in edit as well so that I can change it
-  const TAGS = [
-    "Takedowns", 
-    "Guard Attacks", 
-    "Side-Control Attacks",
-    "Mount Attacks", 
-    "Guard Sweeps", 
-    "Guard Passes", 
-    "Side-Control Escapes",
-    "Back Escapes",
-    "Mount Escapes",
-    "Back Control",
-    "Chokes",
-    "Locks",
-  ]; 
+  
 
   //swapping logic for the tags
   const toggleTag = (tag: string) => {
@@ -276,7 +261,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               }}
             />
 
-            <Text style={styles.requirements}>
+            <Text style={[styles.requirements, {marginTop: 20}]}>
               Session Duration in Hours
             </Text>
             <TextInput 
@@ -291,7 +276,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
             <Text style={[styles.requirements, {marginBottom: 8}]}>
               Tags
             </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            
+            <View style={{ flexDirection: "row", flexWrap: 'wrap', gap: 8}}>
               {TAGS.map((tag) => {
                 const isSelected = selectedTags.has(tag);
                 return (

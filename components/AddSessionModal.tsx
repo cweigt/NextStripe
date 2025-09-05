@@ -13,6 +13,7 @@ import {
   View
 } from 'react-native';
 
+import { TAGS } from '@/constants/Tags';
 import { colors } from '@/styles/theme';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -45,23 +46,6 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [isSummarizing, setIsSummarizing] = useState(false); // NEW (optional)
   const [isEditingNotes, setIsEditingNotes] = useState(false);
 
-  
-
-  //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
-  const TAGS = [
-    "Takedowns", 
-    "Guard Attacks", 
-    "Side-Control Attacks",
-    "Mount Attacks", 
-    "Guard Sweeps", 
-    "Guard Passes", 
-    "Side-Control Escapes",
-    "Back Escapes",
-    "Mount Escapes",
-    "Back Control",
-    "Chokes",
-    "Locks",
-  ]; 
 
   //swapping logic for the tags
   //if something has the tag and it is clicked, remove it

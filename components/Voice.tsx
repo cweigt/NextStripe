@@ -6,6 +6,7 @@ import { Alert, TouchableOpacity } from 'react-native';
 
 type Props = {
   onFinal?: (summary: string, text: string) => void;
+  onBusyChange?: (busy: boolean) => void; // notify parent when recording/processing
   apiKey: string; // You'll need to pass your OpenAI API key
 };
 
@@ -25,7 +26,7 @@ async function summarizeWithGPT({
     model,
     messages: [
       { role: 'system', content: 'You are a helpful assistant that summarizes transcripts clearly and faithfully.' },
-      { role: 'user', content: `Summarize the following transcript into ${style}. Keep names and key actions accurate.\n\n---\n${transcript}` }
+      { role: 'user', content: `Summarize the following transcript into ${style}. Keep names and key actions accurate, please use first person.\n\n---\n${transcript}` }
     ],
     //temperature: 1,
     //max_tokens: 500
@@ -50,7 +51,7 @@ async function summarizeWithGPT({
   return data.choices?.[0]?.message?.content?.trim() ?? '';
 }
 
-const VoiceComponent = ({ onFinal, apiKey }: Props) => {
+const VoiceComponent = ({ onFinal, onBusyChange, apiKey }: Props) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const recordingRef = useRef<Audio.Recording | null>(null);
@@ -77,10 +78,12 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
       
       recordingRef.current = recording;
       setIsRecording(true);
+      if (onBusyChange) onBusyChange(true);
       
     } catch (error) {
       console.error('Failed to start recording:', error);
       Alert.alert('Error', 'Failed to start recording');
+      if (onBusyChange) onBusyChange(false);
     }
   };
 
@@ -143,6 +146,7 @@ const VoiceComponent = ({ onFinal, apiKey }: Props) => {
       Alert.alert('Error', 'Failed to transcribe audio');
     } finally {
       setIsProcessing(false);
+      if (onBusyChange) onBusyChange(false);
     }
   };
 

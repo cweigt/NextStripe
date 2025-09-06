@@ -1,6 +1,6 @@
 import { OPENAI_API_KEY } from '@/config/api';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -44,6 +44,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [selected, setSelected] = useState<string>(today);
   const [rawTranscript, setRawTranscript] = useState('');   // NEW
   const [isSummarizing, setIsSummarizing] = useState(false); // NEW (optional)
+  const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
 
 
@@ -65,7 +66,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
       model: 'gpt-5-nano', // swap if needed
       messages: [
         { role: 'system', content: 'You summarize transcripts clearly and faithfully.' },
-        { role: 'user', content: `Summarize the following transcript into a short paragraph plus 3-5 bullet points. Keep names and key actions accurate.\n\n---\n${transcript}` }
+        { role: 'user', content: `Summarize the following transcript into a short paragraph plus 3-5 bullet points. Keep names and key actions accurate, please use first person.\n\n---\n${transcript}` }
       ]
       // omit temperature/max_tokens if nano doesn’t support them
     };
@@ -142,6 +143,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setDuration('');
     setNotes('');
     setSelectedTags(new Set()); // Reset tags
+    setRawTranscript('');
     onClose();
   };
 
@@ -151,8 +153,16 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setDuration('');
     setNotes('');
     setSelectedTags(new Set()); // Reset tags
+    setRawTranscript('');
     onClose();
   };
+
+  // Ensure fresh buffer each time the modal is opened
+  useEffect(() => {
+    if (isVisible) {
+      setRawTranscript('');
+    }
+  }, [isVisible]);
 
   return (
     <Modal
@@ -174,13 +184,13 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
 
           <TouchableOpacity
             onPress={handleSave}
-            disabled={isSummarizing}
+            disabled={isSummarizing || isRecordingOrProcessing}
             style={styles.modalSaveButton}
           >
             <Text
               style={[
                 styles.modalSaveText,
-                isSummarizing && { color: colors.gray400 } // gray out text only
+                (isSummarizing || isRecordingOrProcessing) && { color: colors.gray400 } // gray out text only
               ]}
             >
               Save
@@ -289,7 +299,11 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
             <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
               {/* Voice input using Whisper API - positioned in top right */}
               <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
-                <VoiceComponent onFinal={insertIntoNotes} apiKey={OPENAI_API_KEY} />
+                <VoiceComponent
+                  onFinal={insertIntoNotes}
+                  onBusyChange={setIsRecordingOrProcessing}
+                  apiKey={OPENAI_API_KEY}
+                />
               </View>
               
               <TextInput

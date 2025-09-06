@@ -50,6 +50,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [selected, setSelected] = useState<string>(today);
   const [rawTranscript, setRawTranscript] = useState('');   // hidden buffer of full transcript
   const [isSummarizing, setIsSummarizing] = useState(false); // optional: disable Update while summarizing
+  const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
 
   
 
@@ -68,8 +69,16 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     const body = {
       model: 'gpt-5-nano', // swap to your lightweight model if needed
       messages: [
-        { role: 'system', content: 'You summarize transcripts clearly and faithfully.' },
-        { role: 'user', content: `Summarize the following transcript into a short paragraph plus 3-5 bullet points. Keep names and key actions accurate.\n\n---\n${transcript}` }
+        {
+          role: 'system',
+          content:
+            'You update existing training notes using new transcript chunks. Preserve correct prior details, merge in new information, keep first person voice, and output a short paragraph plus 3-5 bullet points. Update accurate existing bullet points to account for new information.'
+        },
+        {
+          role: 'user',
+          content:
+            `Update the notes using the provided context. If both EXISTING_NOTES and TRANSCRIPT are present, treat EXISTING_NOTES as the prior summary and refine it with info from TRANSCRIPT. Keep names and key actions accurate, use first person.\n\n---\n${transcript}`
+        }
       ]
       // omit temperature/max_tokens if your nano variant doesn’t support them
     };
@@ -94,24 +103,33 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   
 
   // Expect both args; transcript may be undefined if nothing came back
+ // optional helper to strip any HTML you might have saved earlier
+  const clean = (s: string) => (s || '').replace(/<[^>]*>/g, '').trim();
+
   const insertIntoNotes = async (_summary: string, latestTranscript?: string) => {
     if (!latestTranscript) return;
 
     setIsSummarizing(true);
     try {
+      // keep accumulating the transcript for THIS edit session
       const updated = rawTranscript ? `${rawTranscript} ${latestTranscript}` : latestTranscript;
       setRawTranscript(updated);
 
-      // Re-summarize the FULL buffer to keep quality high
-      const freshSummary = await summarizeAll(updated);
-      setNotes(freshSummary); // replace notes with new summary
+      // include whatever is currently in the Notes box as well
+      const existing = clean(notes);
+      const source = existing
+        ? `EXISTING_NOTES:\n${existing}\n\nTRANSCRIPT:\n${updated}`
+        : updated;
+
+      const freshSummary = await summarizeAll(source);
+      setNotes(freshSummary); // replace with the combined summary
     } catch (e) {
       console.error(e);
-      // optionally show a toast/alert
     } finally {
       setIsSummarizing(false);
     }
   };
+
 
   // Update form fields when session prop changes
   useEffect(() => {
@@ -120,6 +138,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       setDate(session.date || '');
       setDuration(session.duration || '');
       setNotes(session.notes || '');
+      // Clear transcript buffer when switching sessions
+      setRawTranscript('');
       
       // No need to update rich editor - using simple TextInput now
       // Ensure calendar receives a valid YYYY-MM-DD string
@@ -166,13 +186,22 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     setDate('');
     setDuration('');
     setNotes('');
+    setRawTranscript('');
     onClose();
   };
 
   const handleCancel = () => {
     //reset form
+    setRawTranscript('');
     onClose();
   };
+
+  // Ensure fresh buffer each time the modal is opened/closed
+  useEffect(() => {
+    if (isVisible) {
+      setRawTranscript('');
+    }
+  }, [isVisible]);
 
   return (
     <Modal
@@ -194,13 +223,13 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
 
           <TouchableOpacity
             onPress={handleUpdate}
-            disabled={isSummarizing}
+            disabled={isSummarizing || isRecordingOrProcessing}
             style={styles.modalSaveButton}
           >
             <Text
               style={[
                 styles.modalSaveText,
-                isSummarizing && { color: colors.gray400 } // gray out text only
+                (isSummarizing || isRecordingOrProcessing) && { color: colors.gray400 } // gray out text only
               ]}
             >
               Update
@@ -302,7 +331,11 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
               {/* Voice input using Whisper API - positioned in top right */}
               <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
-                <VoiceComponent onFinal={insertIntoNotes} apiKey={OPENAI_API_KEY} />
+                <VoiceComponent
+                  onFinal={insertIntoNotes}
+                  onBusyChange={setIsRecordingOrProcessing}
+                  apiKey={OPENAI_API_KEY}
+                />
               </View>
               
               <TextInput

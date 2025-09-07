@@ -23,6 +23,7 @@ const Training = () => {
   //tag filter UI state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const [mostRecentDate, setMostRecentDate] = useState(null);
 
   //getting unique available tags from all sessions
   //using memo so it stays "cached" and doesn't have to reload a bunch 
@@ -54,6 +55,24 @@ const Training = () => {
     setShowBackToTop(y > 200); // show after 200px; tweak as you like
   };
 
+  // robustly parse either MM/DD/YYYY or YYYY-MM-DD into a comparable timestamp
+  const getDateTimestamp = (dateStr?: string): number => {
+    if (!dateStr || typeof dateStr !== 'string') return 0;
+    if (dateStr.includes('/')) {
+      const [mm, dd, yyyy] = dateStr.split('/').map(s => s.trim());
+      const yNum = Number(yyyy), mNum = Number(mm), dNum = Number(dd);
+      if (!yNum || !mNum || !dNum) return 0;
+      return new Date(yNum, mNum - 1, dNum).getTime();
+    }
+    if (dateStr.includes('-')) {
+      const [yyyy, mm, dd] = dateStr.split('-').map(s => s.trim());
+      const yNum = Number(yyyy), mNum = Number(mm), dNum = Number(dd);
+      if (!yNum || !mNum || !dNum) return 0;
+      return new Date(yNum, mNum - 1, dNum).getTime();
+    }
+    return 0;
+  };
+
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
@@ -78,7 +97,7 @@ const Training = () => {
             id,
             ...session
           }));
-          //console.log('Loaded sessions:', sessionsArray.length, 'Sessions data:', sessionsData);
+
           setSessions(sessionsArray);
           
           // Always use the actual count from sessions, not the stored count
@@ -119,10 +138,25 @@ const Training = () => {
   };
 
   const handleDeleteSession = async (sessionId: string) => {
-    setSessions(prev => prev.filter(session => session.id !== sessionId));
+    // compute next sessions list synchronously so we can recalc most recent
+    const nextSessions = sessions.filter((session: any) => session.id !== sessionId);
+    setSessions(nextSessions);
     const newCount = sessionCount - 1;
     setSessionCount(newCount);
     await updateSessionCountInFirebase(newCount);
+
+    //recompute most recent date from remaining sessions and update Firebase
+    if (!user?.uid) return;
+    let maxTs = 0;
+    let mostRecentDateStr: string | 'NA' = 'NA';
+    for (const s of nextSessions) {
+      const ts = getDateTimestamp(s?.date);
+      if (Number.isFinite(ts) && ts > maxTs) {
+        maxTs = ts;
+        mostRecentDateStr = s?.date || 'NA';
+      }
+    }
+    await set(ref(db, `users/${user.uid}/mostRecentDate`), { lastTrained: mostRecentDateStr });
   };
 
   //this function is passed to EditSessionModal so that it updates the log right when it edits
@@ -149,6 +183,23 @@ const Training = () => {
        duration: sessionData.duration,
        notes: sessionData.notes,
        tags: sessionData.tags || [],
+     });
+
+     //set date somewhere else also for firebase retrieval 
+     // after adding, recompute most recent date from all sessions (including new)
+     const updatedSessions = [...sessions, { id: sessionId, ...sessionData }];
+     let maxTs = 0;
+     let mostRecentDateStr: string | 'NA' = 'NA';
+     for (const s of updatedSessions) {
+       const ts = getDateTimestamp(s?.date);
+       if (Number.isFinite(ts) && ts > maxTs) {
+         maxTs = ts;
+         mostRecentDateStr = s?.date || 'NA';
+       }
+     }
+     const dateRef = ref(db, `users/${user.uid}/mostRecentDate`);
+     await set(dateRef, {
+       lastTrained: mostRecentDateStr,
      });
      
      //add to local state with ID

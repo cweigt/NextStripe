@@ -23,7 +23,6 @@ const Training = () => {
   //tag filter UI state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const [mostRecentDate, setMostRecentDate] = useState(null);
 
   //getting unique available tags from all sessions
   //using memo so it stays "cached" and doesn't have to reload a bunch 
@@ -55,7 +54,7 @@ const Training = () => {
     setShowBackToTop(y > 200); // show after 200px; tweak as you like
   };
 
-  // robustly parse either MM/DD/YYYY or YYYY-MM-DD into a comparable timestamp
+  //robustly parse either MM/DD/YYYY or YYYY-MM-DD into a comparable timestamp
   const getDateTimestamp = (dateStr?: string): number => {
     if (!dateStr || typeof dateStr !== 'string') return 0;
     if (dateStr.includes('/')) {
@@ -156,7 +155,19 @@ const Training = () => {
         mostRecentDateStr = s?.date || 'NA';
       }
     }
-    await set(ref(db, `users/${user.uid}/mostRecentDate`), { lastTrained: mostRecentDateStr });
+    await set(ref(db, `users/${user.uid}/mostRecentDate`), { 
+      lastTrained: mostRecentDateStr 
+    });
+
+    //also recompute max hours and update records
+    const maxHoursAfterDelete = nextSessions.reduce((max: number, s: any) => {
+      const hours = parseFloat(s?.duration) || 0;
+      return hours > max ? hours : max; //if hours is greater than max, return hours
+    }, 0);
+    const recordsRef = ref(db, `users/${user.uid}/records`);
+    await set(recordsRef, { 
+      maxHours: maxHoursAfterDelete 
+    });
   };
 
   //this function is passed to EditSessionModal so that it updates the log right when it edits
@@ -201,7 +212,17 @@ const Training = () => {
      await set(dateRef, {
        lastTrained: mostRecentDateStr,
      });
-     
+
+     //compute max hours from updatedSessions upon saving the session
+     const maxHoursAfterAdd = updatedSessions.reduce((max: number, s: any) => {
+       const hours = parseFloat(s?.duration) || 0;
+       return hours > max ? hours : max;
+     }, 0);
+
+     const recordsRef = ref(db, `users/${user.uid}/records`);
+     await set(recordsRef, {
+       maxHours: maxHoursAfterAdd,
+     });
      //add to local state with ID
      const newSession = {
        id: sessionId,

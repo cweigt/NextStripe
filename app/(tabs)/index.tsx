@@ -19,6 +19,7 @@ const Dashboard = () => {
   //make sure to parse to an int for math and then back to string for display
   const [totalSessionHours, setTotalSessionHours] = useState(''); //for the total hours
   const [recentDate, setRecentDate] = useState(''); //for recent date
+  const [maxHours, setMaxHours] = useState('');
   const uid = user?.uid;
 
   //load stats when component mounts
@@ -27,15 +28,37 @@ const Dashboard = () => {
       loadHours();
       loadCount();
       loadRecentDate();
+      loadMaxHours();
     } else {
       //reset state when no user
-      setTotalSessionHours('');
-      setSessionCount(0);
-      setRecentDate('NA');
+      setTotalSessionHours(''); //0
+      setSessionCount(0); //0
+      setRecentDate('NA'); //NA
+      setMaxHours(''); //0
     }
   }, [user]);
 
   //NOTE: onValue will fetch everytime the value of path changes
+  //load max hours for a session
+  const loadMaxHours = async () => {
+    if (!uid) return;
+
+    try {
+      const maxHourRef = ref(db, `users/${uid}/records/maxHours`);
+
+      const listener = onValue(maxHourRef, (snapshot) => {
+        if(snapshot.exists()){
+          const hourSnap = snapshot.val();
+          setMaxHours(hourSnap);
+        } else {
+          setMaxHours('NA');
+        }
+      });
+      return () => listener();
+    } catch (error) {
+      console.log(error);
+    }
+  }
   //loading most recent date
   const loadRecentDate = async () => {
     if (!uid) return;
@@ -155,6 +178,15 @@ const Dashboard = () => {
             <View style={styles.analyticsCard}>
               <Text style={styles.analyticsNumber}>{recentDate}</Text>
               <Text style={styles.analyticsLabel}>Last Trained</Text>
+            </View>
+          </View>
+
+          {/*Records section*/}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Personal Records</Text>
+            <View style={styles.analyticsCard}>
+              <Text style={styles.analyticsNumber}>{maxHours}</Text>
+              <Text style={styles.analyticsLabel}>Most Hours in a Session</Text>
             </View>
           </View>
 

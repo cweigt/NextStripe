@@ -80,7 +80,6 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
             `Update the notes using the provided context. If both EXISTING_NOTES and TRANSCRIPT are present, treat EXISTING_NOTES as the prior summary and refine it with info from TRANSCRIPT. Keep names and key actions accurate, use first person.\n\n---\n${transcript}`
         }
       ]
-      // omit temperature/max_tokens if your nano variant doesn’t support them
     };
   
     const resp = await fetch('https://api.openai.com/v1/chat/completions', {

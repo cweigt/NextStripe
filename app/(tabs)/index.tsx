@@ -1,6 +1,6 @@
 
 import { useAuth } from '@/contexts/AuthContext';
-import { auth, db } from '@/firebase';
+import { db } from '@/firebase';
 import { DashboardStyles as styles } from '@/styles/Dashboard.styles';
 import { router } from 'expo-router';
 import { onValue, ref } from 'firebase/database';
@@ -16,32 +16,49 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const Dashboard = () => {
   const { user } = useAuth();
   const [sessionCount, setSessionCount] = useState(0);
-
   //make sure to parse to an int for math and then back to string for display
   const [totalSessionHours, setTotalSessionHours] = useState(''); //for the total hours
+  const [recentDate, setRecentDate] = useState(''); //for recent date
+  const uid = user?.uid;
 
-  //load hours when component mounts
+  //load stats when component mounts
   useEffect(() => {
     if (user) {
       loadHours();
+      loadCount();
+      loadRecentDate();
     } else {
       //reset state when no user
       setTotalSessionHours('');
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      loadCount();
-    } else {
-      //reset state when no user
       setSessionCount(0);
+      setRecentDate('NA');
     }
   }, [user]);
 
+  //NOTE: onValue will fetch everytime the value of path changes
+  //loading most recent date
+  const loadRecentDate = async () => {
+    if (!uid) return;
+
+    try {
+      const dateRef = ref(db, `users/${uid}/mostRecentDate/lastTrained`);
+
+      const listener = onValue(dateRef, (snapshot) => {
+        if(snapshot.exists()){
+          const dateSnap = snapshot.val();
+          setRecentDate(dateSnap);
+        } else {
+          setRecentDate('NA');
+        }
+      });
+      return () => listener();
+
+    } catch (error){
+      console.log(error);
+    }
+  }
   //loading hours
   const loadCount = async () => {
-    const uid = auth.currentUser?.uid;
     if (!uid) return;
 
     try {
@@ -64,7 +81,6 @@ const Dashboard = () => {
   };
 
   const loadHours = async () => {
-    const uid = auth.currentUser?.uid;
     if (!uid) return;
 
     const sessionsRef = ref(db, `users/${uid}/sessions`);
@@ -121,7 +137,7 @@ const Dashboard = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Training Analytics Section */}
+          {/*Quick stats section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Quick Stats</Text>
             <View style={styles.analyticsContainer}>
@@ -133,12 +149,12 @@ const Dashboard = () => {
                 <Text style={styles.analyticsNumber}>{sessionCount}</Text>
                 <Text style={styles.analyticsLabel}>Sessions</Text>
               </View>
-              {/*
-              <View style={styles.analyticsCard}>
-                <Text style={styles.analyticsNumber}>85%</Text>
-                <Text style={styles.analyticsLabel}>Consistency</Text>
-              </View>
-              */}
+            </View>
+          </View>
+          <View style={[styles.section, {marginTop: -23}]}>
+            <View style={styles.analyticsCard}>
+              <Text style={styles.analyticsNumber}>{recentDate}</Text>
+              <Text style={styles.analyticsLabel}>Last Trained</Text>
             </View>
           </View>
 

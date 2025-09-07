@@ -66,7 +66,7 @@ const Sign_Up = ({ setUser }) => {
         setErrorMessage('');
         setLoading(true);
         try {
-          // normalize inputs
+          //normalize inputs
           const cleanEmail = email.trim().toLowerCase();
           const cleanFirst = firstName.trim();
           const cleanLast = lastName.trim();
@@ -96,7 +96,7 @@ const Sign_Up = ({ setUser }) => {
             firstName: cleanFirst,
             lastName: cleanLast,
             displayName: `${cleanFirst} ${cleanLast}`,
-            createdAt: new Date().toISOString(),
+            createdAt: new Date().toLocaleString('en-CA'),
             photoURL: null,
           });
       

@@ -31,7 +31,6 @@ const toTime = (iso: string) => moment(iso).format('h:mm A');
 
 
 
-/** ---------- Schedule Screen ---------- */
 const Schedule = () => {
   const { user } = useAuth();
   const swiper = useRef<any>(null);
@@ -121,126 +120,134 @@ const Schedule = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Your Schedule</Text>
-        </View>
+      {user ? (
+      <>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Your Schedule</Text>
+          </View>
 
-        {/* Week picker */}
-        <View style={styles.picker}>
+          {/* Week picker */}
+          <View style={styles.picker}>
+            <Swiper
+              index={1}
+              ref={swiper}
+              loop={false}
+              showsPagination={false}
+              onIndexChanged={ind => {
+                if (ind === 1) return;
+                const index = ind - 1;
+                const next = moment(value).add(index, 'week').toDate();
+                setValue(next);
+                setTimeout(() => {
+                  setWeek(week + index);
+                  swiper.current?.scrollBy(-index, false);
+                }, 10);
+              }}
+            >
+              {weeks.map((dates, i) => (
+                <View style={styles.itemRow} key={i}>
+                  {dates.map((item, j) => {
+                    const isActive = value.toDateString() === item.date.toDateString();
+                    const k = dateKey(item.date);
+                    return (
+                      <TouchableWithoutFeedback key={j} onPress={() => setValue(item.date)}>
+                        <View style={[styles.item, isActive && { backgroundColor: '#007AFF', borderColor: '#007AFF' }]}>
+                          <Text style={[styles.itemWeekday, isActive && { color: '#fff' }]}>{item.weekday}</Text>
+                          <Text style={[styles.itemDate, isActive && { color: '#fff' }]}>{item.date.getDate()}</Text>
+                          {Boolean(eventDays[k]) && (
+                            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: isActive ? '#fff' : '#007AFF', alignSelf: 'center', marginTop: 4 }} />
+                          )}
+                        </View>
+                      </TouchableWithoutFeedback>
+                    );
+                  })}
+                </View>
+              ))}
+            </Swiper>
+          </View>
+
+          {/* Day content */}
           <Swiper
             index={1}
-            ref={swiper}
+            ref={contentSwiper}
             loop={false}
             showsPagination={false}
             onIndexChanged={ind => {
               if (ind === 1) return;
-              const index = ind - 1;
-              const next = moment(value).add(index, 'week').toDate();
-              setValue(next);
               setTimeout(() => {
-                setWeek(week + index);
-                swiper.current?.scrollBy(-index, false);
+                const offset = ind - 1;
+                const nextValue = moment(value).add(offset, 'days');
+                if (moment(value).week() !== nextValue.week()) {
+                  setWeek(moment(value).isBefore(nextValue) ? week + 1 : week - 1);
+                }
+                setValue(nextValue.toDate());
+                contentSwiper.current?.scrollBy(-offset, false);
               }, 10);
             }}
           >
-            {weeks.map((dates, i) => (
-              <View style={styles.itemRow} key={i}>
-                {dates.map((item, j) => {
-                  const isActive = value.toDateString() === item.date.toDateString();
-                  const k = dateKey(item.date);
-                  return (
-                    <TouchableWithoutFeedback key={j} onPress={() => setValue(item.date)}>
-                      <View style={[styles.item, isActive && { backgroundColor: '#007AFF', borderColor: '#007AFF' }]}>
-                        <Text style={[styles.itemWeekday, isActive && { color: '#fff' }]}>{item.weekday}</Text>
-                        <Text style={[styles.itemDate, isActive && { color: '#fff' }]}>{item.date.getDate()}</Text>
-                        {Boolean(eventDays[k]) && (
-                          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: isActive ? '#fff' : '#007AFF', alignSelf: 'center', marginTop: 4 }} />
-                        )}
-                      </View>
-                    </TouchableWithoutFeedback>
-                  );
-                })}
-              </View>
-            ))}
-          </Swiper>
-        </View>
+            {days.map((day, index) => {
+              const k = dateKey(day);
+              const isSelected = dateKey(value) === k;
+              return (
+                <View key={index} style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 24 }}>
+                  <Text style={styles.subtitle}>
+                    {day.toLocaleDateString('en-US', { dateStyle: 'full' })}
+                  </Text>
 
-        {/* Day content */}
-        <Swiper
-          index={1}
-          ref={contentSwiper}
-          loop={false}
-          showsPagination={false}
-          onIndexChanged={ind => {
-            if (ind === 1) return;
-            setTimeout(() => {
-              const offset = ind - 1;
-              const nextValue = moment(value).add(offset, 'days');
-              if (moment(value).week() !== nextValue.week()) {
-                setWeek(moment(value).isBefore(nextValue) ? week + 1 : week - 1);
-              }
-              setValue(nextValue.toDate());
-              contentSwiper.current?.scrollBy(-offset, false);
-            }, 10);
-          }}
-        >
-          {days.map((day, index) => {
-            const k = dateKey(day);
-            const isSelected = dateKey(value) === k;
-            return (
-              <View key={index} style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 24 }}>
-                <Text style={styles.subtitle}>
-                  {day.toLocaleDateString('en-US', { dateStyle: 'full' })}
-                </Text>
-
-                <View style={[styles.placeholder, { padding: 12 }]}>
-                  <FlatList
-                    data={isSelected ? events : []}
-                    keyExtractor={(item) => item.id}
-                    ListEmptyComponent={
-                      <Text style={{ opacity: 0.6, textAlign: 'center', paddingVertical: 24 }}>
-                        No events for this day.
-                      </Text>
-                    }
-                    renderItem={({ item }) => (
-                      <View style={styles.placeholderInset}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <View style={{ flex: 1 }}>
-                            <Text style={{ fontWeight: '600' }}>{item.title}</Text>
-                            <Text style={{ opacity: 0.7 }}>{toTime(item.startISO)}</Text>
+                  <View style={[styles.placeholder, { padding: 12 }]}>
+                    <FlatList
+                      data={isSelected ? events : []}
+                      keyExtractor={(item) => item.id}
+                      ListEmptyComponent={
+                        <Text style={{ opacity: 0.6, textAlign: 'center', paddingVertical: 24 }}>
+                          No events for this day.
+                        </Text>
+                      }
+                      renderItem={({ item }) => (
+                        <View style={styles.placeholderInset}>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ fontWeight: '600' }}>{item.title}</Text>
+                              <Text style={{ opacity: 0.7 }}>{toTime(item.startISO)}</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                              <MaterialCommunityIcons color='red' name="trash-can-outline" size={20} />
+                            </TouchableOpacity>
                           </View>
-                          <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                            <MaterialCommunityIcons color='red' name="trash-can-outline" size={20} />
-                          </TouchableOpacity>
                         </View>
-                      </View>
-                    )}
-                  />
+                      )}
+                    />
+                  </View>
                 </View>
+              );
+            })}
+          </Swiper>
+
+          {/* Footer: open modal */}
+          <View style={styles.footer}>
+            <TouchableOpacity onPress={() => setShowAdd(true)}>
+              <View style={styles.btn}>
+                <MaterialCommunityIcons color="#fff" name="plus" size={22} style={{ marginRight: 6 }} />
+                <Text style={styles.btnText}>Add Event</Text>
               </View>
-            );
-          })}
-        </Swiper>
-
-        {/* Footer: open modal */}
-        <View style={styles.footer}>
-          <TouchableOpacity onPress={() => setShowAdd(true)}>
-            <View style={styles.btn}>
-              <MaterialCommunityIcons color="#fff" name="plus" size={22} style={{ marginRight: 6 }} />
-              <Text style={styles.btnText}>Add Event</Text>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      {/* Add Event Modal */}
-      <AddEventModal
-        visible={showAdd}
-        onClose={() => setShowAdd(false)}
-        onSave={saveEvent}
-        defaultDate={value}
-      />
+        {/* Add Event Modal */}
+        <AddEventModal
+          visible={showAdd}
+          onClose={() => setShowAdd(false)}
+          onSave={saveEvent}
+          defaultDate={value}
+        />
+      </>
+        ) : (
+          <View style={[styles.container1, {justifyContent: 'center', alignItems: 'center', marginTop: 340}]}>
+            <Text>Please sign in to view this page.</Text>
+          </View>
+        )}
     </SafeAreaView>
   );
 };

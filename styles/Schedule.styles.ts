@@ -101,4 +101,9 @@ export const ScheduleStyles = StyleSheet.create({
       fontWeight: '600',
       color: '#fff',
     },
+    container1: {
+      marginTop: spacing.sm,
+      marginBottom: spacing.sm,
+      padding: spacing.xs,
+    },
   });

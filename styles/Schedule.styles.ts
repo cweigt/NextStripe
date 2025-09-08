@@ -17,8 +17,7 @@ export const ScheduleStyles = StyleSheet.create({
         marginBottom: spacing.xs,
     },
     picker: {
-      flex: 1,
-      maxHeight: 74,
+      height: 84,
       paddingVertical: 12,
       flexDirection: 'row',
       alignItems: 'center',
@@ -36,7 +35,7 @@ export const ScheduleStyles = StyleSheet.create({
     /** Item */
     item: {
       flex: 1,
-      height: 50,
+      height: 60,
       marginHorizontal: 4,
       paddingVertical: 6,
       paddingHorizontal: 4,

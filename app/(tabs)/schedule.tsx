@@ -3,12 +3,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-    FlatList,
-    SafeAreaView,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
+  FlatList,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 
@@ -41,6 +41,7 @@ const Schedule = () => {
 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [eventDays, setEventDays] = useState<Record<string, number>>({});
 
   const weeks = useMemo(() => {
     const start = moment().add(week, 'weeks').startOf('week');
@@ -72,6 +73,22 @@ const Schedule = () => {
     });
     return () => unsub();
   }, [user?.uid, value]);
+
+  // track which dates have events for dot indicators
+  useEffect(() => {
+    if (!user?.uid) return;
+    const r = dbRef(db, `users/${user.uid}/schedule`);
+    const unsub = onValue(r, (snap) => {
+      const all = snap.val() as Record<string, Record<string, Omit<CalendarEvent, 'id'>>> | null;
+      if (!all) { setEventDays({}); return; }
+      const counts: Record<string, number> = {};
+      Object.entries(all).forEach(([k, day]) => {
+        counts[k] = day ? Object.keys(day).length : 0;
+      });
+      setEventDays(counts);
+    });
+    return () => unsub();
+  }, [user?.uid]);
 
   // ➕ Save event from modal
   const saveEvent = useCallback(async ({ title, time }: { title: string; time: Date }) => {
@@ -131,11 +148,15 @@ const Schedule = () => {
               <View style={styles.itemRow} key={i}>
                 {dates.map((item, j) => {
                   const isActive = value.toDateString() === item.date.toDateString();
+                  const k = dateKey(item.date);
                   return (
                     <TouchableWithoutFeedback key={j} onPress={() => setValue(item.date)}>
                       <View style={[styles.item, isActive && { backgroundColor: '#007AFF', borderColor: '#007AFF' }]}>
                         <Text style={[styles.itemWeekday, isActive && { color: '#fff' }]}>{item.weekday}</Text>
                         <Text style={[styles.itemDate, isActive && { color: '#fff' }]}>{item.date.getDate()}</Text>
+                        {Boolean(eventDays[k]) && (
+                          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: isActive ? '#fff' : '#007AFF', alignSelf: 'center', marginTop: 4 }} />
+                        )}
                       </View>
                     </TouchableWithoutFeedback>
                   );

@@ -134,17 +134,20 @@ const AccountScreen = () => {
     <SafeAreaView style={styles.background} edges={['top']}>
       {/* Header Section */}
 
-      <View style={[styles.headerBKG, {paddingBottom: -30}]}>
-        <Text style={styles.heading}>
-          My Account
-        </Text>
-        <TouchableOpacity 
-            style={{ position: 'absolute', right: 25, zIndex: 1 }}
-            onPress={() => router.push('/(tabs)/account/profile')} 
-          >
-            <Text style={[styles.back, {marginTop: 14}]}>Edit →</Text>
-        </TouchableOpacity>
-      </View>
+      {user && (
+        <View style={[styles.headerBKG, {paddingBottom: -30}]}> 
+          <Text style={styles.heading}>
+            My Account
+          </Text>
+          <TouchableOpacity 
+              style={{ position: 'absolute', right: 25, zIndex: 1 }}
+              onPress={() => router.push('/(tabs)/account/profile')} 
+            >
+              <Text style={[styles.back, {marginTop: 14}]}>Edit →</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       <ScrollView showsVerticalScrollIndicator={false}>
         {user ? (
           <>

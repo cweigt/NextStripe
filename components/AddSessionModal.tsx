@@ -13,9 +13,9 @@ import {
   View
 } from 'react-native';
 
+import CalendarComp from '@/components/Calendar';
 import { TAGS } from '@/constants/Tags';
 import { colors } from '@/styles/theme';
-import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import VoiceComponent from './Voice';
 
@@ -225,25 +225,12 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
             <Text style={styles.requirements}>
               Session Date
             </Text>
-            <Calendar
-              current={today}
-              minDate="2022-01-01"
-              maxDate="2035-12-31"
-              markedDates={{
-                [selected]: { selected: true, selectedColor: colors.primary },
-              }}
-              onDayPress={(day) => {
-                setSelected(day.dateString);
-
-                // convert YYYY-MM-DD -> MM/DD/YYYY and store in your `date` state
-                const [y, m, d] = day.dateString.split('-');
+            <CalendarComp
+              selected={selected}
+              onSelect={(dateString) => {
+                setSelected(dateString);
+                const [y, m, d] = dateString.split('-');
                 setDate(formatDate(`${m}${d}${y}`));
-
-                //console.log('Selected day:', day);
-              }}
-              enableSwipeMonths
-              theme={{
-                arrowColor: colors.primary,
               }}
             />
             {/*

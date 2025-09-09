@@ -1,0 +1,196 @@
+import { AddEventModalStyles as styles } from '@/styles/AddEventModal.styles';
+import moment from 'moment';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+    Animated,
+    Easing,
+    Keyboard,
+    Modal,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+type AddEventModalProps = {
+  visible: boolean;
+  onClose: () => void;
+  onSave: (payload: { title: string; time: Date }) => void;
+  defaultDate: Date;
+};
+
+const AddEventModal: React.FC<AddEventModalProps> = ({
+  visible,
+  onClose,
+  onSave,
+  defaultDate,
+}) => {
+  const [title, setTitle] = useState('');
+  const [time, setTime] = useState<Date>(() => {
+    const d = new Date(defaultDate);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [timeText, setTimeText] = useState(''); // HH:mm
+  const [showNativePicker, setShowNativePicker] = useState(false);
+
+  const insets = useSafeAreaInsets();
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const onShow = (e: any) => {
+      const h = e?.endCoordinates?.height ?? 0;
+      const target = -Math.max(0, h - (insets?.bottom ?? 0));
+      Animated.timing(translateY, {
+        toValue: target,
+        duration: e?.duration ?? 220,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    };
+    const onHide = (e: any) => {
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: e?.duration ?? 180,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const s = Keyboard.addListener(showEvt, onShow);
+    const hSub = Keyboard.addListener(hideEvt, onHide);
+    return () => {
+      s.remove();
+      hSub.remove();
+    };
+  }, [translateY, insets.bottom]);
+
+  useEffect(() => {
+    const d = new Date(defaultDate);
+    d.setHours(0, 0, 0, 0);
+    setTime(d);
+    setTimeText('');
+  }, [defaultDate]);
+
+  // Reset form each time the modal opens
+  useEffect(() => {
+    if (visible) {
+      setTitle('');
+      setTimeText('');
+    }
+  }, [visible]);
+
+  const onChangeTime = (_: any, selected?: Date) => {
+    setShowNativePicker(false);
+    if (selected) {
+      setTime(selected);
+      setTimeText(moment(selected).format('HH:mm'));
+    }
+  };
+
+  const onBlurTimeText = () => {
+    if (!timeText) return;
+    const match = /^([01]?\d|2[0-3]):([0-5]\d)$/.test(timeText);
+    if (!match) return;
+    const [h, m] = timeText.split(':').map(Number);
+    const d = new Date(defaultDate);
+    d.setHours(h, m, 0, 0);
+    setTime(d);
+  };
+
+  const disabled = title.trim().length === 0;
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="fade"               // smoother with our native-driver slide
+      presentationStyle="overFullScreen"
+      transparent
+      hardwareAccelerated
+      onRequestClose={onClose}
+    >
+      {/* Dim backdrop */}
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+        </TouchableWithoutFeedback>
+
+        {/* Bottom sheet */}
+        <Animated.View
+          style={[
+            styles.sheet,
+            {
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              minHeight: 320,
+              maxHeight: '75%',
+              transform: [{ translateY }],
+            },
+          ]}
+        >
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16, paddingTop: 12 }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'on-drag' : 'none'}
+          >
+            <Text style={styles.title}>Add Event</Text>
+
+            <Text style={styles.label}>Title</Text>
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              style={styles.input}
+              returnKeyType="done"
+            />
+
+            <Text style={styles.label}>Time</Text>
+            <View style={styles.timeRow}>
+              <TextInput
+                value={timeText}
+                onChangeText={setTimeText}
+                onBlur={onBlurTimeText}
+                placeholder="HH:mm"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="numbers-and-punctuation"
+                autoCapitalize="none"
+                style={styles.timeTextInput}
+                returnKeyType="done"
+              />
+              <TouchableOpacity
+                onPress={() => setShowNativePicker(true)}
+                style={styles.timeDisplayButton}
+              >
+                <Text>{moment(time).format('h:mm A')}</Text>
+              </TouchableOpacity>
+            </View>
+
+
+            <View style={styles.actionsRow}>
+              <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={disabled}
+                onPress={() => onSave({ title: title.trim(), time })}
+                style={[styles.btn, disabled && { opacity: 0.5 }]}
+              >
+                <Text style={styles.btnText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </Animated.View>
+      </View>
+    </Modal>
+  );
+};
+
+export default AddEventModal;

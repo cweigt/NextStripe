@@ -147,6 +147,7 @@ export const TrainingStyles = StyleSheet.create({
     fontSize: typography.sm,
     color: colors.textSecondary,
     marginBottom: spacing.xs,
+    fontWeight: 'bold',
   },
   headerAddButton: {
     position: 'absolute',
@@ -220,5 +221,26 @@ export const TrainingStyles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 14,
+  },
+  openFilter: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: colors.white, //#eee
+    marginTop: 10,
+    borderColor: colors.black,
+    borderWidth: 1,
+  },
+  openContainer: {
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2
   },
 });

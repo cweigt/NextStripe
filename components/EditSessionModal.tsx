@@ -13,6 +13,9 @@ import {
   View
 } from 'react-native';
 
+import CalendarComp from '@/components/Calendar';
+import { TAGS } from '@/constants/Tags';
+import { colors } from '@/styles/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import VoiceComponent from './Voice';
 
@@ -43,23 +46,13 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [notes, setNotes] = useState(session?.notes || '');
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set(session?.tags || []));
   const insets = useSafeAreaInsets();
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const [selected, setSelected] = useState<string>(today);
+  const [rawTranscript, setRawTranscript] = useState('');   // hidden buffer of full transcript
+  const [isSummarizing, setIsSummarizing] = useState(false); // optional: disable Update while summarizing
+  const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
 
-  //list of tags… these are super general, not including specific like half guard, lasso, X, etc...
-  //need this in edit as well so that I can change it
-  const TAGS = [
-    "Takedowns", 
-    "Guard Attacks", 
-    "Side-Control Attacks",
-    "Mount Attacks", 
-    "Guard Sweeps", 
-    "Guard Passes", 
-    "Side-Control Escapes",
-    "Back Escapes",
-    "Mount Escapes",
-    "Back Control",
-    "Chokes",
-    "Locks",
-  ]; 
+  
 
   //swapping logic for the tags
   const toggleTag = (tag: string) => {
@@ -71,11 +64,71 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     });
   };
 
-  const insertIntoNotes = (text: string) => {
-    if (!text) return;
-    // Adds a trailing space so consecutive dictations don't jam together
-    setNotes(prevNotes => prevNotes + text + ' ');
+  //this allows for the user to re-summarize notes if they stop and start the mic
+  async function summarizeAll(transcript: string) {
+    const body = {
+      model: 'gpt-5-nano', // swap to your lightweight model if needed
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You update existing training notes using new transcript chunks. Preserve correct prior details, merge in new information, keep first person voice, and output a short paragraph plus 3-5 bullet points. Update accurate existing bullet points to account for new information.'
+        },
+        {
+          role: 'user',
+          content:
+            `Update the notes using the provided context. If both EXISTING_NOTES and TRANSCRIPT are present, treat EXISTING_NOTES as the prior summary and refine it with info from TRANSCRIPT. Keep names and key actions accurate, use first person.\n\n---\n${transcript}`
+        }
+      ]
+    };
+  
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => '');
+      throw new Error(`Summarize error: ${resp.status} ${errText}`);
+    }
+  
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content?.trim() ?? '';
+  }
+  
+
+  // Expect both args; transcript may be undefined if nothing came back
+ // optional helper to strip any HTML you might have saved earlier
+  const clean = (s: string) => (s || '').replace(/<[^>]*>/g, '').trim();
+
+  const insertIntoNotes = async (_summary: string, latestTranscript?: string) => {
+    if (!latestTranscript) return;
+
+    setIsSummarizing(true);
+    try {
+      // keep accumulating the transcript for THIS edit session
+      const updated = rawTranscript ? `${rawTranscript} ${latestTranscript}` : latestTranscript;
+      setRawTranscript(updated);
+
+      // include whatever is currently in the Notes box as well
+      const existing = clean(notes);
+      const source = existing
+        ? `EXISTING_NOTES:\n${existing}\n\nTRANSCRIPT:\n${updated}`
+        : updated;
+
+      const freshSummary = await summarizeAll(source);
+      setNotes(freshSummary); // replace with the combined summary
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSummarizing(false);
+    }
   };
+
 
   // Update form fields when session prop changes
   useEffect(() => {
@@ -84,14 +137,25 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       setDate(session.date || '');
       setDuration(session.duration || '');
       setNotes(session.notes || '');
+      // Clear transcript buffer when switching sessions
+      setRawTranscript('');
       
       // No need to update rich editor - using simple TextInput now
+      // Ensure calendar receives a valid YYYY-MM-DD string
+      if (session.date) {
+        const mmddyyyy = session.date.trim(); // expected MM/DD/YYYY
+        const parts = mmddyyyy.split('/');
+        if (parts.length === 3) {
+          const [mm, dd, yyyy] = parts;
+          const mmP = mm.padStart(2, '0');
+          const ddP = dd.padStart(2, '0');
+          if (yyyy && mmP && ddP) {
+            setSelected(`${yyyy}-${mmP}-${ddP}`);
+          }
+        }
+      }
     }
   }, [session]);
-
-
-
-
 
 
   const formatDate = (text: string) => {
@@ -108,11 +172,6 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     }
   };
 
-  const handleDateChange = (text: string) => {
-    const formatted = formatDate(text);
-    setDate(formatted);
-  };
-
   const handleUpdate = () => {
     onUpdate({
       title,
@@ -126,13 +185,22 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     setDate('');
     setDuration('');
     setNotes('');
+    setRawTranscript('');
     onClose();
   };
 
   const handleCancel = () => {
     //reset form
+    setRawTranscript('');
     onClose();
   };
+
+  // Ensure fresh buffer each time the modal is opened/closed
+  useEffect(() => {
+    if (isVisible) {
+      setRawTranscript('');
+    }
+  }, [isVisible]);
 
   return (
     <Modal
@@ -151,9 +219,22 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
             <Text style={styles.modalBackText}>Cancel</Text>
           </TouchableOpacity>
           <Text style={[styles.modalTitle, {marginBottom: 9.5}]}>Edit Training Session</Text>
-          <TouchableOpacity onPress={handleUpdate} style={styles.modalSaveButton}>
-            <Text style={styles.modalSaveText}>Update</Text>
+
+          <TouchableOpacity
+            onPress={handleUpdate}
+            disabled={isSummarizing || isRecordingOrProcessing}
+            style={styles.modalSaveButton}
+          >
+            <Text
+              style={[
+                styles.modalSaveText,
+                (isSummarizing || isRecordingOrProcessing) && { color: colors.gray400 } // gray out text only
+              ]}
+            >
+              Update
+            </Text>
           </TouchableOpacity>
+
         </View>
 
         {/* pop up content */}
@@ -165,6 +246,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
           <ScrollView 
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
           >
             <Text style={styles.requirements}>
               Session Title
@@ -180,17 +263,16 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
             <Text style={styles.requirements}>
               Session Date
             </Text>
-            <TextInput 
-              style={styles.input}
-              value={date}
-              onChangeText={handleDateChange}
-              placeholder="MM/DD/YYYY"
-              placeholderTextColor='#d9d9d9'
-              keyboardType="numeric"
-              maxLength={10}
+            <CalendarComp
+              selected={selected}
+              onSelect={(dateString) => {
+                setSelected(dateString);
+                const [y, m, d] = dateString.split('-');
+                setDate(formatDate(`${m}${d}${y}`));
+              }}
             />
 
-            <Text style={styles.requirements}>
+            <Text style={[styles.requirements, {marginTop: 20}]}>
               Session Duration in Hours
             </Text>
             <TextInput 
@@ -205,7 +287,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
             <Text style={[styles.requirements, {marginBottom: 8}]}>
               Tags
             </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            
+            <View style={{ flexDirection: "row", flexWrap: 'wrap', gap: 8}}>
               {TAGS.map((tag) => {
                 const isSelected = selectedTags.has(tag);
                 return (
@@ -226,23 +309,22 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               <Text style={styles.requirements}>
                 Session Notes
               </Text>
-              <TouchableOpacity 
-                style={styles.doneButton}
-                onPress={() => {}}
-              >
-                <Text style={styles.doneButtonText}>Done</Text>
-              </TouchableOpacity>
             </View>
-                        <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
+              <View style={[styles.input, {minHeight: 350, position: 'relative'}]}>
               {/* Voice input using Whisper API - positioned in top right */}
               <View style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
-                <VoiceComponent onFinal={insertIntoNotes} apiKey={OPENAI_API_KEY} />
+                <VoiceComponent
+                  onFinal={insertIntoNotes}
+                  onBusyChange={setIsRecordingOrProcessing}
+                  apiKey={OPENAI_API_KEY}
+                />
               </View>
               
               <TextInput
                 value={notes ? notes.replace(/<[^>]*>/g, '') : ''} // Strip HTML tags for display
                 onChangeText={setNotes}
                 placeholder="Enter your training notes here..."
+                placeholderTextColor={colors.gray500}
                 multiline
                 textAlignVertical="top"
                 style={{
@@ -255,7 +337,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
                 }}
               />
             </View>
-            <View style={{marginBottom: 200}}/>
+            <View style={{marginBottom: 250}}/>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>

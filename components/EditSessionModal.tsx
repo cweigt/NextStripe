@@ -2,6 +2,7 @@ import { OPENAI_API_KEY } from '@/config/api';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
 import React, { useEffect, useState } from 'react';
 import {
+  FlatList,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -51,6 +52,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [rawTranscript, setRawTranscript] = useState('');   // hidden buffer of full transcript
   const [isSummarizing, setIsSummarizing] = useState(false); // optional: disable Update while summarizing
   const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
+  const ROWS = 3;
 
   
 
@@ -202,6 +204,14 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     }
   }, [isVisible]);
 
+  //this is for chunking the tags into three equal rows
+  const chunk = <T,>(array: T[], size: number): T[][] => {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  };
   return (
     <Modal
       animationType="slide"
@@ -288,21 +298,39 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               Tags
             </Text>
             
-            <View style={{ flexDirection: "row", flexWrap: 'wrap', gap: 8}}>
-              {TAGS.map((tag) => {
-                const isSelected = selectedTags.has(tag);
-                return (
-                  <TouchableOpacity
-                    key={tag}
-                    onPress={() => toggleTag(tag)}
-                    style={isSelected ? styles.tagsSelected : styles.tagsUnselected}
-                  >
-                    <Text style={isSelected ? styles.tagTextSelected : styles.tagTextUnselected}>
-                      {tag}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={{ height: ROWS * 44, marginBottom: 12 }}>
+            <FlatList
+              data={chunk(TAGS, ROWS)}
+              keyExtractor={(_, idx) => `col-${idx}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 12 }}
+              renderItem={({ item: col }) => (
+                <View style={{ marginRight: 12 }}>
+                  {col.map((tag) => {
+                    const isSelected = selectedTags.has(tag);
+                    return (
+                      <TouchableOpacity
+                        key={tag}
+                        onPress={() => toggleTag(tag)}
+                        style={[
+                          isSelected ? styles.tagsSelected : styles.tagsUnselected,
+                          { marginBottom: 8 },
+                        ]}
+                      >
+                        <Text
+                          style={
+                            isSelected ? styles.tagTextSelected : styles.tagTextUnselected
+                          }
+                        >
+                          {tag}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+            />
             </View>
 
             <View style={styles.sessionNotesHeader}>

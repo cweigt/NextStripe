@@ -20,7 +20,9 @@ const Dashboard = () => {
   const [totalSessionHours, setTotalSessionHours] = useState(''); //for the total hours
   const [recentDate, setRecentDate] = useState(''); //for recent date
   const [maxHours, setMaxHours] = useState('');
+  const [daysSinceLast, setDaysSinceLast] = useState<number | null>(null);
   const uid = user?.uid;
+
 
   //load stats when component mounts
   useEffect(() => {
@@ -35,6 +37,7 @@ const Dashboard = () => {
       setSessionCount(0); //0
       setRecentDate('NA'); //NA
       setMaxHours(''); //0
+      setDaysSinceLast(null);
     }
   }, [user]);
 
@@ -70,8 +73,21 @@ const Dashboard = () => {
         if(snapshot.exists()){
           const dateSnap = snapshot.val();
           setRecentDate(dateSnap);
+
+          //parse and compute difference
+          const [month, day, year] = dateSnap.split('/').map((x: string) => parseInt(x, 10));
+          const recent = new Date(year, month - 1, day); //months are 0-based
+          //can't use toLocaleString because you can do string math with dates
+          const today = new Date();
+          today.setHours(0,0,0,0); //normalize to locale time
+          recent.setHours(0,0,0,0);
+
+          const diffTime = today.getTime() - recent.getTime();
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          setDaysSinceLast(diffDays);
         } else {
           setRecentDate('NA');
+          setDaysSinceLast(null);
         }
       });
       return () => listener();
@@ -177,9 +193,18 @@ const Dashboard = () => {
           <View style={[styles.section, {marginTop: -23}]}>
             <View style={styles.analyticsCard}>
               <Text style={styles.analyticsNumber}>{recentDate}</Text>
+              {daysSinceLast !== null && (
+                <Text style={[styles.analyticsLabel, {fontStyle: 'italic'}]}>
+                  <Text style={{ fontWeight: 'bold' }}>{daysSinceLast}</Text> day
+                  {daysSinceLast === 1 ? '' : 's'} ago
+                </Text>
+              )}
               <Text style={styles.analyticsLabel}>Last Trained</Text>
             </View>
           </View>
+          
+
+
 
           {/*Records section*/}
           <View style={styles.section}>
@@ -190,59 +215,6 @@ const Dashboard = () => {
             </View>
           </View>
 
-          {/* Training Streak Section 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Training Streak</Text>
-            <View style={styles.streakContainer}>
-              <View style={styles.streakCard}>
-                <Text style={styles.streakNumber}>7</Text>
-                <Text style={styles.streakLabel}>Days</Text>
-                <Text style={styles.streakSubtext}>Current Streak</Text>
-              </View>
-              <View style={styles.streakInfo}>
-                <Text style={styles.streakText}>🔥 Keep it up! You're on fire!</Text>
-                <Text style={styles.streakText}>Longest streak: 14 days</Text>
-              </View>
-            </View>
-          </View>
-            */}
-          {/* Techniques Section 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Techniques</Text>
-            <View style={styles.techniquesContainer}>
-              <TouchableOpacity style={styles.techniqueCard}>
-                <Text style={styles.techniqueTitle}>Arm Bar</Text>
-                <Text style={styles.techniqueSubtext}>Last practiced: 2 days ago</Text>
-                <Text style={styles.techniqueProgress}>Progress: 75%</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.techniqueCard}>
-                <Text style={styles.techniqueTitle}>Triangle Choke</Text>
-                <Text style={styles.techniqueSubtext}>Last practiced: 1 week ago</Text>
-                <Text style={styles.techniqueProgress}>Progress: 60%</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.techniqueCard}>
-                <Text style={styles.techniqueTitle}>Kimura</Text>
-                <Text style={styles.techniqueSubtext}>Last practiced: 3 days ago</Text>
-                <Text style={styles.techniqueProgress}>Progress: 85%</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          */}
-
-
-          {/* Recent Training Logs Section */}
-          {/*training log sessions need to render dynamically based on recent ones from training log itself
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Training Logs</Text>
-            <View style={styles.logsContainer}>
-              <TouchableOpacity style={styles.logCard}>
-                <Text style={styles.logDate}>Today</Text>
-                <Text style={styles.logTitle}>Morning Training Session</Text>
-                <Text style={styles.logDetails}>Focus: Guard passing • Duration: 1.5 hours</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-            */}
 
         </ScrollView>
       ) : (

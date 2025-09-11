@@ -274,38 +274,38 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
             </Text>
             
             <View style={{ height: ROWS * 44, marginBottom: 12 }}>
-            <FlatList
-              data={chunk(TAGS, ROWS)}
-              keyExtractor={(_, idx) => `col-${idx}`}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 12 }}
-              renderItem={({ item: col }) => (
-                <View style={{ marginRight: 12 }}>
-                  {col.map((tag) => {
-                    const isSelected = selectedTags.has(tag);
-                    return (
-                      <TouchableOpacity
-                        key={tag}
-                        onPress={() => toggleTag(tag)}
-                        style={[
-                          isSelected ? styles.tagsSelected : styles.tagsUnselected,
-                          { marginBottom: 8 },
-                        ]}
-                      >
-                        <Text
-                          style={
-                            isSelected ? styles.tagTextSelected : styles.tagTextUnselected
-                          }
+              <FlatList
+                data={chunk(TAGS, ROWS)}
+                keyExtractor={(_, idx) => `col-${idx}`}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 12 }}
+                renderItem={({ item: col }) => (
+                  <View style={{ marginRight: 12 }}>
+                    {col.map((tag) => {
+                      const isSelected = selectedTags.has(tag);
+                      return (
+                        <TouchableOpacity
+                          key={tag}
+                          onPress={() => toggleTag(tag)}
+                          style={[
+                            isSelected ? styles.tagsSelected : styles.tagsUnselected,
+                            { marginBottom: 8 },
+                          ]}
                         >
-                          {tag}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              )}
-            />
+                          <Text
+                            style={
+                              isSelected ? styles.tagTextSelected : styles.tagTextUnselected
+                            }
+                          >
+                            {tag}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+              />
             </View>
 
             <View style={styles.sessionNotesHeader}>

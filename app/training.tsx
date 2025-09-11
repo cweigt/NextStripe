@@ -228,7 +228,7 @@ const Training = () => {
        id: sessionId,
        ...sessionData
      };
-     setSessions(prev => [...prev, newSession]);
+     setSessions(prev => [newSession, ...prev ]);
      const newCount = sessionCount + 1;
      setSessionCount(newCount);
      await updateSessionCountInFirebase(newCount);

@@ -119,6 +119,7 @@ const Dashboard = () => {
     }
   };
 
+  //load sum of hours
   const loadHours = async () => {
     if (!uid) return;
 
@@ -140,6 +141,8 @@ const Dashboard = () => {
 
     return () => listener();
   };
+
+  //load average quality
 
   //navigation 
   const navigateToTraining = () => {
@@ -187,6 +190,10 @@ const Dashboard = () => {
               <View style={styles.analyticsCard}>
                 <Text style={styles.analyticsNumber}>{sessionCount}</Text>
                 <Text style={styles.analyticsLabel}>Sessions</Text>
+              </View>
+              <View style={styles.analyticsCard}>
+                <Text style={styles.analyticsNumber}>NA/10</Text>
+                <Text style={styles.analyticsLabel}>AVG Quality</Text>
               </View>
             </View>
           </View>

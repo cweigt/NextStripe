@@ -30,6 +30,7 @@ interface AddSessionModalProps {
     duration: string;
     notes: string;
     tags: string[];
+    qualityLevel: string;
   }) => void;
 }
 
@@ -40,13 +41,12 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [notes, setNotes] = useState('');
   const insets = useSafeAreaInsets();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const now = new Date();
   const today = new Date().toLocaleDateString('en-CA'); // -> "YYYY-MM-DD"
   const [selected, setSelected] = useState<string>(today);
-  const [rawTranscript, setRawTranscript] = useState('');   // NEW
-  const [isSummarizing, setIsSummarizing] = useState(false); // NEW (optional)
+  const [rawTranscript, setRawTranscript] = useState('');
+  const [isSummarizing, setIsSummarizing] = useState(false); 
   const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
-  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [qualityLevel, setQualityLevel] = useState(''); //string right now, might need to convert to Float later
   const ROWS = 3; //for rendering horizontal with three rows
 
 
@@ -135,6 +135,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
 
     onSave({
       title,
+      qualityLevel,
       duration,
       notes,
       tags: Array.from(selectedTags),
@@ -145,7 +146,8 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setDuration('');
     setNotes('');
     setSelectedTags(new Set()); // Reset tags
-    setRawTranscript('');
+    setQualityLevel('');
+    setRawTranscript(''); //clear out transcript cache
     onClose();
   };
 
@@ -154,6 +156,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setTitle('');
     setDuration('');
     setNotes('');
+    setQualityLevel('');
     setSelectedTags(new Set()); // Reset tags
     setRawTranscript('');
     onClose();
@@ -245,17 +248,6 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
                 setDate(formatDate(`${m}${d}${y}`));
               }}
             />
-            {/*
-              <TextInput 
-                style={styles.input}
-                value={date}
-                onChangeText={handleDateChange}
-                placeholder="MM/DD/YYYY"
-                placeholderTextColor='#d9d9d9'
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            */}
 
             <Text style={[styles.requirements, {marginTop: 20}]}>
               Session Duration in Hours
@@ -269,10 +261,21 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
               keyboardType="numeric"
             />
 
+            <Text style={[styles.requirements, {marginTop: 8}]}>
+              Session Quality
+            </Text>
+            <TextInput 
+              style={styles.input}
+              value={qualityLevel}
+              placeholder="1.0-10.0"
+              placeholderTextColor='#d9d9d9'
+              onChangeText={setQualityLevel}
+              keyboardType="numeric"
+            />
+
             <Text style={[styles.requirements, {marginBottom: 8}]}>
               Tags
             </Text>
-            
             <View style={{ height: ROWS * 44, marginBottom: 12 }}>
               <FlatList
                 data={chunk(TAGS, ROWS)}

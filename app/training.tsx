@@ -194,6 +194,7 @@ const Training = () => {
        date: sessionData.date,
        duration: sessionData.duration,
        notes: sessionData.notes,
+       qualityLevel: sessionData.qualityLevel,
        tags: sessionData.tags || [],
      });
 

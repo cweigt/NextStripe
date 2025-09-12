@@ -29,6 +29,7 @@ interface EditSessionModalProps {
     date: string;
     duration: string;
     notes: string;
+    qualityLevel: string;
     tags: string[];
   }) => void;
   session?: { //importing the session from card so that the card I click on carries the information
@@ -36,6 +37,7 @@ interface EditSessionModalProps {
     date: string;
     duration: string;
     notes: string;
+    qualityLevel: string;
     tags: string[];
   };
 }
@@ -52,6 +54,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [rawTranscript, setRawTranscript] = useState('');   // hidden buffer of full transcript
   const [isSummarizing, setIsSummarizing] = useState(false); // optional: disable Update while summarizing
   const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
+  const [qualityLevel, setQualityLevel] = useState('');
   const ROWS = 3;
 
   
@@ -139,6 +142,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       setDate(session.date || '');
       setDuration(session.duration || '');
       setNotes(session.notes || '');
+      setQualityLevel(session.qualityLevel || '');
       // Clear transcript buffer when switching sessions
       setRawTranscript('');
       
@@ -180,6 +184,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       date,
       duration,
       notes,
+      qualityLevel,
       tags: Array.from(selectedTags),
     });
     //reset form
@@ -187,6 +192,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     setDate('');
     setDuration('');
     setNotes('');
+    setQualityLevel('');
+    setSelectedTags(new Set()); // Reset tags
     setRawTranscript('');
     onClose();
   };
@@ -294,6 +301,17 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               keyboardType="numeric"
             />
 
+            <Text style={[styles.requirements, {marginTop: 8}]}>
+              Session Quality
+            </Text>
+            <TextInput 
+              style={styles.input}
+              value={qualityLevel}
+              placeholder="1.0-10.0"
+              placeholderTextColor='#d9d9d9'
+              onChangeText={setQualityLevel}
+              keyboardType="numeric"
+            />
             <Text style={[styles.requirements, {marginBottom: 8}]}>
               Tags
             </Text>

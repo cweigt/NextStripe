@@ -1,4 +1,5 @@
 import EditSessionModal from '@/components/EditSessionModal';
+import StarRating from '@/components/StarRating';
 import { auth, db } from '@/firebase';
 import { CardStyles as styles } from '@/styles/Card.styles';
 import { Ionicons } from '@expo/vector-icons';
@@ -122,6 +123,16 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                   <Text style={styles.logDetails}>Duration: {session.duration} hours</Text>
                 </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={styles.logDetails}>Quality: </Text>
+                  <StarRating 
+                    rating={parseFloat(session.qualityLevel) || 0} 
+                    maxRating={10}
+                    starSize={14}
+                    showRating={false}
+                  />
+                </View>
+
                 {session.tags && session.tags.length > 0 && (
                   //this uses the session.tags "import" to loop through what is in Firebase and displays it
                   <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 }}>

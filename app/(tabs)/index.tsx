@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [recentDate, setRecentDate] = useState(''); //for recent date
   const [maxHours, setMaxHours] = useState('');
   const [daysSinceLast, setDaysSinceLast] = useState<number | null>(null);
+  const [averageRating, setAverageRating] = useState('');
   const uid = user?.uid;
 
 
@@ -31,12 +32,14 @@ const Dashboard = () => {
       loadCount();
       loadRecentDate();
       loadMaxHours();
+      loadAverageRating();
     } else {
       //reset state when no user
       setTotalSessionHours(''); //0
       setSessionCount(0); //0
       setRecentDate('NA'); //NA
       setMaxHours(''); //0
+      setAverageRating('') //0
       setDaysSinceLast(null);
     }
   }, [user]);
@@ -143,6 +146,33 @@ const Dashboard = () => {
   };
 
   //load average quality
+  const loadAverageRating = async () => {
+    if (!uid) return;
+
+    const sessionsRef = ref(db, `users/${uid}/sessions`);
+    const listener = onValue(sessionsRef, (snapshot) => {
+      if(snapshot.exists()){
+        const sessionData = snapshot.val();
+        const sessions = Object.values(sessionData) as any[];
+
+        //calculate total rating
+        const totalRating = sessions
+        .reduce((sum, session: any) => sum + (parseFloat(session.qualityLevel) || 0), 0);
+
+        // Use the actual number of sessions from the data, not the separate sessionCount state
+        const actualSessionCount = sessions.length;
+        const average = actualSessionCount > 0 ? totalRating / actualSessionCount : 0;
+        //console.log('Average calculation:', { totalRating, actualSessionCount, average });
+        const averageOneDecimals = average.toFixed(1); //two decimals
+
+        //making sure it's a string, although I'm pretty sure .toFixed() does that
+        setAverageRating(averageOneDecimals.toString());
+      } else {
+        setAverageRating('0');
+      }
+    });
+    return () => listener();
+  };
 
   //navigation 
   const navigateToTraining = () => {
@@ -192,7 +222,7 @@ const Dashboard = () => {
                 <Text style={styles.analyticsLabel}>Sessions</Text>
               </View>
               <View style={styles.analyticsCard}>
-                <Text style={styles.analyticsNumber}>NA/10</Text>
+                <Text style={styles.analyticsNumber}>{averageRating}/10</Text>
                 <Text style={styles.analyticsLabel}>AVG Quality</Text>
               </View>
             </View>

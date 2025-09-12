@@ -89,6 +89,7 @@ const TrainingCard = ({ session, sessionId, onDelete, onUpdate }) => {
           date: sessionData.date,
           duration: sessionData.duration,
           notes: sessionData.notes,
+          qualityLevel: sessionData.qualityLevel,
           tags: sessionData.tags || [], //fetching all of the session data from firebase for the card
         });
         

@@ -3,12 +3,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  FlatList,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    FlatList,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 
@@ -199,6 +199,7 @@ const Schedule = () => {
                     <FlatList
                       data={isSelected ? events : []}
                       keyExtractor={(item) => item.id}
+                      ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                       ListEmptyComponent={
                         <Text style={{ opacity: 0.6, textAlign: 'center', paddingVertical: 24 }}>
                           No events for this day.

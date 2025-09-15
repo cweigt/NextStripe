@@ -1,25 +1,34 @@
 import { AddEventModalStyles as styles } from '@/styles/AddEventModal.styles';
+import DatePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Easing,
-    Keyboard,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Animated,
+  Easing,
+  Keyboard,
+  Modal,
+  Platform,
+  ScrollView,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AddEventModalProps = {
   visible: boolean;
   onClose: () => void;
-  onSave: (payload: { title: string; time: Date }) => void;
+  onSave: (payload: { 
+    title: string; 
+    time: Date;
+    recurring?: boolean;
+    recurrenceType?: 'weekly' | 'daily' | 'monthly' | 'none';
+    recurrenceEndDate?: Date | null;
+  }) => void;
   defaultDate: Date;
 };
 
@@ -37,6 +46,9 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   });
   const [timeText, setTimeText] = useState(''); // HH:mm
   const [showNativePicker, setShowNativePicker] = useState(false);
+  const [recurring, setRecurring] = useState(false);
+  const [recurrenceType, setRecurrenceType] = useState<'weekly' | 'daily' | 'monthly' | 'none'>('none');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | null>(null);
 
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(0)).current;
@@ -94,6 +106,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       setTimeText(moment(selected).format('HH:mm'));
     }
   };
+
 
   const onBlurTimeText = () => {
     if (!timeText) return;
@@ -173,6 +186,53 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               </TouchableOpacity>
             </View>
 
+            <Text style={styles.label}>Repeat Event</Text>
+            <View style={styles.recurringRow}>
+              <Text style={styles.recurringText}>Repeat this event</Text>
+              <Switch 
+                value={recurring} 
+                onValueChange={setRecurring}
+                trackColor={{ false: '#E5E7EB', true: '#3B82F6' }}
+                thumbColor={recurring ? '#FFFFFF' : '#F3F4F6'}
+              />
+            </View>
+            
+            {recurring && (
+              <View style={styles.recurringOptions}>
+                <Text style={styles.label}>Frequency</Text>
+                <Dropdown
+                  data={[
+                    { label: 'Weekly', value: 'weekly' },
+                    { label: 'Daily', value: 'daily' },
+                    { label: 'Monthly', value: 'monthly' }
+                  ]}
+                  value={recurrenceType}
+                  onChange={item => setRecurrenceType(item.value as any)}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select frequency"
+                  style={styles.dropdown}
+                  placeholderStyle={styles.dropdownPlaceholder}
+                  selectedTextStyle={styles.dropdownSelectedText}
+                  itemTextStyle={styles.dropdownItemText}
+                />
+                
+                <Text style={styles.label}>End Date (Optional)</Text>
+                <View style={styles.datePickerContainer}>
+                  <DatePicker
+                    value={recurrenceEndDate || new Date()}
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) {
+                        setRecurrenceEndDate(selectedDate);
+                      }
+                    }}
+                    mode="date"
+                    display="default"
+                    style={styles.datePicker}
+                  />
+                </View>
+              </View>
+            )}
 
             <View style={styles.actionsRow}>
               <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>
@@ -180,7 +240,13 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               </TouchableOpacity>
               <TouchableOpacity
                 disabled={disabled}
-                onPress={() => onSave({ title: title.trim(), time })}
+                onPress={() => onSave({ 
+                  title: title.trim(), 
+                  time,
+                  recurring,
+                  recurrenceType,
+                  recurrenceEndDate
+                })}
                 style={[styles.btn, disabled && { opacity: 0.5 }]}
               >
                 <Text style={styles.btnText}>Save</Text>

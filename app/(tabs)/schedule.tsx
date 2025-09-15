@@ -3,16 +3,17 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-    FlatList,
-    SafeAreaView,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
+  FlatList,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 
 import AddEventModal from '@/components/AddEventModal';
+import EditEventModal from '@/components/EditEventModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/firebase';
 import { ref as dbRef, onValue, push, remove, set } from 'firebase/database';
@@ -24,6 +25,12 @@ type CalendarEvent = {
   endISO?: string;
   notes?: string;
   createdAt: string;
+
+  recurring?: boolean;
+  recurrenceType?: 'weekly' | 'daily' | 'monthly' | 'yearly' | 'none';
+  recurrenceEndDate?: string;
+  parentEventId?: string; //linking recurring instances to original
+  isRecurringInstance?: boolean; //to see if this is not an original instance
 };
 
 const dateKey = (d: Date) => moment(d).format('YYYY-MM-DD');
@@ -40,6 +47,7 @@ const Schedule = () => {
 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [eventDays, setEventDays] = useState<Record<string, number>>({});
 
   const weeks = useMemo(() => {
@@ -111,12 +119,46 @@ const Schedule = () => {
     setShowAdd(false);
   }, [user?.uid, value]);
 
-  // 🗑️ Delete an event
+  //Delete an event
   const handleDelete = useCallback(async (id: string) => {
     if (!user?.uid) return;
     const k = dateKey(value);
     await remove(dbRef(db, `users/${user.uid}/schedule/${k}/${id}`));
   }, [user?.uid, value]);
+
+  //Update an event
+  const handleUpdateEvent = useCallback(async ({ id, title, time, recurring, recurrenceType, recurrenceEndDate }: {
+    id: string;
+    title: string;
+    time: Date;
+    recurring?: boolean;
+    recurrenceType?: 'weekly' | 'daily' | 'monthly' | 'none';
+    recurrenceEndDate?: Date | null;
+  }) => {
+    if (!user?.uid) return;
+
+    const start = new Date(value);
+    start.setHours(time.getHours(), time.getMinutes(), 0, 0);
+
+    const k = dateKey(value);
+    const path = `users/${user.uid}/schedule/${k}/${id}`;
+    const payload: Partial<CalendarEvent> = {
+      title,
+      startISO: start.toISOString(),
+      recurring,
+      recurrenceType,
+      recurrenceEndDate: recurrenceEndDate?.toISOString(),
+    };
+
+    await set(dbRef(db, path), payload);
+    setEditingEvent(null);
+  }, [user?.uid, value]);
+
+  //Delete from edit modal
+  const handleDeleteFromEdit = useCallback(async (id: string) => {
+    await handleDelete(id);
+    setEditingEvent(null);
+  }, [handleDelete]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -206,17 +248,22 @@ const Schedule = () => {
                         </Text>
                       }
                       renderItem={({ item }) => (
-                        <View style={styles.placeholderInset}>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <View style={{ flex: 1 }}>
-                              <Text style={{ fontWeight: '600' }}>{item.title}</Text>
-                              <Text style={{ opacity: 0.7 }}>{toTime(item.startISO)}</Text>
+                        <TouchableOpacity onPress={() => setEditingEvent(item)}>
+                          <View style={styles.placeholderInset}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <View style={{ flex: 1 }}>
+                                <Text style={{ fontWeight: '600' }}>{item.title}</Text>
+                                <Text style={{ opacity: 0.7 }}>{toTime(item.startISO)}</Text>
+                              </View>
+                              <TouchableOpacity onPress={(e) => {
+                                e.stopPropagation();
+                                handleDelete(item.id);
+                              }}>
+                                <MaterialCommunityIcons color='red' name="trash-can-outline" size={20} />
+                              </TouchableOpacity>
                             </View>
-                            <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                              <MaterialCommunityIcons color='red' name="trash-can-outline" size={20} />
-                            </TouchableOpacity>
                           </View>
-                        </View>
+                        </TouchableOpacity>
                       )}
                     />
                   </View>
@@ -242,6 +289,15 @@ const Schedule = () => {
           onClose={() => setShowAdd(false)}
           onSave={saveEvent}
           defaultDate={value}
+        />
+
+        {/* Edit Event Modal */}
+        <EditEventModal
+          visible={!!editingEvent}
+          onClose={() => setEditingEvent(null)}
+          onSave={handleUpdateEvent}
+          onDelete={handleDeleteFromEdit}
+          event={editingEvent}
         />
       </>
         ) : (

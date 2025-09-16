@@ -1,7 +1,7 @@
 import UploadImage from '@/components/UploadImage';
 //@ts-ignore
 import { ProfileStyles as styles } from '@/styles/Profile.styles';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,

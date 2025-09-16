@@ -87,6 +87,54 @@ export const AddEventModalStyles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  recurringRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingVertical: 8,
+  },
+  recurringText: {
+    fontSize: 16,
+    color: '#374151',
+  },
+  recurringOptions: {
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+  dropdownPlaceholder: {
+    color: '#9CA3AF',
+    fontSize: 16,
+  },
+  dropdownSelectedText: {
+    color: '#111827',
+    fontSize: 16,
+  },
+  dropdownItemText: {
+    color: '#111827',
+    fontSize: 16,
+  },
+  datePickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+  datePicker: {
+    width: '100%',
+  },
 });
 
 

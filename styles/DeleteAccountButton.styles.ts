@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from './theme';
+import { colors, shadows, spacing } from './theme';
 
 export const DeleteAccountButtonStyles = StyleSheet.create({
     errorMessage: {
@@ -95,6 +95,7 @@ export const DeleteAccountButtonStyles = StyleSheet.create({
         marginHorizontal: 80,
         borderColor: '#C80815',
         borderWidth: 1,
+        ...shadows.sm,
     },
       
     deleteAccountText: {

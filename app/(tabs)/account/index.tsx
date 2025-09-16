@@ -139,12 +139,6 @@ const AccountScreen = () => {
           <Text style={styles.heading}>
             My Account
           </Text>
-          <TouchableOpacity 
-              style={{ position: 'absolute', right: 25, zIndex: 1 }}
-              onPress={() => router.push('/(tabs)/account/profile')} 
-            >
-              <Text style={[styles.back, {marginTop: 14}]}>Edit →</Text>
-          </TouchableOpacity>
         </View>
       )}
 
@@ -174,32 +168,50 @@ const AccountScreen = () => {
 
             {/* Info Cards Section */}
             <View style={styles.infoSection}>
-              <View style={styles.infoCard}>
+              <View style={[styles.infoCard, styles.academyCard]}>
                 <Text style={styles.infoCardTitle}>Academy</Text>
-                {/*need textbox on profile page for it*/}
-                <Text style={styles.infoCardValue}>{academy}</Text>
+                <Text style={[styles.infoCardValue, academy === '--' && styles.emptyValue]}>
+                  {academy === '--' ? 'Not set' : academy}
+                </Text>
               </View>
               
-              <View style={styles.infoCard}>
+              <View style={[styles.infoCard, styles.trainingCard]}>
                 <Text style={styles.infoCardTitle}>Training Since</Text>
-                {/*need another dropdown for date*/}
-                <Text style={styles.infoCardValue}>{date}</Text>
+                <Text style={[styles.infoCardValue, date === '--' && styles.emptyValue]}>
+                  {date === '--' ? 'Not set' : date}
+                </Text>
               </View>
-              <View style={styles.infoCard}>
+              
+              <View style={[styles.infoCard, styles.genderCard]}>
                 <Text style={styles.infoCardTitle}>Gender</Text>
-                {/*need another dropdown for date*/}
-                <Text style={styles.infoCardValue}>{gender}</Text>
+                <Text style={[styles.infoCardValue, gender === '--' && styles.emptyValue]}>
+                  {gender === '--' ? 'Not set' : gender}
+                </Text>
               </View>
-              <View style={styles.infoCard}>
+              
+              <View style={[styles.infoCard, styles.weightCard]}>
                 <Text style={styles.infoCardTitle}>Weight (lbs)</Text>
-                {/*need another dropdown for date*/}
-                <Text style={styles.infoCardValue}>{weight}</Text>
+                <Text style={[styles.infoCardValue, weight === '--' && styles.emptyValue]}>
+                  {weight === '--' ? 'Not set' : weight}
+                </Text>
               </View>
-              <View style={styles.infoCard}>
+              
+              <View style={[styles.infoCard, styles.heightCard]}>
                 <Text style={styles.infoCardTitle}>Height</Text>
-                {/*need another dropdown for date*/}
-                <Text style={styles.infoCardValue}>{height}</Text>
+                <Text style={[styles.infoCardValue, height === '--' && styles.emptyValue]}>
+                  {height === '--' ? 'Not set' : height}
+                </Text>
               </View>
+            </View>
+
+            {/* Edit Profile Button */}
+            <View style={styles.editSection}>
+              <TouchableOpacity 
+                style={styles.editButton}
+                onPress={() => router.push('/(tabs)/account/profile')} 
+              >
+                <Text style={styles.editButtonText}>Edit Profile</Text>
+              </TouchableOpacity>
             </View>
 
             {/* Action Buttons */}

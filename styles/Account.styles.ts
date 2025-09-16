@@ -135,6 +135,7 @@ export const AccountStyles = StyleSheet.create({
     },
     actionSection: {
       paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xl,
       gap: spacing.sm,
       marginTop: -15,
     },
@@ -151,6 +152,7 @@ export const AccountStyles = StyleSheet.create({
       alignItems: 'center',
       marginTop: spacing.sm,
       marginHorizontal: 100,
+      ...shadows.sm,
     },
     beltImage: {
       width: 200,
@@ -176,6 +178,53 @@ export const AccountStyles = StyleSheet.create({
       fontWeight: '600', 
       textAlign: 'center', 
       marginTop: -50,
+    },
+    
+    // Clean, professional improvements
+    editSection: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.lg,
+      alignItems: 'center',
+    },
+    editButton: {
+      backgroundColor: colors.gray,
+      borderRadius: 8,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      ...shadows.sm,
+      minWidth: 120,
+    },
+    editButtonText: {
+      color: colors.primary,
+      fontSize: typography.md,
+      fontWeight: typography.semibold,
+      textAlign: 'center',
+    },
+    academyCard: {
+      borderLeftWidth: 3,
+      borderLeftColor: '#2196F3',
+    },
+    trainingCard: {
+      borderLeftWidth: 3,
+      borderLeftColor: '#9C27B0',
+    },
+    genderCard: {
+      borderLeftWidth: 3,
+      borderLeftColor: '#4CAF50',
+    },
+    weightCard: {
+      borderLeftWidth: 3,
+      borderLeftColor: '#FF9800',
+    },
+    heightCard: {
+      borderLeftWidth: 3,
+      borderLeftColor: '#E91E63',
+    },
+    emptyValue: {
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+      opacity: 0.7,
     },
     
 });

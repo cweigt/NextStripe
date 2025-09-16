@@ -17,6 +17,7 @@ import {
     View,
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { RadioButton } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type CalendarEvent = {
@@ -62,6 +63,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   const [recurring, setRecurring] = useState(false);
   const [recurrenceType, setRecurrenceType] = useState<'weekly' | 'daily' | 'monthly' | 'yearly' | 'none'>('none');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | null>(null);
+  const [editScope, setEditScope] = useState<'this' | 'all'>('this');
 
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(0)).current;
@@ -260,6 +262,24 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     style={styles.datePicker}
                   />
                 </View>
+              </View>
+            )}
+
+            {/* Edit Scope Selection - only show for recurring events */}
+            {event?.recurring && (
+              <View style={{ marginTop: 16, marginBottom: 12 }}>
+                <Text style={styles.label}>Change for:</Text>
+                {/*@ts-ignore*/}
+                <RadioButton.Group onValueChange={setEditScope} value={editScope}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                    <RadioButton value="this" />
+                    <Text style={{ marginLeft: 8 }}>This event only</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <RadioButton value="all" />
+                    <Text style={{ marginLeft: 8 }}>All future events</Text>
+                  </View>
+                </RadioButton.Group>
               </View>
             )}
 

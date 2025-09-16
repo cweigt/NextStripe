@@ -106,4 +106,37 @@ export const ScheduleStyles = StyleSheet.create({
       marginBottom: spacing.sm,
       padding: spacing.xs,
     },
+
+
+    //for event
+    eventItem: {
+      backgroundColor: '#f5f5f5',
+      padding: 10,
+      margin: 5,
+      borderRadius: 5,
+    },
+    eventHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 4,
+    },
+    eventTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      flex: 1,
+    },
+    eventTime: {
+      fontSize: 14,
+      color: '#666',
+    },
+    recurringIcon: {
+      fontSize: 16,
+      marginLeft: 5,
+    },
+    recurringText: {
+      fontSize: 12,
+      color: '#666',
+      fontStyle: 'italic',
+      marginTop: 2,
+    },
   });

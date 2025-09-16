@@ -16,7 +16,7 @@ import AddEventModal from '@/components/AddEventModal';
 import EditEventModal from '@/components/EditEventModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/firebase';
-import { ref as dbRef, onValue, push, remove, set } from 'firebase/database';
+import { ref as dbRef, endAt, equalTo, get, onValue, orderByChild, push, query, ref, remove, set, startAt } from 'firebase/database';
 
 type CalendarEvent = {
   id: string;
@@ -33,13 +33,133 @@ type CalendarEvent = {
   isRecurringInstance?: boolean; //to see if this is not an original instance
 };
 
+// Event item component
+const EventItem = ({ event }: { event: CalendarEvent }) => {
+  return (
+    <View style={styles.eventItem}>
+      <View style={styles.eventHeader}>
+        <Text style={styles.eventTitle}>{event.title}</Text>
+        {event.isRecurringInstance && (
+          <Text style={styles.recurringIcon}>🔄</Text>
+        )}
+      </View>
+      <Text style={styles.eventTime}>{toTime(event.startISO)}</Text>
+      {event.isRecurringInstance && (
+        <Text style={styles.recurringText}>Recurring Event</Text>
+      )}
+    </View>
+  );
+};
+
 const dateKey = (d: Date) => moment(d).format('YYYY-MM-DD');
 const toTime = (iso: string) => moment(iso).format('h:mm A');
 
-
+// Generate recurring events
+const generateRecurringEvents = ({
+  title,
+  startDate,
+  recurrenceType,
+  recurrenceEndDate,
+  userUid
+}: {
+  title: string;
+  startDate: Date;
+  recurrenceType: 'weekly' | 'daily' | 'monthly' | 'yearly';
+  recurrenceEndDate: Date;
+  userUid: string;
+}) => {
+  const events: Array<{ startDate: Date; payload: Omit<CalendarEvent, 'id'> }> = [];
+  const parentEventId = `parent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  let currentDate = moment(startDate);
+  const endDate = moment(recurrenceEndDate);
+  
+  // Add the original event
+  events.push({
+    startDate: startDate,
+    payload: {
+      title,
+      startISO: startDate.toISOString(),
+      createdAt: new Date().toISOString(),
+      recurring: true,
+      recurrenceType,
+      recurrenceEndDate: recurrenceEndDate.toISOString(),
+      parentEventId,
+      isRecurringInstance: false, // This is the original event
+    }
+  });
+  
+  // Generate recurring instances
+  while (currentDate.isBefore(endDate)) {
+    let nextDate: moment.Moment;
+    
+    switch (recurrenceType) {
+      case 'daily':
+        nextDate = currentDate.clone().add(1, 'day');
+        break;
+      case 'weekly':
+        nextDate = currentDate.clone().add(1, 'week');
+        break;
+      case 'monthly':
+        nextDate = currentDate.clone().add(1, 'month');
+        break;
+      case 'yearly':
+        nextDate = currentDate.clone().add(1, 'year');
+        break;
+      default:
+        nextDate = currentDate.clone().add(1, 'day');
+    }
+    
+    if (nextDate.isAfter(endDate)) break;
+    
+    const nextStartDate = nextDate.toDate();
+    nextStartDate.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0);
+    
+    events.push({
+      startDate: nextStartDate,
+      payload: {
+        title,
+        startISO: nextStartDate.toISOString(),
+        createdAt: new Date().toISOString(),
+        recurring: true,
+        recurrenceType,
+        recurrenceEndDate: recurrenceEndDate.toISOString(),
+        parentEventId,
+        isRecurringInstance: true, // This is a recurring instance
+      }
+    });
+    
+    currentDate = nextDate;
+  }
+  
+  return events;
+};
 
 const Schedule = () => {
   const { user } = useAuth();
+
+  // Function to get events for a date range
+  const getEventsForDateRange = async (startDate: Date, endDate: Date) => {
+    const eventsRef = ref(db, `users/${user.uid}/events`);
+    const snapshot = await get(query(eventsRef, 
+      orderByChild('date'),
+      startAt(startDate.toISOString()),
+      endAt(endDate.toISOString())
+    ));
+    
+    return snapshot.val() || {};
+  };
+
+  // Function to get recurring events
+  const getRecurringEvents = async (parentEventId: string) => {
+    const eventsRef = ref(db, `users/${user.uid}/events`);
+    const snapshot = await get(query(eventsRef, 
+      orderByChild('parentEventId'),
+      equalTo(parentEventId)
+    ));
+    
+    return snapshot.val() || {};
+  };
   const swiper = useRef<any>(null);
   const contentSwiper = useRef<any>(null);
   const [week, setWeek] = useState(0);
@@ -98,24 +218,59 @@ const Schedule = () => {
   }, [user?.uid]);
 
   // ➕ Save event from modal
-  const saveEvent = useCallback(async ({ title, time }: { title: string; time: Date }) => {
+  const saveEvent = useCallback(async ({ 
+    title, 
+    time, 
+    recurring, 
+    recurrenceType, 
+    recurrenceEndDate 
+  }: { 
+    title: string; 
+    time: Date;
+    recurring?: boolean;
+    recurrenceType?: 'weekly' | 'daily' | 'monthly' | 'yearly' | 'none';
+    recurrenceEndDate?: Date | null;
+  }) => {
     if (!user?.uid) return;
 
     // Combine selected day with chosen time
     const start = new Date(value);
     start.setHours(time.getHours(), time.getMinutes(), 0, 0);
 
-    //storing in firebase
-    const k = dateKey(value);
-    const path = `users/${user.uid}/schedule/${k}`;
-    const newRef = push(dbRef(db, path));
-    const payload: Omit<CalendarEvent, 'id'> = {
-      title,
-      startISO: start.toISOString(),
-      createdAt: new Date().toISOString(),
-    };
+    if (recurring && recurrenceType && recurrenceType !== 'none') {
+      // Generate recurring events
+      const events = generateRecurringEvents({
+        title,
+        startDate: start,
+        recurrenceType,
+        recurrenceEndDate: recurrenceEndDate || moment().add(1, 'year').toDate(), // Default to 1 year if no end date
+        userUid: user.uid
+      });
 
-    await set(newRef, payload);
+      // Save all recurring events
+      for (const event of events) {
+        const k = dateKey(event.startDate);
+        const path = `users/${user.uid}/schedule/${k}`;
+        const newRef = push(dbRef(db, path));
+        await set(newRef, event.payload);
+      }
+    } else {
+      // Single event
+      const k = dateKey(value);
+      const path = `users/${user.uid}/schedule/${k}`;
+      const newRef = push(dbRef(db, path));
+      const payload: Omit<CalendarEvent, 'id'> = {
+        title,
+        startISO: start.toISOString(),
+        createdAt: new Date().toISOString(),
+        recurring,
+        recurrenceType,
+        recurrenceEndDate: recurrenceEndDate?.toISOString(),
+      };
+
+      await set(newRef, payload);
+    }
+
     setShowAdd(false);
   }, [user?.uid, value]);
 
@@ -126,6 +281,7 @@ const Schedule = () => {
     await remove(dbRef(db, `users/${user.uid}/schedule/${k}/${id}`));
   }, [user?.uid, value]);
 
+  
   //Update an event
   const handleUpdateEvent = useCallback(async ({ id, title, time, recurring, recurrenceType, recurrenceEndDate }: {
     id: string;
@@ -308,5 +464,7 @@ const Schedule = () => {
     </SafeAreaView>
   );
 };
+
+
 
 export default Schedule;

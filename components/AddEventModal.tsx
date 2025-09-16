@@ -96,6 +96,9 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     if (visible) {
       setTitle('');
       setTimeText('');
+      setRecurring(false);
+      setRecurrenceType('none');
+      setRecurrenceEndDate(null);
     }
   }, [visible]);
 

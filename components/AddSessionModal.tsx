@@ -2,6 +2,7 @@ import { OPENAI_API_KEY } from '@/config/api';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
 import React, { useEffect, useState } from 'react';
 import {
+  FlatList,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -29,6 +30,7 @@ interface AddSessionModalProps {
     duration: string;
     notes: string;
     tags: string[];
+    qualityLevel: string;
   }) => void;
 }
 
@@ -39,13 +41,13 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
   const [notes, setNotes] = useState('');
   const insets = useSafeAreaInsets();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const now = new Date();
   const today = new Date().toLocaleDateString('en-CA'); // -> "YYYY-MM-DD"
   const [selected, setSelected] = useState<string>(today);
-  const [rawTranscript, setRawTranscript] = useState('');   // NEW
-  const [isSummarizing, setIsSummarizing] = useState(false); // NEW (optional)
+  const [rawTranscript, setRawTranscript] = useState('');
+  const [isSummarizing, setIsSummarizing] = useState(false); 
   const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
-  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [qualityLevel, setQualityLevel] = useState(''); //string right now, might need to convert to Float later
+  const ROWS = 3; //for rendering horizontal with three rows
 
 
   //swapping logic for the tags
@@ -133,6 +135,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
 
     onSave({
       title,
+      qualityLevel,
       duration,
       notes,
       tags: Array.from(selectedTags),
@@ -143,7 +146,8 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setDuration('');
     setNotes('');
     setSelectedTags(new Set()); // Reset tags
-    setRawTranscript('');
+    setQualityLevel('');
+    setRawTranscript(''); //clear out transcript cache
     onClose();
   };
 
@@ -152,6 +156,7 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
     setTitle('');
     setDuration('');
     setNotes('');
+    setQualityLevel('');
     setSelectedTags(new Set()); // Reset tags
     setRawTranscript('');
     onClose();
@@ -163,6 +168,16 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
       setRawTranscript('');
     }
   }, [isVisible]);
+
+  //this is for chunking the tags into three equal rows
+  const chunk = <T,>(array: T[], size: number): T[][] => {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  };
+  
 
   return (
     <Modal
@@ -233,17 +248,6 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
                 setDate(formatDate(`${m}${d}${y}`));
               }}
             />
-            {/*
-              <TextInput 
-                style={styles.input}
-                value={date}
-                onChangeText={handleDateChange}
-                placeholder="MM/DD/YYYY"
-                placeholderTextColor='#d9d9d9'
-                keyboardType="numeric"
-                maxLength={10}
-              />
-            */}
 
             <Text style={[styles.requirements, {marginTop: 20}]}>
               Session Duration in Hours
@@ -257,24 +261,54 @@ const AddSessionModal = ({ isVisible, onClose, onSave }: AddSessionModalProps) =
               keyboardType="numeric"
             />
 
+            <Text style={[styles.requirements, {marginTop: 8}]}>
+              Session Quality
+            </Text>
+            <TextInput 
+              style={styles.input}
+              value={qualityLevel}
+              placeholder="1.0-10.0"
+              placeholderTextColor='#d9d9d9'
+              onChangeText={setQualityLevel}
+              keyboardType="numeric"
+            />
+
             <Text style={[styles.requirements, {marginBottom: 8}]}>
               Tags
             </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              {TAGS.map((tag) => {
-                const isSelected = selectedTags.has(tag);
-                return (
-                  <TouchableOpacity
-                    key={tag}
-                    onPress={() => toggleTag(tag)}
-                    style={isSelected ? styles.tagsSelected : styles.tagsUnselected}
-                  >
-                    <Text style={isSelected ? styles.tagTextSelected : styles.tagTextUnselected}>
-                      {tag}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={{ height: ROWS * 44, marginBottom: 12 }}>
+              <FlatList
+                data={chunk(TAGS, ROWS)}
+                keyExtractor={(_, idx) => `col-${idx}`}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 12 }}
+                renderItem={({ item: col }) => (
+                  <View style={{ marginRight: 12 }}>
+                    {col.map((tag) => {
+                      const isSelected = selectedTags.has(tag);
+                      return (
+                        <TouchableOpacity
+                          key={tag}
+                          onPress={() => toggleTag(tag)}
+                          style={[
+                            isSelected ? styles.tagsSelected : styles.tagsUnselected,
+                            { marginBottom: 8 },
+                          ]}
+                        >
+                          <Text
+                            style={
+                              isSelected ? styles.tagTextSelected : styles.tagTextUnselected
+                            }
+                          >
+                            {tag}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+              />
             </View>
 
             <View style={styles.sessionNotesHeader}>

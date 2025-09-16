@@ -2,6 +2,7 @@ import { OPENAI_API_KEY } from '@/config/api';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
 import React, { useEffect, useState } from 'react';
 import {
+  FlatList,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -28,6 +29,7 @@ interface EditSessionModalProps {
     date: string;
     duration: string;
     notes: string;
+    qualityLevel: string;
     tags: string[];
   }) => void;
   session?: { //importing the session from card so that the card I click on carries the information
@@ -35,6 +37,7 @@ interface EditSessionModalProps {
     date: string;
     duration: string;
     notes: string;
+    qualityLevel: string;
     tags: string[];
   };
 }
@@ -51,6 +54,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
   const [rawTranscript, setRawTranscript] = useState('');   // hidden buffer of full transcript
   const [isSummarizing, setIsSummarizing] = useState(false); // optional: disable Update while summarizing
   const [isRecordingOrProcessing, setIsRecordingOrProcessing] = useState(false);
+  const [qualityLevel, setQualityLevel] = useState('');
+  const ROWS = 3;
 
   
 
@@ -137,6 +142,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       setDate(session.date || '');
       setDuration(session.duration || '');
       setNotes(session.notes || '');
+      setQualityLevel(session.qualityLevel || '');
       // Clear transcript buffer when switching sessions
       setRawTranscript('');
       
@@ -178,6 +184,7 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
       date,
       duration,
       notes,
+      qualityLevel,
       tags: Array.from(selectedTags),
     });
     //reset form
@@ -185,6 +192,8 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     setDate('');
     setDuration('');
     setNotes('');
+    setQualityLevel('');
+    setSelectedTags(new Set()); // Reset tags
     setRawTranscript('');
     onClose();
   };
@@ -202,6 +211,14 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
     }
   }, [isVisible]);
 
+  //this is for chunking the tags into three equal rows
+  const chunk = <T,>(array: T[], size: number): T[][] => {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  };
   return (
     <Modal
       animationType="slide"
@@ -284,25 +301,54 @@ const EditSessionModal = ({ isVisible, onClose, onUpdate, session }: EditSession
               keyboardType="numeric"
             />
 
+            <Text style={[styles.requirements, {marginTop: 8}]}>
+              Session Quality
+            </Text>
+            <TextInput 
+              style={styles.input}
+              value={qualityLevel}
+              placeholder="1.0-10.0"
+              placeholderTextColor='#d9d9d9'
+              onChangeText={setQualityLevel}
+              keyboardType="numeric"
+            />
             <Text style={[styles.requirements, {marginBottom: 8}]}>
               Tags
             </Text>
             
-            <View style={{ flexDirection: "row", flexWrap: 'wrap', gap: 8}}>
-              {TAGS.map((tag) => {
-                const isSelected = selectedTags.has(tag);
-                return (
-                  <TouchableOpacity
-                    key={tag}
-                    onPress={() => toggleTag(tag)}
-                    style={isSelected ? styles.tagsSelected : styles.tagsUnselected}
-                  >
-                    <Text style={isSelected ? styles.tagTextSelected : styles.tagTextUnselected}>
-                      {tag}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={{ height: ROWS * 44, marginBottom: 12 }}>
+            <FlatList
+              data={chunk(TAGS, ROWS)}
+              keyExtractor={(_, idx) => `col-${idx}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 12 }}
+              renderItem={({ item: col }) => (
+                <View style={{ marginRight: 12 }}>
+                  {col.map((tag) => {
+                    const isSelected = selectedTags.has(tag);
+                    return (
+                      <TouchableOpacity
+                        key={tag}
+                        onPress={() => toggleTag(tag)}
+                        style={[
+                          isSelected ? styles.tagsSelected : styles.tagsUnselected,
+                          { marginBottom: 8 },
+                        ]}
+                      >
+                        <Text
+                          style={
+                            isSelected ? styles.tagTextSelected : styles.tagTextUnselected
+                          }
+                        >
+                          {tag}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+            />
             </View>
 
             <View style={styles.sessionNotesHeader}>

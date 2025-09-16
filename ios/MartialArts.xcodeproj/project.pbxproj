@@ -7,26 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		022ACCEFDC911558DBBC1928 /* libPods-MartialArts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C0D64D12EF26A09576AE18B /* libPods-MartialArts.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		2B2AC8A40B710AE894FC09D1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5053D05831B9DB3F7C2E43AA /* PrivacyInfo.xcprivacy */; };
+		1850475F3F64F47256A309BF /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B2E116394139AF7090AE1 /* ExpoModulesProvider.swift */; };
+		369C1493F326E86E2D42901B /* libPods-MartialArts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 202301985CF4D5D04622D44D /* libPods-MartialArts.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		8F7A7B5FC890FF5E56AAFB23 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE49DAD92588F03784D346E2 /* ExpoModulesProvider.swift */; };
+		42F51B8023997C07DA88304B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 662E45C8CA20041C5CEBE493 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		072ACF21C340EBCD4F198C93 /* Pods-MartialArts.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MartialArts.debug.xcconfig"; path = "Target Support Files/Pods-MartialArts/Pods-MartialArts.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* MartialArts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MartialArts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MartialArts/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MartialArts/Info.plist; sourceTree = "<group>"; };
-		1C0D64D12EF26A09576AE18B /* libPods-MartialArts.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MartialArts.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5053D05831B9DB3F7C2E43AA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = MartialArts/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		202301985CF4D5D04622D44D /* libPods-MartialArts.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MartialArts.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		662E45C8CA20041C5CEBE493 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MartialArts/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6F1B2E116394139AF7090AE1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MartialArts/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		71F24791B7D8678F57082AA2 /* Pods-MartialArts.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MartialArts.release.xcconfig"; path = "Target Support Files/Pods-MartialArts/Pods-MartialArts.release.xcconfig"; sourceTree = "<group>"; };
+		A37E45AD01D34B38C80F7D6F /* Pods-MartialArts.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MartialArts.debug.xcconfig"; path = "Target Support Files/Pods-MartialArts/Pods-MartialArts.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = MartialArts/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AE49DAD92588F03784D346E2 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MartialArts/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		BF81A6E2CF1948A247D6FB99 /* Pods-MartialArts.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MartialArts.release.xcconfig"; path = "Target Support Files/Pods-MartialArts/Pods-MartialArts.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = MartialArts/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* MartialArts-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MartialArts-Bridging-Header.h"; path = "MartialArts/MartialArts-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				022ACCEFDC911558DBBC1928 /* libPods-MartialArts.a in Frameworks */,
+				369C1493F326E86E2D42901B /* libPods-MartialArts.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				5053D05831B9DB3F7C2E43AA /* PrivacyInfo.xcprivacy */,
+				662E45C8CA20041C5CEBE493 /* PrivacyInfo.xcprivacy */,
 			);
 			name = MartialArts;
 			sourceTree = "<group>";
@@ -62,24 +62,15 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				1C0D64D12EF26A09576AE18B /* libPods-MartialArts.a */,
+				202301985CF4D5D04622D44D /* libPods-MartialArts.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		78BF03751E1A7832674003F4 /* Pods */ = {
+		7B2EE4D893E34208AF65F93C /* MartialArts */ = {
 			isa = PBXGroup;
 			children = (
-				072ACF21C340EBCD4F198C93 /* Pods-MartialArts.debug.xcconfig */,
-				BF81A6E2CF1948A247D6FB99 /* Pods-MartialArts.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
-		7C96063101EC71D509A5F386 /* MartialArts */ = {
-			isa = PBXGroup;
-			children = (
-				AE49DAD92588F03784D346E2 /* ExpoModulesProvider.swift */,
+				6F1B2E116394139AF7090AE1 /* ExpoModulesProvider.swift */,
 			);
 			name = MartialArts;
 			sourceTree = "<group>";
@@ -98,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				78BF03751E1A7832674003F4 /* Pods */,
-				EA4910CC0435884592CD2EFD /* ExpoModulesProviders */,
+				9873FD91BAB66911BECB8F07 /* Pods */,
+				B0B7C8C8020377EED793888E /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -114,6 +105,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		9873FD91BAB66911BECB8F07 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A37E45AD01D34B38C80F7D6F /* Pods-MartialArts.debug.xcconfig */,
+				71F24791B7D8678F57082AA2 /* Pods-MartialArts.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		B0B7C8C8020377EED793888E /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				7B2EE4D893E34208AF65F93C /* MartialArts */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -121,14 +130,6 @@
 			);
 			name = Supporting;
 			path = MartialArts/Supporting;
-			sourceTree = "<group>";
-		};
-		EA4910CC0435884592CD2EFD /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				7C96063101EC71D509A5F386 /* MartialArts */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "MartialArts" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				FD0E731A74E3FC545B63B4C4 /* [Expo] Configure project */,
+				A341499A1E28539265183812 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				DD66AC486C025788929C56C9 /* [CP] Embed Pods Frameworks */,
+				ABA33DF04BDCC8BB095857D5 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -165,6 +166,7 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = UV88TF5F6R;
 						LastSwiftMigration = 1250;
 						ProvisioningStyle = Automatic;
 					};
@@ -196,7 +198,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				2B2AC8A40B710AE894FC09D1 /* PrivacyInfo.xcprivacy in Resources */,
+				42F51B8023997C07DA88304B /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,25 +286,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MartialArts/Pods-MartialArts-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DD66AC486C025788929C56C9 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MartialArts/Pods-MartialArts-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MartialArts/Pods-MartialArts-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		FD0E731A74E3FC545B63B4C4 /* [Expo] Configure project */ = {
+		A341499A1E28539265183812 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -321,6 +305,24 @@
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-MartialArts/expo-configure-project.sh\"\n";
 		};
+		ABA33DF04BDCC8BB095857D5 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MartialArts/Pods-MartialArts-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MartialArts/Pods-MartialArts-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -329,7 +331,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				8F7A7B5FC890FF5E56AAFB23 /* ExpoModulesProvider.swift in Sources */,
+				1850475F3F64F47256A309BF /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,7 +340,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 072ACF21C340EBCD4F198C93 /* Pods-MartialArts.debug.xcconfig */;
+			baseConfigurationReference = A37E45AD01D34B38C80F7D6F /* Pods-MartialArts.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -377,7 +379,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BF81A6E2CF1948A247D6FB99 /* Pods-MartialArts.release.xcconfig */;
+			baseConfigurationReference = 71F24791B7D8678F57082AA2 /* Pods-MartialArts.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

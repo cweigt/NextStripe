@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { get, getDatabase, ref, set } from 'firebase/database';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Training = () => {
@@ -19,6 +19,7 @@ const Training = () => {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const ROWS = 2;
 
   //tag filter UI state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -193,6 +194,7 @@ const Training = () => {
        date: sessionData.date,
        duration: sessionData.duration,
        notes: sessionData.notes,
+       qualityLevel: sessionData.qualityLevel,
        tags: sessionData.tags || [],
      });
 
@@ -228,7 +230,7 @@ const Training = () => {
        id: sessionId,
        ...sessionData
      };
-     setSessions(prev => [...prev, newSession]);
+     setSessions(prev => [newSession, ...prev ]);
      const newCount = sessionCount + 1;
      setSessionCount(newCount);
      await updateSessionCountInFirebase(newCount);
@@ -243,6 +245,15 @@ const Training = () => {
   };
 
   const clearFilters = () => setSelectedTags(new Set());
+
+  //this is for chunking the tags into two equal rows
+  const chunk = <T,>(array: T[], size: number): T[][] => {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  };
 
   return (
     <>
@@ -264,7 +275,7 @@ const Training = () => {
             style={styles.openFilter}
           >
             <Text style={{ fontWeight: '600' }}>
-              {isFilterOpen ? 'Close Filters' : 'Filter by tag'}
+              {isFilterOpen ? 'Filter by tag ▲' : 'Filter by tag ▼'}
             </Text>
           </TouchableOpacity>
 
@@ -273,33 +284,48 @@ const Training = () => {
               style={styles.openContainer}
             >
               <Text style={{ fontWeight: '600', marginBottom: 8 }}>Tags</Text>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              <View style={{ height: ROWS * 44, marginBottom: 12 }}>
                 {availableTags.length === 0 ? (
                   <Text style={{ color: '#777' }}>No tags found</Text>
                 ) : (
-                  availableTags.map(tag => {
-                    const isSelected = selectedTags.has(tag);
-                    return (
-                      <TouchableOpacity
-                        key={tag}
-                        onPress={() => toggleTag(tag)}
-                        style={isSelected ? styles.tagsSelected : styles.tagsUnselected}
-                      >
-                        <Text style={isSelected ? styles.tagTextSelected : styles.tagTextUnselected}>
-                          {tag}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })
+                  <FlatList
+                    data={chunk(availableTags, 2)}
+                    keyExtractor={(_, idx) => `col-${idx}`}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 12 }}
+                    renderItem={({ item: col }) => (
+                      <View style={{ marginRight: 12, flexShrink: 0 }}>
+                        {col.map((tag) => {
+                          const isSelected = selectedTags.has(tag);
+                          return (
+                            <TouchableOpacity
+                              key={tag}
+                              onPress={() => toggleTag(tag)}
+                              style={[
+                                isSelected ? styles.tagsSelected : styles.tagsUnselected,
+                                { marginBottom: 8 },
+                              ]}
+                            >
+                              <Text
+                                style={
+                                  isSelected ? styles.tagTextSelected : styles.tagTextUnselected
+                                }
+                              >
+                                {tag}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    )}
+                  />
                 )}
               </View>
 
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
                 <TouchableOpacity onPress={clearFilters} style={{ paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: '#f0f0f0' }}>
                   <Text>Clear</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsFilterOpen(false)} style={{ paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: '#111' }}>
-                  <Text style={{ color: 'white' }}>Done</Text>
                 </TouchableOpacity>
               </View>
             </View>

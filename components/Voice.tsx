@@ -1,7 +1,7 @@
 import { VoiceStyles as styles } from '@/styles/Voice.styles';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
-import React, { useRef, useState } from 'react';
+import { AudioRecorder } from 'expo-audio';
+import { useRef, useState } from 'react';
 import { Alert, TouchableOpacity } from 'react-native';
 
 type Props = {
@@ -54,29 +54,47 @@ async function summarizeWithGPT({
 const VoiceComponent = ({ onFinal, onBusyChange, apiKey }: Props) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const recordingRef = useRef<Audio.Recording | null>(null);
+  const recordingRef = useRef<AudioRecorder | null>(null);
 
   const startRecording = async () => {
     try {
       // Request permissions
-      const { status } = await Audio.requestPermissionsAsync();
+      const { status } = await AudioRecorder.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permission needed', 'Please grant microphone permissions to use voice input.');
         return;
       }
 
-      // Configure audio
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      // Create and start recording
+      const recorder = new AudioRecorder();
+      await recorder.prepareToRecordAsync({
+        android: {
+          extension: '.m4a',
+          outputFormat: 'mpeg4',
+          audioEncoder: 'aac',
+          sampleRate: 44100,
+          numberOfChannels: 2,
+          bitRate: 128000,
+        },
+        ios: {
+          extension: '.m4a',
+          outputFormat: 'mpeg4aac',
+          audioQuality: 'high',
+          sampleRate: 44100,
+          numberOfChannels: 2,
+          bitRate: 128000,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+        web: {
+          mimeType: 'audio/webm',
+          bitsPerSecond: 128000,
+        },
       });
-
-      //start recording
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
       
-      recordingRef.current = recording;
+      await recorder.startAsync();
+      recordingRef.current = recorder;
       setIsRecording(true);
       if (onBusyChange) onBusyChange(true);
       
@@ -94,8 +112,7 @@ const VoiceComponent = ({ onFinal, onBusyChange, apiKey }: Props) => {
       setIsProcessing(true);
       
       // Stop recording
-      await recordingRef.current.stopAndUnloadAsync();
-      const uri = recordingRef.current.getURI();
+      const uri = await recordingRef.current.stopAsync();
       recordingRef.current = null;
       setIsRecording(false);
 

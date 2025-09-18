@@ -4,6 +4,7 @@ export const ROUTES = {
     TRAINING: '/training',
     ANALYTICS: '/analytics',
     SCHEDULE: '/schedule',
+    LIBRARY: '/library',
   } as const;
   
   // Type for the route values

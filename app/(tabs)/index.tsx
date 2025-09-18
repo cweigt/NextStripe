@@ -159,7 +159,7 @@ const Dashboard = () => {
         const totalRating = sessions
         .reduce((sum, session: any) => sum + (parseFloat(session.qualityLevel) || 0), 0);
 
-        // Use the actual number of sessions from the data, not the separate sessionCount state
+        //use the actual number of sessions from the data, not the separate sessionCount state
         const actualSessionCount = sessions.length;
         const average = actualSessionCount > 0 ? totalRating / actualSessionCount : 0;
         //console.log('Average calculation:', { totalRating, actualSessionCount, average });
@@ -240,8 +240,6 @@ const Dashboard = () => {
             </View>
           </View>
           
-
-
 
           {/*Records section*/}
           <View style={styles.section}>

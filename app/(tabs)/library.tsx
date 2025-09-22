@@ -294,22 +294,7 @@ const Library = () => {
               ))}
             </View>
           </View>
-
-
-          {/* Stats Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Your Progress</Text>
-            <View style={styles.analyticsContainer}>
-              <View style={styles.analyticsCard}>
-                <Text style={styles.analyticsNumber}>{videos.length}</Text>
-                <Text style={styles.analyticsLabel}>Videos</Text>
-              </View>
-              <View style={styles.analyticsCard}>
-                <Text style={styles.analyticsNumber}>NA</Text>
-                <Text style={styles.analyticsLabel}>Resources</Text>
-              </View>
-            </View>
-          </View>
+            */}
 
         </ScrollView>
       ) : (

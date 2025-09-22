@@ -1,9 +1,10 @@
 
+import EditCompModal from '@/components/EditCompModal';
 import { useAuth } from '@/contexts/AuthContext';
-import { db } from '@/firebase';
+import { auth, db } from '@/firebase';
 import { DashboardStyles as styles } from '@/styles/Dashboard.styles';
 import { router } from 'expo-router';
-import { onValue, ref } from 'firebase/database';
+import { onValue, ref, set } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -22,7 +23,17 @@ const Dashboard = () => {
   const [maxHours, setMaxHours] = useState('');
   const [daysSinceLast, setDaysSinceLast] = useState<number | null>(null);
   const [averageRating, setAverageRating] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [resultType, setResultType] = useState<'win' | 'loss' | null>(null);
+  const [lossCount, setLossCount] = useState(''); //0
+  const [winCount, setWinCount] = useState(''); //0
+  const [submissionWins, setSubmissionWins] = useState(0);
+  const [pointsWins, setPointsWins] = useState(0);
+  const [submissionLosses, setSubmissionLosses] = useState(0);
+  const [pointsLosses, setPointsLosses] = useState(0);
+  const [detail, setDetail] = useState('');
   const uid = user?.uid;
+  
 
 
   //load stats when component mounts
@@ -33,6 +44,9 @@ const Dashboard = () => {
       loadRecentDate();
       loadMaxHours();
       loadAverageRating();
+      loadWinCount();
+      loadLossCount();
+      loadMethodCounts();
     } else {
       //reset state when no user
       setTotalSessionHours(''); //0
@@ -41,8 +55,82 @@ const Dashboard = () => {
       setMaxHours(''); //0
       setAverageRating('') //0
       setDaysSinceLast(null);
+      setWinCount('0');
+      setLossCount('0');
+      setSubmissionWins(0);
+      setPointsWins(0);
+      setSubmissionLosses(0);
+      setPointsLosses(0);
     }
   }, [user]);
+
+  const onSave = async (method: 'points' | 'submission') => {
+    const uid = auth.currentUser?.uid;
+    if (!uid || !resultType) return;
+
+    try {
+      const winRef = ref(db, `users/${uid}/comp/wins`);
+      const lossRef = ref(db, `users/${uid}/comp/losses`);
+      const submissionWinsRef = ref(db, `users/${uid}/comp/submissionWins`);
+      const pointsWinsRef = ref(db, `users/${uid}/comp/pointsWins`);
+      const submissionLossesRef = ref(db, `users/${uid}/comp/submissionLosses`);
+      const pointsLossesRef = ref(db, `users/${uid}/comp/pointsLosses`);
+      
+      if (resultType === 'win') {
+        // Increment total win count
+        const currentWins = parseInt(winCount) || 0;
+        const newWinCount = currentWins + 1;
+        setWinCount(newWinCount.toString());
+        
+        // Increment method-specific win count
+        if (method === 'submission') {
+          const newSubmissionWins = submissionWins + 1;
+          setSubmissionWins(newSubmissionWins);
+          await set(submissionWinsRef, newSubmissionWins);
+        } else {
+          const newPointsWins = pointsWins + 1;
+          setPointsWins(newPointsWins);
+          await set(pointsWinsRef, newPointsWins);
+        }
+        
+        // Save total wins to Firebase
+        await set(winRef, newWinCount);
+      } else if (resultType === 'loss') {
+        // Increment total loss count
+        const currentLosses = parseInt(lossCount) || 0;
+        const newLossCount = currentLosses + 1;
+        setLossCount(newLossCount.toString());
+        
+        // Increment method-specific loss count
+        if (method === 'submission') {
+          const newSubmissionLosses = submissionLosses + 1;
+          setSubmissionLosses(newSubmissionLosses);
+          await set(submissionLossesRef, newSubmissionLosses);
+        } else {
+          const newPointsLosses = pointsLosses + 1;
+          setPointsLosses(newPointsLosses);
+          await set(pointsLossesRef, newPointsLosses);
+        }
+        
+        // Save total losses to Firebase
+        await set(lossRef, newLossCount);
+      }
+      
+      closeModal();
+    } catch (error) {
+      console.error('Error saving competition result:', error);
+    }
+  };
+  const openModal = (type: 'win' | 'loss') => {
+    setResultType(type);
+    setModalVisible(true);
+  };
+  
+  const closeModal = () => {
+    setModalVisible(false);
+    setResultType(null);
+    setDetail('');
+  };
 
   //NOTE: onValue will fetch everytime the value of path changes
   //load max hours for a session
@@ -174,6 +262,82 @@ const Dashboard = () => {
     return () => listener();
   };
 
+  //load win count
+  const loadWinCount = async () => {
+    if (!uid) return;
+
+    try {
+      const winRef = ref(db, `users/${uid}/comp/wins`);
+
+      const listener = onValue(winRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const winData = snapshot.val();
+          setWinCount(winData?.toString() || '0');
+        } else {
+          setWinCount('0');
+        }
+      });
+      return () => listener();
+    } catch (error) {
+      console.log('Error loading win count:', error);
+    }
+  };
+
+  //load loss count
+  const loadLossCount = async () => {
+    if (!uid) return;
+
+    try {
+      const lossRef = ref(db, `users/${uid}/comp/losses`);
+
+      const listener = onValue(lossRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const lossData = snapshot.val();
+          setLossCount(lossData?.toString() || '0');
+        } else {
+          setLossCount('0');
+        }
+      });
+      return () => listener();
+    } catch (error) {
+      console.log('Error loading loss count:', error);
+    }
+  };
+
+  //load method-specific counts
+  const loadMethodCounts = async () => {
+    if (!uid) return;
+
+    try {
+      const submissionWinsRef = ref(db, `users/${uid}/comp/submissionWins`);
+      const pointsWinsRef = ref(db, `users/${uid}/comp/pointsWins`);
+      const submissionLossesRef = ref(db, `users/${uid}/comp/submissionLosses`);
+      const pointsLossesRef = ref(db, `users/${uid}/comp/pointsLosses`);
+
+      // Load submission wins
+      onValue(submissionWinsRef, (snapshot) => {
+        setSubmissionWins(snapshot.exists() ? snapshot.val() : 0);
+      });
+
+      // Load points wins
+      onValue(pointsWinsRef, (snapshot) => {
+        setPointsWins(snapshot.exists() ? snapshot.val() : 0);
+      });
+
+      // Load submission losses
+      onValue(submissionLossesRef, (snapshot) => {
+        setSubmissionLosses(snapshot.exists() ? snapshot.val() : 0);
+      });
+
+      // Load points losses
+      onValue(pointsLossesRef, (snapshot) => {
+        setPointsLosses(snapshot.exists() ? snapshot.val() : 0);
+      });
+    } catch (error) {
+      console.log('Error loading method counts:', error);
+    }
+  };
+
   //navigation 
   const navigateToTraining = () => {
     router.push('/training');
@@ -211,7 +375,7 @@ const Dashboard = () => {
 
           {/*Quick stats section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Stats</Text>
+            <Text style={styles.sectionTitle}>Training Stats</Text>
             <View style={styles.analyticsContainer}>
               <View style={styles.analyticsCard}>
                 <Text style={styles.analyticsNumber}>{totalSessionHours}</Text>
@@ -240,6 +404,68 @@ const Dashboard = () => {
             </View>
           </View>
           
+          {/*Comp stats section*/}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Competition Stats</Text>
+            
+            {/*Wins container*/}
+            <View style={{
+              backgroundColor: '#228B22',
+              borderRadius: 12,
+              padding: 15,
+              marginBottom: 15
+            }}>
+              <View style={styles.analyticsContainer}>
+                <TouchableOpacity 
+                  style={styles.analyticsCard}
+                  onPress={() => openModal('win')}
+                >
+                  <Text style={[styles.analyticsLabel, { fontSize: 10, fontStyle: 'italic' }]}>Click to Add</Text>
+                  <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{winCount}</Text>
+                  <Text style={styles.analyticsLabel}>Wins</Text>
+                </TouchableOpacity>
+                <View style={styles.analyticsCard}>
+                  <Text style={{fontSize: 10}}> </Text>
+                  <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{submissionWins}</Text>
+                  <Text style={styles.analyticsLabel}>Sub Wins</Text>
+                </View>
+                <View style={styles.analyticsCard}>
+                  <Text style={{fontSize: 10}}> </Text>
+                  <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{pointsWins}</Text>
+                  <Text style={styles.analyticsLabel}>Points Wins</Text>
+                </View>
+              </View>
+            </View>
+            
+            {/*Losses container*/}
+            <View style={{
+              backgroundColor: '#B22222',
+              borderRadius: 12,
+              padding: 15
+            }}>
+              <View style={styles.analyticsContainer}>
+                <TouchableOpacity 
+                  style={styles.analyticsCard}
+                  onPress={() => openModal('loss')}
+                >
+                  <Text style={[styles.analyticsLabel, { fontSize: 10, fontStyle: 'italic' }]}>Click to Add</Text>
+                  <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{lossCount}</Text>
+                  <Text style={styles.analyticsLabel}>Losses</Text>
+                </TouchableOpacity>
+                <View style={styles.analyticsCard}>
+                  <Text style={{fontSize: 10}}> </Text>
+                  <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{submissionLosses}</Text>
+                  <Text style={styles.analyticsLabel}>Sub Losses</Text>
+                </View>
+                <View style={styles.analyticsCard}>
+                  <Text style={{fontSize: 10}}> </Text>
+                  <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{pointsLosses}</Text>
+                  <Text style={styles.analyticsLabel}>Points Losses</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
 
           {/*Records section*/}
           <View style={styles.section}>
@@ -249,15 +475,23 @@ const Dashboard = () => {
               <Text style={styles.analyticsLabel}>Most Hours in a Session</Text>
             </View>
           </View>
-
-
+              
+          <EditCompModal 
+            visible={modalVisible}
+            resultType={resultType || 'win'}
+            onClose={closeModal}
+            onSave={onSave}
+          />
         </ScrollView>
+
+        
       ) : (
         <View style={[styles.container, {justifyContent: 'center', alignItems: 'center', marginTop: 340}]}>
           <Text>Please sign in to view this page.</Text>
         </View>
       )}
     </SafeAreaView>
+
   );
 }
 

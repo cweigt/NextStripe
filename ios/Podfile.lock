@@ -2371,29 +2371,29 @@ DEPENDENCIES:
   - EXAV (from `../node_modules/expo-av/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader 2/ios`)
-  - EXJSONUtils (from `../node_modules/expo-json-utils 2/ios`)
+  - EXJSONUtils (from `../node_modules/expo-json-utils/ios`)
   - EXManifests (from `../node_modules/expo-manifests 2/ios`)
-  - Expo (from `../node_modules/expo 2`)
-  - expo-dev-client (from `../node_modules/expo-dev-client 2/ios`)
+  - Expo (from `../node_modules/expo`)
+  - expo-dev-client (from `../node_modules/expo-dev-client/ios`)
   - expo-dev-launcher (from `../node_modules/expo-dev-launcher`)
   - expo-dev-menu (from `../node_modules/expo-dev-menu`)
-  - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface 2/ios`)
+  - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoAsset (from `../node_modules/expo-asset 2/ios`)
-  - ExpoBlur (from `../node_modules/expo-blur 2/ios`)
+  - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system 2/ios`)
-  - ExpoFont (from `../node_modules/expo-font 2/ios`)
+  - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoHead (from `../node_modules/expo-router/ios`)
-  - ExpoImage (from `../node_modules/expo-image 2/ios`)
+  - ExpoImage (from `../node_modules/expo-image/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker 2/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake 2/ios`)
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
-  - ExpoModulesCore (from `../node_modules/expo-modules-core`)
+  - ExpoModulesCore (from `../node_modules/expo-modules-core 2`)
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen 2/ios`)
-  - ExpoSymbols (from `../node_modules/expo-symbols 2/ios`)
+  - ExpoSymbols (from `../node_modules/expo-symbols/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui 2/ios`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
-  - EXUpdatesInterface (from `../node_modules/expo-updates-interface 2/ios`)
+  - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
@@ -2497,33 +2497,33 @@ EXTERNAL SOURCES:
   EXImageLoader:
     :path: "../node_modules/expo-image-loader 2/ios"
   EXJSONUtils:
-    :path: "../node_modules/expo-json-utils 2/ios"
+    :path: "../node_modules/expo-json-utils/ios"
   EXManifests:
     :path: "../node_modules/expo-manifests 2/ios"
   Expo:
-    :path: "../node_modules/expo 2"
+    :path: "../node_modules/expo"
   expo-dev-client:
-    :path: "../node_modules/expo-dev-client 2/ios"
+    :path: "../node_modules/expo-dev-client/ios"
   expo-dev-launcher:
     :path: "../node_modules/expo-dev-launcher"
   expo-dev-menu:
     :path: "../node_modules/expo-dev-menu"
   expo-dev-menu-interface:
-    :path: "../node_modules/expo-dev-menu-interface 2/ios"
+    :path: "../node_modules/expo-dev-menu-interface/ios"
   ExpoAsset:
     :path: "../node_modules/expo-asset 2/ios"
   ExpoBlur:
-    :path: "../node_modules/expo-blur 2/ios"
+    :path: "../node_modules/expo-blur/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system 2/ios"
   ExpoFont:
-    :path: "../node_modules/expo-font 2/ios"
+    :path: "../node_modules/expo-font/ios"
   ExpoHaptics:
     :path: "../node_modules/expo-haptics/ios"
   ExpoHead:
     :path: "../node_modules/expo-router/ios"
   ExpoImage:
-    :path: "../node_modules/expo-image 2/ios"
+    :path: "../node_modules/expo-image/ios"
   ExpoImagePicker:
     :path: "../node_modules/expo-image-picker 2/ios"
   ExpoKeepAwake:
@@ -2531,17 +2531,17 @@ EXTERNAL SOURCES:
   ExpoLinking:
     :path: "../node_modules/expo-linking/ios"
   ExpoModulesCore:
-    :path: "../node_modules/expo-modules-core"
+    :path: "../node_modules/expo-modules-core 2"
   ExpoSplashScreen:
     :path: "../node_modules/expo-splash-screen 2/ios"
   ExpoSymbols:
-    :path: "../node_modules/expo-symbols 2/ios"
+    :path: "../node_modules/expo-symbols/ios"
   ExpoSystemUI:
     :path: "../node_modules/expo-system-ui 2/ios"
   ExpoWebBrowser:
     :path: "../node_modules/expo-web-browser/ios"
   EXUpdatesInterface:
-    :path: "../node_modules/expo-updates-interface 2/ios"
+    :path: "../node_modules/expo-updates-interface/ios"
   fast_float:
     :podspec: "../node_modules/react-native/third-party-podspecs/fast_float.podspec"
   FBLazyVector:

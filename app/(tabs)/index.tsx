@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { auth, db } from '@/firebase';
 import { DashboardStyles as styles } from '@/styles/Dashboard.styles';
 import { router } from 'expo-router';
-import { onValue, ref, set } from 'firebase/database';
+import { get, onValue, ref, set } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -82,7 +82,7 @@ const Dashboard = () => {
         const newWinCount = currentWins + 1;
         setWinCount(newWinCount.toString());
         
-        // Increment method-specific win count
+        //increment method-specific win count
         if (method === 'submission') {
           const newSubmissionWins = submissionWins + 1;
           setSubmissionWins(newSubmissionWins);
@@ -304,6 +304,123 @@ const Dashboard = () => {
     }
   };
 
+  //for removing submission wins
+  const removeSubWins = async () => {
+    if (!uid) return;
+
+    const winRef = ref(db, `users/${uid}/comp/wins`);
+    const subWinsRef = ref(db, `users/${uid}/comp/submissionWins`);
+
+    try {
+      //get current values
+      const winSnapshot = await get(winRef);
+      const subWinSnapshot = await get(subWinsRef);
+      
+      const currentWins = winSnapshot.exists() ? winSnapshot.val() : 0;
+      const currentSubWins = subWinSnapshot.exists() ? subWinSnapshot.val() : 0;
+      
+      //only decrement if values are greater than 0
+      if (currentWins > 0) {
+        await set(winRef, currentWins - 1);
+      }
+      
+      if (currentSubWins > 0) {
+        await set(subWinsRef, currentSubWins - 1);
+      }
+      
+      //console.log('Removed 1 from wins and submission wins');
+    } catch (error) {
+      console.log('Error removing wins:', error);
+    }
+  }
+  //for removing points wins
+  const removePointsWins = async () => {
+    if (!uid) return;
+
+    const winRef = ref(db, `users/${uid}/comp/wins`);
+    const pointsWinsRef = ref(db, `users/${uid}/comp/pointsWins`);
+
+    try {
+      //get current values
+      const winSnapshot = await get(winRef);
+      const pointsWinSnapshot = await get(pointsWinsRef);
+      
+      const currentWins = winSnapshot.exists() ? winSnapshot.val() : 0;
+      const currentPointsWins = pointsWinSnapshot.exists() ? pointsWinSnapshot.val() : 0;
+      
+      //only decrement if values are greater than 0
+      if (currentWins > 0) {
+        await set(winRef, currentWins - 1);
+      }
+      
+      if (currentPointsWins > 0) {
+        await set(pointsWinsRef, currentPointsWins - 1);
+      }
+      
+      //console.log('Removed 1 from wins and submission wins');
+    } catch (error) {
+      console.log('Error removing wins:', error);
+    }
+  };
+  //for removing loss points 
+  const removePointsLoss = async () => {
+    if (!uid) return;
+
+    const lossesRef = ref(db, `users/${uid}/comp/losses`);
+    const pointsLossesRef = ref(db, `users/${uid}/comp/pointsLosses`);
+
+    try {
+      //get current values
+      const lossSnapshot = await get(lossesRef);
+      const pointsLossesSnapshot = await get(pointsLossesRef);
+      
+      const currentLosses = lossSnapshot.exists() ? lossSnapshot.val() : 0;
+      const currentPointsLosses = pointsLossesSnapshot.exists() ? pointsLossesSnapshot.val() : 0;
+      
+      //only decrement if values are greater than 0
+      if (currentLosses > 0) {
+        await set(lossesRef, currentLosses - 1);
+      }
+      
+      if (currentPointsLosses > 0) {
+        await set(pointsLossesRef, currentPointsLosses - 1);
+      }
+      
+      //console.log('Removed 1 from wins and submission wins');
+    } catch (error) {
+      console.log('Error removing wins:', error);
+    }
+  };
+  //for removing submission losses
+  const removeSubLoss = async () => {
+    if (!uid) return;
+
+    const lossesRef = ref(db, `users/${uid}/comp/losses`);
+    const subLossesRef = ref(db, `users/${uid}/comp/submissionLosses`);
+
+    try {
+      //get current values
+      const lossSnapshot = await get(lossesRef);
+      const subLossesSnapshot = await get(subLossesRef);
+      
+      const currentLosses = lossSnapshot.exists() ? lossSnapshot.val() : 0;
+      const currentSubLosses = subLossesSnapshot.exists() ? subLossesSnapshot.val() : 0;
+      
+      //only decrement if values are greater than 0
+      if (currentLosses > 0) {
+        await set(lossesRef, currentLosses - 1);
+      }
+      
+      if (currentSubLosses > 0) {
+        await set(subLossesRef, currentSubLosses - 1);
+      }
+      
+      //console.log('Removed 1 from wins and submission wins');
+    } catch (error) {
+      console.log('Error removing wins:', error);
+    }
+  };
+
   //load method-specific counts
   const loadMethodCounts = async () => {
     if (!uid) return;
@@ -410,9 +527,9 @@ const Dashboard = () => {
             
             {/*Wins container*/}
             <View style={{
-              backgroundColor: '#228B22',
+              //backgroundColor: '#228B22',
               borderRadius: 12,
-              padding: 15,
+              //padding: 15,
               marginBottom: 15
             }}>
               <View style={styles.analyticsContainer}>
@@ -424,24 +541,31 @@ const Dashboard = () => {
                   <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{winCount}</Text>
                   <Text style={styles.analyticsLabel}>Wins</Text>
                 </TouchableOpacity>
-                <View style={styles.analyticsCard}>
-                  <Text style={{fontSize: 10}}> </Text>
+
+                <TouchableOpacity 
+                  style={styles.analyticsCard}
+                  onPress={removeSubWins}
+                >
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
                   <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{submissionWins}</Text>
                   <Text style={styles.analyticsLabel}>Sub Wins</Text>
-                </View>
-                <View style={styles.analyticsCard}>
-                  <Text style={{fontSize: 10}}> </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.analyticsCard}
+                  onPress={removePointsWins}
+                >
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
                   <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{pointsWins}</Text>
                   <Text style={styles.analyticsLabel}>Points Wins</Text>
-                </View>
+                </TouchableOpacity>
               </View>
             </View>
             
             {/*Losses container*/}
             <View style={{
-              backgroundColor: '#B22222',
+              //backgroundColor: '#B22222',
               borderRadius: 12,
-              padding: 15
+              //padding: 15
             }}>
               <View style={styles.analyticsContainer}>
                 <TouchableOpacity 
@@ -452,16 +576,22 @@ const Dashboard = () => {
                   <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{lossCount}</Text>
                   <Text style={styles.analyticsLabel}>Losses</Text>
                 </TouchableOpacity>
-                <View style={styles.analyticsCard}>
-                  <Text style={{fontSize: 10}}> </Text>
+                <TouchableOpacity
+                   style={styles.analyticsCard}
+                   onPress={removeSubLoss}
+                  >
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
                   <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{submissionLosses}</Text>
                   <Text style={styles.analyticsLabel}>Sub Losses</Text>
-                </View>
-                <View style={styles.analyticsCard}>
-                  <Text style={{fontSize: 10}}> </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.analyticsCard}
+                  onPress={removePointsLoss}
+                >
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
                   <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{pointsLosses}</Text>
                   <Text style={styles.analyticsLabel}>Points Losses</Text>
-                </View>
+                </TouchableOpacity>
               </View>
             </View>
           </View>

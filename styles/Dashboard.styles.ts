@@ -70,7 +70,7 @@ export const DashboardStyles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   sectionTitle: {
-    fontSize: typography.lg,
+    fontSize: typography.xl,
     fontWeight: typography.semibold,
     color: colors.textPrimary,
     marginBottom: spacing.md,

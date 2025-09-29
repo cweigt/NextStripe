@@ -477,13 +477,13 @@ const Dashboard = () => {
           {/* Quick Actions */}
           <View style={styles.quickActionsSection}>
             <TouchableOpacity 
-              style={styles.quickActionButton}
+              style={[styles.quickActionButton, {borderRadius: 12}]}
               onPress={navigateToTraining}
             >
               <Text style={styles.quickActionText}>Training Log</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={styles.quickActionButton}
+              style={[styles.quickActionButton, {borderRadius: 12}]}
               onPress={navigateToAnalytics}
             >
               <Text style={styles.quickActionText}>View Analytics</Text> 
@@ -537,7 +537,7 @@ const Dashboard = () => {
                   style={styles.analyticsCard}
                   onPress={() => openModal('win')}
                 >
-                  <Text style={[styles.analyticsLabel, { fontSize: 10, fontStyle: 'italic' }]}>Click to Add</Text>
+                  <Text style={[styles.analyticsLabel, { fontSize: 10, fontStyle: 'italic' }]}>Add Result</Text>
                   <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{winCount}</Text>
                   <Text style={styles.analyticsLabel}>Wins</Text>
                 </TouchableOpacity>
@@ -546,7 +546,7 @@ const Dashboard = () => {
                   style={styles.analyticsCard}
                   onPress={removeSubWins}
                 >
-                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Tap to Decrease</Text>
                   <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{submissionWins}</Text>
                   <Text style={styles.analyticsLabel}>Sub Wins</Text>
                 </TouchableOpacity>
@@ -554,7 +554,7 @@ const Dashboard = () => {
                   style={styles.analyticsCard}
                   onPress={removePointsWins}
                 >
-                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Tap to Decrease</Text>
                   <Text style={[styles.analyticsNumber, { color: '#4CAF50' }]}>{pointsWins}</Text>
                   <Text style={styles.analyticsLabel}>Points Wins</Text>
                 </TouchableOpacity>
@@ -572,7 +572,7 @@ const Dashboard = () => {
                   style={styles.analyticsCard}
                   onPress={() => openModal('loss')}
                 >
-                  <Text style={[styles.analyticsLabel, { fontSize: 10, fontStyle: 'italic' }]}>Click to Add</Text>
+                  <Text style={[styles.analyticsLabel, { fontSize: 10, fontStyle: 'italic' }]}>Add Result</Text>
                   <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{lossCount}</Text>
                   <Text style={styles.analyticsLabel}>Losses</Text>
                 </TouchableOpacity>
@@ -580,7 +580,7 @@ const Dashboard = () => {
                    style={styles.analyticsCard}
                    onPress={removeSubLoss}
                   >
-                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Tap to Decrease</Text>
                   <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{submissionLosses}</Text>
                   <Text style={styles.analyticsLabel}>Sub Losses</Text>
                 </TouchableOpacity>
@@ -588,7 +588,7 @@ const Dashboard = () => {
                   style={styles.analyticsCard}
                   onPress={removePointsLoss}
                 >
-                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Click to remove</Text>
+                  <Text style={[styles.analyticsLabel, {fontSize: 10, fontStyle: 'italic'}]}>Tap to Decrease</Text>
                   <Text style={[styles.analyticsNumber, { color: '#D32F2F' }]}>{pointsLosses}</Text>
                   <Text style={styles.analyticsLabel}>Points Losses</Text>
                 </TouchableOpacity>

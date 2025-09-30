@@ -1,7 +1,7 @@
 import { ScheduleStyles as styles } from '@/styles/Schedule.styles';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   SafeAreaView,

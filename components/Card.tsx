@@ -4,7 +4,7 @@ import { auth, db } from '@/firebase';
 import { CardStyles as styles } from '@/styles/Card.styles';
 import { Ionicons } from '@expo/vector-icons';
 import { ref, remove, set } from 'firebase/database';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   Text,

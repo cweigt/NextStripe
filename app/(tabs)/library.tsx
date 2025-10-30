@@ -8,11 +8,11 @@ import { onValue, ref, remove } from 'firebase/database';
 import { deleteObject, ref as storageRef } from 'firebase/storage';
 import { useEffect, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,19 +24,7 @@ const Library = () => {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [isVideoPlayerVisible, setIsVideoPlayerVisible] = useState(false);
 
-  //placeholder data - replace with actual data fetching from firebase
-  const techniques = [
-    { id: 1, name: 'Basic Punches', category: 'Striking', difficulty: 'Beginner' },
-    { id: 2, name: 'Roundhouse Kick', category: 'Kicking', difficulty: 'Intermediate' },
-    { id: 3, name: 'Armbar', category: 'Grappling', difficulty: 'Advanced' },
-  ];
-
-  const resources = [
-    { id: 1, title: 'Belt Requirements', type: 'PDF', size: '2.3 MB' },
-    { id: 3, title: 'Nutrition Guide', type: 'PDF', size: '3.7 MB' },
-  ];
-
-  // Load videos from Firebase
+  //load videos from Firebase
   useEffect(() => {
     if (user) {
       loadVideos();
@@ -58,7 +46,7 @@ const Library = () => {
           ...videosData[key]
         }));
         
-        // Remove duplicates based on ID to prevent React key conflicts
+        //remove duplicates based on ID to prevent React key conflicts
         const uniqueVideos = videosList.filter((video, index, self) => 
           index === self.findIndex(v => v.id === video.id)
         );
@@ -75,10 +63,10 @@ const Library = () => {
 
   const handleAddVideo = (newVideo: any) => {
     setVideos(prev => {
-      // Check if video already exists to prevent duplicates
+      //check if video already exists to prevent duplicates
       const exists = prev.some(video => video.id === newVideo.id);
       if (exists) {
-        return prev; // Don't add if it already exists
+        return prev; //don't add if it already exists
       }
       return [newVideo, ...prev];
     });
@@ -115,19 +103,19 @@ const Library = () => {
           style: 'destructive', 
           onPress: async () => {
             try {
-              // Delete from Firebase Storage if video URL exists
+              //delete from Firebase Storage if video URL exists
               if (video.videoUrl) {
                 const videoStorageRef = storageRef(storage, video.videoUrl);
                 await deleteObject(videoStorageRef);
                 console.log('Video deleted from Storage');
               }
 
-              // Delete from Realtime Database
+              //delete from Realtime Database
               const videoDbRef = ref(db, `users/${user.uid}/library/videos/${video.id}`);
               await remove(videoDbRef);
               console.log('Video deleted from Database');
 
-              // Update local state
+              //update local state
               setVideos(prev => prev.filter(v => v.id !== video.id));
 
               Alert.alert('Success', 'Video deleted successfully!');
@@ -154,47 +142,12 @@ const Library = () => {
 
           {/* Quick Actions */}
           <View style={styles.quickActionsSection}>
-            {/*
-            <TouchableOpacity style={styles.quickActionButton}>
-              <Ionicons name="search-outline" size={20} color="white" style={{ marginRight: 8 }} />
-              <Text style={styles.quickActionText}>Search</Text>
-            </TouchableOpacity>
-            */}
 
               <TouchableOpacity style={styles.quickActionButton} onPress={openAddVideoModal}>
                 <Ionicons name="add-outline" size={20} color="white" style={{ marginRight: 8 }} />
                 <Text style={styles.quickActionText}>Add Video</Text>
               </TouchableOpacity>
           </View>
-
-          {/* Techniques Section 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Techniques</Text>
-            <View style={styles.techniquesContainer}>
-              {techniques.map((technique) => (
-                <TouchableOpacity key={technique.id} style={styles.techniqueCard}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.techniqueTitle}>{technique.name}</Text>
-                      <Text style={styles.techniqueSubtext}>{technique.category}</Text>
-                    </View>
-                    <View style={{ 
-                      backgroundColor: technique.difficulty === 'Beginner' ? '#48bb78' : 
-                                     technique.difficulty === 'Intermediate' ? '#ed8936' : '#e53e3e',
-                      paddingHorizontal: 12,
-                      paddingVertical: 4,
-                      borderRadius: 12
-                    }}>
-                      <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>
-                        {technique.difficulty}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-            */}
 
           {/* Videos Section */}
           <View style={styles.section}>

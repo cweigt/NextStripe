@@ -3,6 +3,7 @@ import EditCompModal from '@/components/EditCompModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { auth, db } from '@/firebase';
 import { DashboardStyles as styles } from '@/styles/Dashboard.styles';
+import { colors } from '@/styles/theme';
 import { router } from 'expo-router';
 import { get, onValue, ref, set } from 'firebase/database';
 import { useEffect, useState } from 'react';
@@ -32,6 +33,7 @@ const Dashboard = () => {
   const [submissionLosses, setSubmissionLosses] = useState(0);
   const [pointsLosses, setPointsLosses] = useState(0);
   const [detail, setDetail] = useState('');
+  const [quote, setQuote] = useState('Loading inspiration...'); //for the motivational quote
   const uid = user?.uid;
   
 
@@ -47,6 +49,7 @@ const Dashboard = () => {
       loadWinCount();
       loadLossCount();
       loadMethodCounts();
+      loadDailyQuote();
     } else {
       //reset state when no user
       setTotalSessionHours(''); //0
@@ -61,6 +64,7 @@ const Dashboard = () => {
       setPointsWins(0);
       setSubmissionLosses(0);
       setPointsLosses(0);
+      setQuote('');
     }
   }, [user]);
 
@@ -455,6 +459,80 @@ const Dashboard = () => {
     }
   };
 
+  //load daily quote - only fetch new quote at midnight
+  const loadDailyQuote = async () => {
+    if (!uid) return;
+
+    try {
+      const quoteRef = ref(db, `users/${uid}/dailyQuote/quote`);
+      const quoteDateRef = ref(db, `users/${uid}/dailyQuote/date`);
+
+      //get today's date string (YYYY-MM-DD format)
+      const today = new Date();
+      const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      //check saved date
+      const dateSnapshot = await get(quoteDateRef);
+      const savedDate = dateSnapshot.exists() ? dateSnapshot.val() : null;
+
+      if (savedDate === todayString) {
+        //use cached quote from today
+        const quoteSnapshot = await get(quoteRef);
+        if (quoteSnapshot.exists()) {
+          setQuote(quoteSnapshot.val());
+          return;
+        }
+      }
+
+      //fetch new quote (it's a new day or no cached quote)
+      const newQuote = await motivationalQuote();
+      setQuote(newQuote);
+
+      //save to Firebase
+      await set(quoteRef, newQuote);
+      await set(quoteDateRef, todayString);
+    } catch (error) {
+      console.error('Error loading daily quote:', error);
+      setQuote('Stay focused and keep training!');
+    }
+  };
+
+  //motivational quote generation
+  const motivationalQuote = async () => {
+    try {
+      const response = await fetch('https://zenquotes.io/api/random', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Quote API response:', data);
+      
+      //ZenQuotes returns an array with one quote object
+      if (Array.isArray(data) && data.length > 0) {
+        const quote = data[0];
+        return quote.a ? `${quote.q} - ${quote.a}` : quote.q;
+      } else {
+        throw new Error('Unexpected response format');
+      }
+    } catch (error) {
+      console.error('Error fetching quote:', error);
+      //fallback to a static motivational quote
+      const fallbackQuotes = [
+        'The only way to do great work is to love what you do. - Steve Jobs',
+        'Success is not final, failure is not fatal: It is the courage to continue that counts. - Winston Churchill',
+        'Believe you can and you\'re halfway there. - Theodore Roosevelt',
+        'Stay focused and keep training!',
+        'Champions are made from something they have deep inside them - a desire, a dream, a vision. - Muhammad Ali',
+        'I fear not the man who has practiced 10,000 kicks once, but I fear the man who has practiced one kick 10,000 times. - Bruce Lee'
+      ];
+      return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+    }
+  };
+
   //navigation 
   const navigateToTraining = () => {
     router.push('/training');
@@ -472,7 +550,23 @@ const Dashboard = () => {
           <View style={styles.headerSection}>
             <Text style={styles.headerText}>Dashboard</Text>
             <Text style={styles.subtitleText}>Welcome back, {user.displayName}!</Text>
+            <Text style={styles.subtitleText}></Text>
           </View>
+
+          {/*Motivational Quote section*/}
+          {quote && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Daily Inspiration</Text>
+              <View style={[styles.analyticsCard, { backgroundColor: '#F8F9FA', borderLeftWidth: 4, borderLeftColor: colors.primary || '#007AFF' }]}>
+                <Text style={[styles.analyticsLabel, { fontStyle: 'italic', textAlign: 'center', fontSize: 15, lineHeight: 22, color: '#374151' }]}>
+                  {quote.includes(' - ') 
+                    ? `"${quote.split(' - ')[0]}" - ${quote.split(' - ')[1]}`
+                    : `"${quote}"`
+                  }
+                </Text>
+              </View>
+            </View>
+          )}
 
           {/* Quick Actions */}
           <View style={styles.quickActionsSection}>
@@ -596,6 +690,7 @@ const Dashboard = () => {
             </View>
           </View>
 
+          
 
           {/*Records section*/}
           <View style={styles.section}>

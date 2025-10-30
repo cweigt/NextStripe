@@ -11,8 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-//import NameChange from '@/components/NameChange';
-//import ResetPassword from '@/components/ResetPassword';
 import DropdownComp from '@/components/Dropdown';
 import Reset_Password from '@/components/ResetPassword';
 import { auth, db } from '@/firebase';

@@ -1,17 +1,17 @@
 import { OPENAI_API_KEY } from '@/config/api';
 import { TrainingStyles as styles } from '@/styles/Training.styles';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  FlatList,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  StatusBar,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    FlatList,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 import CalendarComp from '@/components/Calendar';

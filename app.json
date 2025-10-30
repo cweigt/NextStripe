@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "deploymentTarget": "18.0",
+      "deploymentTarget": "26.0",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to microphone to record speech for text conversion."
       },

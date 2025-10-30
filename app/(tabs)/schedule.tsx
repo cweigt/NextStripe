@@ -16,9 +16,16 @@ import AddEventModal from '@/components/AddEventModal';
 import EditEventModal from '@/components/EditEventModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/firebase';
-import { ref as dbRef, endAt, equalTo, get, onValue, orderByChild, push, query, ref, remove, set, startAt } from 'firebase/database';
+import {
+  ref as dbRef,
+  onValue,
+  push,
+  remove,
+  set
+} from 'firebase/database';
 
-type CalendarEvent = {
+//I switched this from type to interface
+interface CalendarEvent {
   id: string;
   title: string;
   startISO: string;
@@ -31,24 +38,6 @@ type CalendarEvent = {
   recurrenceEndDate?: string;
   parentEventId?: string; //linking recurring instances to original
   isRecurringInstance?: boolean; //to see if this is not an original instance
-};
-
-// Event item component
-const EventItem = ({ event }: { event: CalendarEvent }) => {
-  return (
-    <View style={styles.eventItem}>
-      <View style={styles.eventHeader}>
-        <Text style={styles.eventTitle}>{event.title}</Text>
-        {event.isRecurringInstance && (
-          <Text style={styles.recurringIcon}>🔄</Text>
-        )}
-      </View>
-      <Text style={styles.eventTime}>{toTime(event.startISO)}</Text>
-      {event.isRecurringInstance && (
-        <Text style={styles.recurringText}>Recurring Event</Text>
-      )}
-    </View>
-  );
 };
 
 const dateKey = (d: Date) => moment(d).format('YYYY-MM-DD');
@@ -74,7 +63,7 @@ const generateRecurringEvents = ({
   let currentDate = moment(startDate);
   const endDate = moment(recurrenceEndDate);
   
-  // Add the original event
+  //add the original event
   events.push({
     startDate: startDate,
     payload: {
@@ -85,11 +74,11 @@ const generateRecurringEvents = ({
       recurrenceType,
       recurrenceEndDate: recurrenceEndDate.toISOString(),
       parentEventId,
-      isRecurringInstance: false, // This is the original event
+      isRecurringInstance: false, //this is the original event
     }
   });
   
-  // Generate recurring instances
+  //generate recurring instances
   while (currentDate.isBefore(endDate)) {
     let nextDate: moment.Moment;
     
@@ -125,7 +114,7 @@ const generateRecurringEvents = ({
         recurrenceType,
         recurrenceEndDate: recurrenceEndDate.toISOString(),
         parentEventId,
-        isRecurringInstance: true, // This is a recurring instance
+        isRecurringInstance: true, //this is a recurring instance
       }
     });
     
@@ -135,31 +124,9 @@ const generateRecurringEvents = ({
   return events;
 };
 
+//this is the main function that is exported
 const Schedule = () => {
   const { user } = useAuth();
-
-  // Function to get events for a date range
-  const getEventsForDateRange = async (startDate: Date, endDate: Date) => {
-    const eventsRef = ref(db, `users/${user.uid}/events`);
-    const snapshot = await get(query(eventsRef, 
-      orderByChild('date'),
-      startAt(startDate.toISOString()),
-      endAt(endDate.toISOString())
-    ));
-    
-    return snapshot.val() || {};
-  };
-
-  // Function to get recurring events
-  const getRecurringEvents = async (parentEventId: string) => {
-    const eventsRef = ref(db, `users/${user.uid}/events`);
-    const snapshot = await get(query(eventsRef, 
-      orderByChild('parentEventId'),
-      equalTo(parentEventId)
-    ));
-    
-    return snapshot.val() || {};
-  };
   const swiper = useRef<any>(null);
   const contentSwiper = useRef<any>(null);
   const [week, setWeek] = useState(0);

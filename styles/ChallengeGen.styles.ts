@@ -102,4 +102,29 @@ export const challengeGenStyles = StyleSheet.create({
       textAlign: 'center',
       lineHeight: 22,
     },
+    tabContainer: {
+      flexDirection: 'row',
+      backgroundColor: '#FFFFFF',
+      borderRadius: 12,
+      padding: 4,
+      marginBottom: 16,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    activeTab: {
+      backgroundColor: colors.primary || '#007AFF',
+    },
+    tabText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#6B7280',
+    },
+    activeTabText: {
+      color: '#FFFFFF',
+    },
   });

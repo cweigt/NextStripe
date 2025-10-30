@@ -7,7 +7,7 @@ import { auth, db } from '@/firebase';
 import { AccountStyles as styles } from '@/styles/Account.styles';
 import { router, useFocusEffect } from 'expo-router';
 import { get, ref } from 'firebase/database';
-import React, { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -30,11 +30,10 @@ const AccountScreen = () => {
 
   //load belt data when component mounts and when screen comes into focus
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       loadData();
-    }, [user]) // Add user as dependency to reload data when user changes
+    }, [user]) //add user as dependency to reload data when user changes
   );
-
 
   const loadData = async () => {
     //clear all state first when loading data for a new user
@@ -93,7 +92,7 @@ const AccountScreen = () => {
     };
   };
 
-  // Belt image mapping
+  //belt image mapping
   const beltImageMap = {
     'White Belt_0 Stripe': require('@/assets/belts/white-0.png'),
     'White Belt_1st Stripe': require('@/assets/belts/white-1.png'),

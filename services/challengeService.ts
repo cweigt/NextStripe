@@ -1,7 +1,12 @@
+//this is my first time experimenting with functions outside of the file its used in
+//it definitely makes it more efficient for more complex functions like the ones used here
+//this reminds me of a singleton where all the functions are stored and can be used
 import { OPENAI_API_KEY } from '@/config/api';
 import { db } from '@/firebase';
-import { get, ref } from 'firebase/database';
+import { get, ref, update } from 'firebase/database';
 
+//obviously export allows it to be used in other files
+//this is strictly typing each variable and what type of value to expect
 export interface Challenge {
   id: string;
   title: string;
@@ -10,6 +15,19 @@ export interface Challenge {
   focusAreas: string[];
   estimatedDuration: string;
   createdAt: string;
+}
+
+//takes the attributes of challenge and adds more onto it
+export interface AcceptedChallenge extends Challenge {
+  acceptedAt: string;
+  status: 'accepted' | 'in_progress' | 'completed';
+  completedAt?: string;
+}
+
+export interface CompletedChallenge extends Challenge {
+  acceptedAt: string;
+  status: 'completed';
+  completedAt: string;
 }
 
 interface SessionData {
@@ -45,7 +63,7 @@ export const fetchUserSessions = async (userId: string): Promise<SessionData[]> 
       qualityLevel: session.qualityLevel || '0',
     }));
     
-    // Sort by date (most recent first)
+    //Sort by date (most recent first)
     sessions.sort((a, b) => {
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
@@ -227,6 +245,113 @@ const getStarterChallenges = (): Challenge[] => {
     },
   ];
 }
+
+//Fetches user's accepted challenges from Firebase (excludes completed)
+export const fetchAcceptedChallenges = async (userId: string): Promise<AcceptedChallenge[]> => {
+  try {
+    const challengesRef = ref(db, `users/${userId}/challenges`);
+    const snapshot = await get(challengesRef);
+    
+    if (!snapshot.exists()) {
+      return [];
+    }
+    
+    const raw = snapshot.val() as Record<string, any>;
+    const challenges: AcceptedChallenge[] = Object.entries(raw)
+      .filter(([_, challenge]) => challenge.status !== 'completed') //exclude completed
+      .map(([id, challenge]) => ({
+        id,
+        title: challenge.title || '',
+        description: challenge.description || '',
+        difficulty: challenge.difficulty || 'beginner',
+        focusAreas: Array.isArray(challenge.focusAreas) 
+          ? challenge.focusAreas 
+          : Object.values(challenge.focusAreas || {}),
+        estimatedDuration: challenge.estimatedDuration || '',
+        createdAt: challenge.createdAt || '',
+        acceptedAt: challenge.acceptedAt || '',
+        status: challenge.status || 'accepted',
+        completedAt: challenge.completedAt || undefined,
+      }));
+    
+    // Sort by accepted date (most recent first)
+    challenges.sort((a, b) => {
+      const dateA = new Date(a.acceptedAt).getTime();
+      const dateB = new Date(b.acceptedAt).getTime();
+      return dateB - dateA;
+    });
+    
+    return challenges;
+  } catch (error) {
+    console.error('Error fetching accepted challenges:', error);
+    return [];
+  }
+};
+
+//Fetches user's completed challenges from Firebase
+//pretty much the same function as accepted except this one is strictly equal to completed
+export const fetchCompletedChallenges = async (userId: string): Promise<CompletedChallenge[]> => {
+  try {
+    const challengesRef = ref(db, `users/${userId}/challenges`);
+    const snapshot = await get(challengesRef);
+    
+    if (!snapshot.exists()) {
+      return [];
+    }
+    
+    const raw = snapshot.val() as Record<string, any>;
+    const challenges: CompletedChallenge[] = Object.entries(raw)
+      .filter(([_, challenge]) => challenge.status === 'completed') // Only completed
+      .map(([id, challenge]) => ({
+        id,
+        title: challenge.title || '',
+        description: challenge.description || '',
+        difficulty: challenge.difficulty || 'beginner',
+        focusAreas: Array.isArray(challenge.focusAreas) 
+          ? challenge.focusAreas 
+          : Object.values(challenge.focusAreas || {}),
+        estimatedDuration: challenge.estimatedDuration || '',
+        createdAt: challenge.createdAt || '',
+        acceptedAt: challenge.acceptedAt || '',
+        status: 'completed',
+        completedAt: challenge.completedAt || new Date().toISOString(),
+      }));
+    
+    // Sort by completed date (most recent first)
+    challenges.sort((a, b) => {
+      const dateA = new Date(a.completedAt).getTime();
+      const dateB = new Date(b.completedAt).getTime();
+      return dateB - dateA;
+    });
+    
+    return challenges;
+  } catch (error) {
+    console.error('Error fetching completed challenges:', error);
+    return [];
+  }
+};
+
+//Updates challenge status (in_progress, completed)
+export const updateChallengeStatus = async (
+  userId: string, 
+  challengeId: string, 
+  status: 'in_progress' | 'completed'
+): Promise<void> => {
+  try {
+    const challengeRef = ref(db, `users/${userId}/challenges/${challengeId}`);
+    const updates: any = { status };
+    
+    if (status === 'completed') {
+      updates.completedAt = new Date().toISOString();
+    }
+    
+    //updating the challenges after a status change
+    await update(challengeRef, updates);
+  } catch (error) {
+    console.error('Error updating challenge status:', error);
+    throw error;
+  }
+};
 
 //Quick analysis of user's training to show insights
 export const getTrainingInsights = async (userId: string): Promise<string> => {

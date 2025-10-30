@@ -1,10 +1,18 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/firebase';
-import { Challenge, generateChallenges, getTrainingInsights } from '@/services/challengeService';
+import {
+  AcceptedChallenge,
+  Challenge,
+  CompletedChallenge,
+  fetchAcceptedChallenges,
+  fetchCompletedChallenges,
+  generateChallenges,
+  getTrainingInsights
+} from '@/services/challengeService';
 import { challengeGenStyles as styles } from '@/styles/ChallengeGen.styles';
 import { colors } from '@/styles/theme';
 import { ref, set } from 'firebase/database';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,14 +21,50 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import AcceptedChallengeCard from './AcceptedChallengeCard';
 import ChallengeCard from './ChallengeCard';
 
 const ChallengeGenerator: React.FC = () => {
   const { user } = useAuth();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [acceptedChallenges, setAcceptedChallenges] = useState<AcceptedChallenge[]>([]);
+  const [completedChallenges, setCompletedChallenges] = useState<CompletedChallenge[]>([]);
   const [insight, setInsight] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingInsight, setIsLoadingInsight] = useState(false);
+  const [activeTab, setActiveTab] = useState<'generated' | 'accepted' | 'completed'>('generated');
+
+  //fetch accepted and completed challenges on component mount and when user changes
+  useEffect(() => {
+    if (user?.uid) {
+      loadAcceptedChallenges();
+      loadCompletedChallenges();
+    }
+  }, [user?.uid]);
+
+  //loading accepted challenges calling the fetchAcceptedChallenges function from services
+  const loadAcceptedChallenges = async () => {
+    if (!user?.uid) return;
+    
+    try {
+      const accepted = await fetchAcceptedChallenges(user.uid);
+      setAcceptedChallenges(accepted);
+    } catch (error) {
+      console.error('Error loading accepted challenges:', error);
+    }
+  };
+
+  //this loads the completed challenges using the fetchCompletedChallenges function
+  const loadCompletedChallenges = async () => {
+    if (!user?.uid) return;
+    
+    try {
+      const completed = await fetchCompletedChallenges(user.uid);
+      setCompletedChallenges(completed);
+    } catch (error) {
+      console.error('Error loading completed challenges:', error);
+    }
+  };
 
   const handleGenerateChallenges = async () => {
     if (!user?.uid) {
@@ -72,15 +116,29 @@ const ChallengeGenerator: React.FC = () => {
         status: 'accepted'
       });
 
+      //remove the accepted challenge from the generated list
+      setChallenges(prevChallenges => 
+        prevChallenges.filter(c => c.id !== challenge.id)
+      );
+
       Alert.alert(
         'Challenge Accepted!',
         `"${challenge.title}" has been added to your goals. Good luck!`,
         [{ text: 'OK' }]
       );
+      
+      // Reload accepted challenges to show the new one
+      loadAcceptedChallenges();
     } catch (error) {
       console.error('Error saving challenge:', error);
       Alert.alert('Error', 'Failed to save challenge. Please try again.');
     }
+  };
+
+  const handleStatusUpdate = () => {
+    //reload accepted and completed challenges when status is updated
+    loadAcceptedChallenges();
+    loadCompletedChallenges();
   };
 
   return (
@@ -129,24 +187,102 @@ const ChallengeGenerator: React.FC = () => {
         </View>
       )}
 
-      {challenges.length === 0 && !isLoading && (
-        <View style={styles.emptyState}>
-
-          <Text style={styles.emptyStateTitle}>Ready to Level Up?</Text>
-          <Text style={styles.emptyStateText}>
-            Tap "Generate Challenges" to get personalized training challenges
-            based on your session history!
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'generated' && styles.activeTab]}
+          onPress={() => setActiveTab('generated')}
+        >
+          <Text style={[styles.tabText, activeTab === 'generated' && styles.activeTabText]}>
+            Generated ({challenges.length})
           </Text>
-        </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'accepted' && styles.activeTab]}
+          onPress={() => setActiveTab('accepted')}
+        >
+          <Text style={[styles.tabText, activeTab === 'accepted' && styles.activeTabText]}>
+            Accepted ({acceptedChallenges.length})
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+          onPress={() => setActiveTab('completed')}
+        >
+          <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>
+            Completed ({completedChallenges.length})
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Generated Challenges Tab */}
+      {activeTab === 'generated' && (
+        <>
+          {challenges.length === 0 && !isLoading && (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateTitle}>Ready to Level Up?</Text>
+              <Text style={styles.emptyStateText}>
+                Tap "Generate Challenges" to get personalized training challenges
+                based on your session history!
+              </Text>
+            </View>
+          )}
+
+          {challenges.map((challenge) => (
+            <ChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              onAccept={handleAcceptChallenge}
+            />
+          ))}
+        </>
       )}
 
-      {challenges.map((challenge) => (
-        <ChallengeCard
-          key={challenge.id}
-          challenge={challenge}
-          onAccept={handleAcceptChallenge}
-        />
-      ))}
+      {/* Accepted Challenges Tab */}
+      {activeTab === 'accepted' && (
+        <>
+          {acceptedChallenges.length === 0 && (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateTitle}>No Accepted Challenges</Text>
+              <Text style={styles.emptyStateText}>
+                Accept some challenges from the Generated tab to see them here!
+              </Text>
+            </View>
+          )}
+
+          {acceptedChallenges.map((challenge) => (
+            <AcceptedChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              userId={user?.uid || ''}
+              onStatusUpdate={handleStatusUpdate}
+            />
+          ))}
+        </>
+      )}
+
+      {/* Completed Challenges Tab */}
+      {activeTab === 'completed' && (
+        <>
+          {completedChallenges.length === 0 && (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateTitle}>No Completed Challenges</Text>
+              <Text style={styles.emptyStateText}>
+                Complete some challenges from the Accepted tab to see them here!
+              </Text>
+            </View>
+          )}
+
+          {completedChallenges.map((challenge) => (
+            <AcceptedChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              userId={user?.uid || ''}
+              onStatusUpdate={handleStatusUpdate}
+            />
+          ))}
+        </>
+      )}
     </ScrollView>
   );
 };

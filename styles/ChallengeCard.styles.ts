@@ -34,6 +34,10 @@ export const challengeStyles = StyleSheet.create({
       fontWeight: '700',
       color: '#1A1A1A',
     },
+    badgeContainer: {
+      flexDirection: 'row',
+      gap: 8,
+    },
     badge: {
       paddingHorizontal: 10,
       paddingVertical: 4,
@@ -44,6 +48,16 @@ export const challengeStyles = StyleSheet.create({
       fontSize: 11,
       fontWeight: '600',
       textTransform: 'capitalize',
+    },
+    statusBadge: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    statusBadgeText: {
+      color: '#FFFFFF',
+      fontSize: 11,
+      fontWeight: '600',
     },
     description: {
       fontSize: 15,
@@ -68,6 +82,33 @@ export const challengeStyles = StyleSheet.create({
       fontSize: 14,
       color: '#333',
       flex: 1,
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    actionButton: {
+      flex: 1,
+      borderRadius: 12,
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      alignItems: 'center',
+    },
+    startButton: {
+      backgroundColor: colors.primary || '#007AFF',
+    },
+    startButtonText: {
+      color: '#FFFFFF',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    completeButton: {
+      backgroundColor: '#10B981',
+    },
+    completeButtonText: {
+      color: '#FFFFFF',
+      fontSize: 16,
+      fontWeight: '600',
     },
     acceptButton: {
       backgroundColor: colors.primary || '#007AFF',

@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getDatabase, ref, set } from 'firebase/database';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     KeyboardAvoidingView,
     Platform,

@@ -1,13 +1,13 @@
 import { VideoPlayerStyles as styles } from '@/styles/VideoPlayer.styles';
 import { Ionicons } from '@expo/vector-icons';
-import { ResizeMode, Video } from 'expo-av';
-import React, { useRef, useState } from 'react';
+import { Audio, InterruptionModeIOS, ResizeMode, Video } from 'expo-av';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Modal,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -32,6 +32,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<Video>(null);
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: false,
+          playsInSilentModeIOS: true,
+          interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+          shouldDuckAndroid: false,
+        });
+      } catch (error) {
+        console.warn('Failed to set audio mode', error);
+      }
+    })();
+  }, []);
 
   const handlePlayPause = async () => {
     if (videoRef.current) {

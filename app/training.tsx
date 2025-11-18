@@ -6,7 +6,7 @@ import { TrainingStyles as styles } from '@/styles/Training.styles';
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { get, getDatabase, ref, set } from 'firebase/database';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -73,6 +73,10 @@ const Training = () => {
     return 0;
   };
 
+  const sortSessionsByDate = (list: any[]) => {
+    return [...list].sort((a, b) => getDateTimestamp(b?.date) - getDateTimestamp(a?.date));
+  };
+
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   };
@@ -98,7 +102,7 @@ const Training = () => {
             ...session
           }));
 
-          setSessions(sessionsArray);
+          setSessions(sortSessionsByDate(sessionsArray));
           
           // Always use the actual count from sessions, not the stored count
           const actualCount = sessionsArray.length;
@@ -200,7 +204,7 @@ const Training = () => {
 
      //set date somewhere else also for firebase retrieval 
      // after adding, recompute most recent date from all sessions (including new)
-     const updatedSessions = [...sessions, { id: sessionId, ...sessionData }];
+     const updatedSessions = sortSessionsByDate([...sessions, { id: sessionId, ...sessionData }]);
      let maxTs = 0;
      let mostRecentDateStr: string | 'NA' = 'NA';
      for (const s of updatedSessions) {
@@ -230,7 +234,7 @@ const Training = () => {
        id: sessionId,
        ...sessionData
      };
-     setSessions(prev => [newSession, ...prev ]);
+     setSessions(updatedSessions);
      const newCount = sessionCount + 1;
      setSessionCount(newCount);
      await updateSessionCountInFirebase(newCount);

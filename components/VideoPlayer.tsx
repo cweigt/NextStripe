@@ -37,10 +37,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     (async () => {
       try {
         await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
+          allowsRecordingIOS: true, //allows screen recording and mic active for app
           staysActiveInBackground: false,
           playsInSilentModeIOS: true,
-          interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+          interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
           shouldDuckAndroid: false,
         });
       } catch (error) {

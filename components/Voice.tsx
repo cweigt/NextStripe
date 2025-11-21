@@ -1,6 +1,6 @@
 import { VoiceStyles as styles } from '@/styles/Voice.styles';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { Audio, InterruptionModeIOS } from 'expo-av';
 import { useRef, useState } from 'react';
 import { Alert, TouchableOpacity } from 'react-native';
 
@@ -65,10 +65,12 @@ const VoiceComponent = ({ onFinal, onBusyChange, apiKey }: Props) => {
         return;
       }
 
-      // Configure audio
+      // Configure audio to allow mixing with screen recording
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
+        interruptionModeIOS: InterruptionModeIOS.MixWithOthers, // Allows screen recording to capture audio
+        staysActiveInBackground: false,
       });
 
       //start recording
@@ -83,6 +85,16 @@ const VoiceComponent = ({ onFinal, onBusyChange, apiKey }: Props) => {
     } catch (error) {
       console.error('Failed to start recording:', error);
       Alert.alert('Error', 'Failed to start recording');
+      // Restore audio mode on error
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: false,
+          interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
+        });
+      } catch (e) {
+        // Ignore errors when restoring audio mode
+      }
       if (onBusyChange) onBusyChange(false);
     }
   };
@@ -98,6 +110,13 @@ const VoiceComponent = ({ onFinal, onBusyChange, apiKey }: Props) => {
       const uri = recordingRef.current.getURI();
       recordingRef.current = null;
       setIsRecording(false);
+
+      // Restore audio mode to allow other audio sources
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: false,
+        interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
+      });
 
       if (!uri) {
         throw new Error('No recording URI');

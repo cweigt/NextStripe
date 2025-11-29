@@ -553,22 +553,7 @@ const Dashboard = () => {
             <Text style={styles.subtitleText}></Text>
           </View>
 
-          {/*Motivational Quote section*/}
-          {quote && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Daily Inspiration</Text>
-              <View style={[styles.analyticsCard, { backgroundColor: '#F8F9FA', borderLeftWidth: 4, borderLeftColor: colors.primary || '#007AFF' }]}>
-                <Text style={[styles.analyticsLabel, { fontStyle: 'italic', textAlign: 'center', fontSize: 15, lineHeight: 22, color: '#374151' }]}>
-                  {quote.includes(' - ') 
-                    ? `"${quote.split(' - ')[0]}" - ${quote.split(' - ')[1]}`
-                    : `"${quote}"`
-                  }
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {/* Quick Actions */}
+          {/*Quick Actions*/}
           <View style={styles.quickActionsSection}>
             <TouchableOpacity 
               style={[styles.quickActionButton, {borderRadius: 12}]}
@@ -583,6 +568,21 @@ const Dashboard = () => {
               <Text style={styles.quickActionText}>View Analytics</Text> 
             </TouchableOpacity>
           </View>
+
+          {/*Motivational Quote section*/}
+          {quote && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Daily Inspiration</Text>
+              <View style={[styles.analyticsCard, { backgroundColor: '#F8F9FA', borderLeftWidth: 4, borderLeftColor: colors.primary || '#007AFF' }]}>
+                <Text style={[styles.analyticsLabel, { fontStyle: 'italic', textAlign: 'center', fontSize: 15, lineHeight: 22, color: '#374151' }]}>
+                  {quote.includes(' - ') 
+                    ? `"${quote.split(' - ')[0]}" - ${quote.split(' - ')[1]}`
+                    : `"${quote}"`
+                  }
+                </Text>
+              </View>
+            </View>
+          )}
 
           {/*Quick stats section */}
           <View style={styles.section}>
